@@ -1,0 +1,6 @@
+{
+  "generator-spring-microservice": {
+    "packageName": "no.nb.microservices.delivery",
+    "packageFolder": "no/nb/microservices/delivery"
+  }
+}
