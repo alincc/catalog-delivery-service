@@ -24,6 +24,7 @@
     <modules>
         <module>catalog-delivery-service-model</module>
         <module>catalog-delivery-service-rest</module>
+        <module>catalog-delivery-service-it</module>
     </modules>
 
     <scm>

@@ -12,8 +12,6 @@ endpoints:
 server:
   port: 0
 
-spring:  
-
 eureka:
   instance:
     preferIpAddress: true

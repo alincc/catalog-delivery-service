@@ -33,28 +33,4 @@ public class HomeController {
     public String home() {
         return "Hello world";
     }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "It looks like we have a internal error in our application. The error have been logged and will be looked at by our development team.")
-    public void defaultHandler(HttpServletRequest req, Exception e) {
-
-        // Build Header string
-        StringBuilder headers = new StringBuilder();
-        for (String headerKey : Collections.list(req.getHeaderNames())) {
-            String headerValue = req.getHeader(headerKey);
-            headers.append(headerKey + ": " + headerValue + ", ");
-        }
-
-        LOG.error("" +
-                "Got an unexcepted exception.\n" +
-                "Context Path: " + req.getContextPath() + "\n" +
-                "Request URI: " + req.getRequestURI() + "\n" +
-                "Query String: " + req.getQueryString() + "\n" +
-                "Method: " + req.getMethod() + "\n" +
-                "Headers: " + headers + "\n" +
-                "Auth Type: " + req.getAuthType() + "\n" +
-                "Remote User: " + req.getRemoteUser() + "\n" +
-                "Username: " + ((req.getUserPrincipal()  != null) ? req.getUserPrincipal().getName() : "Anonymous") + "\n"
-                , e);
-    }
 }
