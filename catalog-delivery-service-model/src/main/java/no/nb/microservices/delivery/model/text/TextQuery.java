@@ -1,14 +1,37 @@
-package no.nb.microservices.delivery.model;
+package no.nb.microservices.delivery.model.text;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by andreasb on 08.07.15.
  */
 public class TextQuery {
+    private String urn;
+    private List<String> urns;
     private String pages;
-    private String format;
+    private TextFormat format;
     private String sendTo;
     private int quality;
     private boolean text;
+
+    public String getUrn() {
+        return urn;
+    }
+
+    public void setUrn(String urn) {
+        this.urn = urn;
+        urns = new ArrayList<>(Arrays.asList(this.urn));
+    }
+
+    public List<String> getUrns() {
+        return urns;
+    }
+
+    public void setUrns(List<String> urns) {
+        this.urns = urns;
+    }
 
     public String getPages() {
         return pages;
@@ -18,11 +41,11 @@ public class TextQuery {
         this.pages = pages;
     }
 
-    public String getFormat() {
+    public TextFormat getFormat() {
         return format;
     }
 
-    public void setFormat(String format) {
+    public void setFormat(TextFormat format) {
         this.format = format;
     }
 
