@@ -1,14 +1,13 @@
 package no.nb.microservices.delivery.service;
 
 import no.nb.microservices.delivery.model.text.TextFormat;
-import no.nb.microservices.delivery.model.text.TextQuery;
+import no.nb.microservices.delivery.model.text.TextRequest;
 import no.nb.microservices.delivery.model.text.TextResource;
 import no.nb.microservices.delivery.repository.PdfGeneratorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -25,12 +24,12 @@ public class TextService implements ITextService {
     }
 
     @Override
-    public TextResource getTextResource(TextQuery textQuery) {
+    public TextResource getTextResource(TextRequest textRequest) {
 
         TextResource textResource;
 
-        if (TextFormat.PDF.equals(textQuery.getFormat())) {
-            textResource = new TextResource(textQuery.getUrn(), textQuery.getFormat(), getTextAsPdf(textQuery));
+        if (TextFormat.PDF.equals(textRequest.getFormat())) {
+            textResource = new TextResource(textRequest.getUrn(), textRequest.getFormat(), getTextAsPdf(textRequest));
         }
         else {
             throw new IllegalArgumentException("Format is invalid in query");
@@ -39,8 +38,8 @@ public class TextService implements ITextService {
         return textResource;
     }
 
-    private ByteArrayResource getTextAsPdf(TextQuery textQuery) {
-        ByteArrayResource response = pdfGeneratorRepository.generate(textQuery.getUrns(), null, "", false, null, "", "");
+    private ByteArrayResource getTextAsPdf(TextRequest textRequest) {
+        ByteArrayResource response = pdfGeneratorRepository.generate(Arrays.asList(textRequest.getUrn()), null, "", false, null, "", "");
         return response;
     }
 }

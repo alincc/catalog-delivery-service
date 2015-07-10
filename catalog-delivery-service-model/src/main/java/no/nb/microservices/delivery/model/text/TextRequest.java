@@ -7,12 +7,10 @@ import java.util.List;
 /**
  * Created by andreasb on 08.07.15.
  */
-public class TextQuery {
+public class TextRequest {
     private String urn;
-    private List<String> urns;
     private String pages;
     private TextFormat format;
-    private String sendTo;
     private int quality;
     private boolean text;
 
@@ -22,15 +20,6 @@ public class TextQuery {
 
     public void setUrn(String urn) {
         this.urn = urn;
-        urns = new ArrayList<>(Arrays.asList(this.urn));
-    }
-
-    public List<String> getUrns() {
-        return urns;
-    }
-
-    public void setUrns(List<String> urns) {
-        this.urns = urns;
     }
 
     public String getPages() {
@@ -47,14 +36,6 @@ public class TextQuery {
 
     public void setFormat(TextFormat format) {
         this.format = format;
-    }
-
-    public String getSendTo() {
-        return sendTo;
-    }
-
-    public void setSendTo(String sendTo) {
-        this.sendTo = sendTo;
     }
 
     public int getQuality() {
