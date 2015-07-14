@@ -1,13 +1,13 @@
-package no.nb.microservices.delivery.model.text;
+package no.nb.microservices.delivery.model.printedMaterial;
 
 import no.nb.microservices.delivery.model.generic.ItemRequest;
 
 /**
  * Created by andreasb on 08.07.15.
  */
-public class TextRequest extends ItemRequest {
+public class PrintedMaterialRequest extends ItemRequest {
     private String pages;
-    private TextFormat format;
+    private PrintedMaterialFormat format;
     private int quality;
     private boolean text;
 
@@ -19,11 +19,11 @@ public class TextRequest extends ItemRequest {
         this.pages = pages;
     }
 
-    public TextFormat getFormat() {
+    public PrintedMaterialFormat getFormat() {
         return format;
     }
 
-    public void setFormat(TextFormat format) {
+    public void setFormat(PrintedMaterialFormat format) {
         this.format = format;
     }
 

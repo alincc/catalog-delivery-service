@@ -3,7 +3,7 @@ package no.nb.microservices.delivery.service;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.model.generic.ItemResource;
 import no.nb.microservices.delivery.model.order.ItemOrder;
-import no.nb.microservices.delivery.model.text.TextResource;
+import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
  */
 public class OrderService implements IOrderService {
 
-    private TextService textService;
+    private PrintedMaterialService printedMaterialService;
     private ZipService zipService;
     private ApplicationSettings applicationSettings;
 
     @Autowired
-    public OrderService(TextService textService, ZipService zipService, ApplicationSettings applicationSettings) {
-        this.textService = textService;
+    public OrderService(PrintedMaterialService printedMaterialService, ZipService zipService, ApplicationSettings applicationSettings) {
+        this.printedMaterialService = printedMaterialService;
         this.zipService = zipService;
         this.applicationSettings = applicationSettings;
     }
@@ -31,14 +31,14 @@ public class OrderService implements IOrderService {
     @Override
     public void placeOrder(ItemOrder itemOrder) throws InterruptedException, ExecutionException {
         // Make async calls to get resources
-        List<Future<TextResource>> textResourceFutures = itemOrder.getTextRequests().stream()
-                        .map(request -> textService.getTextResourceAsync(request))
+        List<Future<PrintedMaterialResource>> printedMaterialResourceFutures = itemOrder.getPrintedMaterialRequests().stream()
+                        .map(request -> printedMaterialService.getTextResourceAsync(request))
                         .collect(Collectors.toList());
 
         // Gather all async calls
         List<ItemResource> itemResources = new ArrayList<>();
-        for (Future<TextResource> textResourceFuture : textResourceFutures) {
-            itemResources.add(textResourceFuture.get());
+        for (Future<PrintedMaterialResource> printedMaterialResourceFuture : printedMaterialResourceFutures) {
+            itemResources.add(printedMaterialResourceFuture.get());
         }
 
         // Zip all files to disk

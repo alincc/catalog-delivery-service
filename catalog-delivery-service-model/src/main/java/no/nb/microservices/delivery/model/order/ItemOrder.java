@@ -1,7 +1,7 @@
 package no.nb.microservices.delivery.model.order;
 
 import no.nb.microservices.delivery.model.audio.AudioRequest;
-import no.nb.microservices.delivery.model.text.TextRequest;
+import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialRequest;
 import no.nb.microservices.delivery.model.video.VideoRequest;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class ItemOrder {
     private String destinationCCEmail;
     private String purpose;
     private CompressionType compressionType;
-    private List<TextRequest> textRequests;
+    private List<PrintedMaterialRequest> printedMaterialRequests;
     private List<AudioRequest> audioRequests;
     private List<VideoRequest> videoRequests;
 
@@ -64,12 +64,12 @@ public class ItemOrder {
         this.compressionType = compressionType;
     }
 
-    public List<TextRequest> getTextRequests() {
-        return textRequests;
+    public List<PrintedMaterialRequest> getPrintedMaterialRequests() {
+        return printedMaterialRequests;
     }
 
-    public void setTextRequests(List<TextRequest> textRequests) {
-        this.textRequests = textRequests;
+    public void setPrintedMaterialRequests(List<PrintedMaterialRequest> printedMaterialRequests) {
+        this.printedMaterialRequests = printedMaterialRequests;
     }
 
     public List<AudioRequest> getAudioRequests() {

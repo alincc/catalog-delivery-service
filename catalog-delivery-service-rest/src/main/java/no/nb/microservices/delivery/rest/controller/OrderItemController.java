@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by andreasb on 07.07.15.
@@ -26,7 +27,7 @@ public class OrderItemController {
     }
 
     @RequestMapping(value = "/order", method = RequestMethod.POST)
-    public ResponseEntity<String> orderItems(@Valid ItemOrder itemOrder) {
+    public ResponseEntity<String> orderItems(@Valid ItemOrder itemOrder) throws ExecutionException, InterruptedException {
         orderService.placeOrder(itemOrder);
         return new ResponseEntity<String>(HttpStatus.OK);
     }

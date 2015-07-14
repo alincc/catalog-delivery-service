@@ -1,9 +1,9 @@
-package no.nb.microservices.delivery.model.text;
+package no.nb.microservices.delivery.model.printedMaterial;
 
 /**
  * Created by andreasb on 09.07.15.
  */
-public enum TextFormat {
+public enum PrintedMaterialFormat {
     PDF,
     EPUB,
     JPEG,
