@@ -88,6 +88,11 @@
             <artifactId>catalog-delivery-service-model</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>no.nb.microservices.catalogitem</groupId>
+            <artifactId>catalog-item-service-model</artifactId>
+            <version>0.0.1-209d47bd63fda11840f22591b7c4b3f059d9caf9-45</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>

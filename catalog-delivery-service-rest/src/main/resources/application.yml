@@ -19,6 +19,9 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 
+delivery:
+  zipFilePath: /tmp/delivery/
+
 ---
 spring:
     profiles: docker

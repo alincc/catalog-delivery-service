@@ -1,18 +1,36 @@
 package no.nb.microservices.delivery.model.order;
 
+import no.nb.microservices.delivery.model.audio.AudioRequest;
 import no.nb.microservices.delivery.model.text.TextRequest;
+import no.nb.microservices.delivery.model.video.VideoRequest;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by andreasb on 10.07.15.
  */
 public class ItemOrder {
+    private String orderId;
     private String destinationEmail;
     private String destinationCCEmail;
     private String purpose;
     private CompressionType compressionType;
-    private List<TextRequest> textRequestList;
+    private List<TextRequest> textRequests;
+    private List<AudioRequest> audioRequests;
+    private List<VideoRequest> videoRequests;
+
+    public ItemOrder() {
+        this.orderId = UUID.randomUUID().toString();
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
 
     public String getDestinationEmail() {
         return destinationEmail;
@@ -46,11 +64,27 @@ public class ItemOrder {
         this.compressionType = compressionType;
     }
 
-    public List<TextRequest> getTextRequestList() {
-        return textRequestList;
+    public List<TextRequest> getTextRequests() {
+        return textRequests;
     }
 
-    public void setTextRequestList(List<TextRequest> textRequestList) {
-        this.textRequestList = textRequestList;
+    public void setTextRequests(List<TextRequest> textRequests) {
+        this.textRequests = textRequests;
+    }
+
+    public List<AudioRequest> getAudioRequests() {
+        return audioRequests;
+    }
+
+    public void setAudioRequests(List<AudioRequest> audioRequests) {
+        this.audioRequests = audioRequests;
+    }
+
+    public List<VideoRequest> getVideoRequests() {
+        return videoRequests;
+    }
+
+    public void setVideoRequests(List<VideoRequest> videoRequests) {
+        this.videoRequests = videoRequests;
     }
 }

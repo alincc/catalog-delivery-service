@@ -1,26 +1,15 @@
 package no.nb.microservices.delivery.model.text;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import no.nb.microservices.delivery.model.generic.ItemRequest;
 
 /**
  * Created by andreasb on 08.07.15.
  */
-public class TextRequest {
-    private String urn;
+public class TextRequest extends ItemRequest {
     private String pages;
     private TextFormat format;
     private int quality;
     private boolean text;
-
-    public String getUrn() {
-        return urn;
-    }
-
-    public void setUrn(String urn) {
-        this.urn = urn;
-    }
 
     public String getPages() {
         return pages;

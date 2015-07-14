@@ -4,7 +4,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "microservice")
+@ConfigurationProperties(prefix = "delivery")
 public class ApplicationSettings {
+    private String zipFilePath;
 
+    public String getZipFilePath() {
+        return zipFilePath;
+    }
+
+    public void setZipFilePath(String zipFilePath) {
+        this.zipFilePath = zipFilePath;
+    }
 }
