@@ -3,7 +3,7 @@ package no.nb.microservices.delivery.service;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.command.AsyncResult;
 import no.nb.microservices.catalogitem.rest.model.ItemResource;
-import no.nb.microservices.delivery.microservice.CatalogItemService;
+import no.nb.microservices.delivery.repository.ItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +19,11 @@ public class ItemService implements IItemService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemService.class);
 
-    private CatalogItemService catalogItemService;
+    private ItemRepository itemRepository;
 
     @Autowired
-    public ItemService(CatalogItemService catalogItemService) {
-        this.catalogItemService = catalogItemService;
+    public ItemService(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ItemService implements IItemService {
         return new AsyncResult<ItemResource>() {
             @Override
             public ItemResource invoke() {
-                return catalogItemService.getById(id);
+                return itemRepository.getById(id);
             }
         };
     }

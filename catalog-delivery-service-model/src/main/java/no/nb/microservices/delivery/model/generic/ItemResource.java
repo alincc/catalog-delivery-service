@@ -1,5 +1,6 @@
 package no.nb.microservices.delivery.model.generic;
 
+import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialResource;
 import org.springframework.core.io.ByteArrayResource;
 
 /**
@@ -46,4 +47,6 @@ public abstract class ItemResource {
     public String getFilename() {
         return this.getTitle() + "." + extension;
     }
+
+
 }

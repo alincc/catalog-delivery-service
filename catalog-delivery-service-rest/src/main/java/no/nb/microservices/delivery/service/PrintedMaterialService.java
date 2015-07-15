@@ -5,12 +5,14 @@ import com.netflix.hystrix.contrib.javanica.command.AsyncResult;
 import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialFormat;
 import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialRequest;
 import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialResource;
-import no.nb.microservices.delivery.microservice.CatalogPdfGeneratorService;
+import no.nb.microservices.delivery.repository.PdfGeneratorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Future;
 
 /**
@@ -19,40 +21,41 @@ import java.util.concurrent.Future;
 @Service
 public class PrintedMaterialService implements IPrintedMaterialService {
 
-    private final CatalogPdfGeneratorService catalogPdfGeneratorService;
+    private final PdfGeneratorRepository pdfGeneratorRepository;
 
     @Autowired
-    public PrintedMaterialService(CatalogPdfGeneratorService catalogPdfGeneratorService) {
-        this.catalogPdfGeneratorService = catalogPdfGeneratorService;
+    public PrintedMaterialService(PdfGeneratorRepository pdfGeneratorRepository) {
+        this.pdfGeneratorRepository = pdfGeneratorRepository;
     }
 
     @Override
-    @HystrixCommand(fallbackMethod = "getDefaultPrintedMaterialResource")
-    public Future<PrintedMaterialResource> getPrintedMaterialResourceAsync(PrintedMaterialRequest printedMaterialRequest) {
-        return new AsyncResult<PrintedMaterialResource>() {
+    @HystrixCommand(fallbackMethod = "getDefaultPrintedMaterialResources")
+    public Future<List<PrintedMaterialResource>> getPrintedMaterialResourcesAsync(PrintedMaterialRequest printedMaterialRequest) {
+        return new AsyncResult<List<PrintedMaterialResource>>() {
             @Override
-            public PrintedMaterialResource invoke() {
+            public List<PrintedMaterialResource> invoke() {
 
-                PrintedMaterialResource printedMaterialResource;
+                List<PrintedMaterialResource> printedMaterialResources = new ArrayList<>();
 
                 if (PrintedMaterialFormat.PDF.equals(printedMaterialRequest.getFormat())) {
-                    printedMaterialResource = new PrintedMaterialResource(printedMaterialRequest.getUrn(), printedMaterialRequest.getFormat(), getPrintedMaterialAsPdf(printedMaterialRequest));
+                    PrintedMaterialResource printedMaterialResource = new PrintedMaterialResource(printedMaterialRequest.getUrn(), printedMaterialRequest.getFormat(), getPrintedMaterialAsPdf(printedMaterialRequest));
+                    printedMaterialResources.add(printedMaterialResource);
                 }
                 else {
                     throw new IllegalArgumentException("Format is invalid in query");
                 }
 
-                return printedMaterialResource;
+                return printedMaterialResources;
             }
         };
     }
 
     private ByteArrayResource getPrintedMaterialAsPdf(PrintedMaterialRequest printedMaterialRequest) {
-        ByteArrayResource response = catalogPdfGeneratorService.generate(Arrays.asList(printedMaterialRequest.getUrn()), null, "", false, null, "", "");
+        ByteArrayResource response = pdfGeneratorRepository.generate(Arrays.asList(printedMaterialRequest.getUrn()), null, "", false, null, "", "");
         return response;
     }
 
-    private PrintedMaterialResource getDefaultPrintedMaterialResource() {
+    private PrintedMaterialResource getDefaultPrintedMaterialResources() {
         PrintedMaterialResource printedMaterialResource = new PrintedMaterialResource("urn", PrintedMaterialFormat.PDF, null);
         return printedMaterialResource;
     }

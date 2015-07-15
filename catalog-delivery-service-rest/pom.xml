@@ -39,6 +39,16 @@
             <version>3.0.12-BUILD-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>no.nb.microservices.delivery.metadata</groupId>
+            <artifactId>catalog-delivery-metadata-service-model</artifactId>
+            <version>0.0.1-7f70a5781f73c6b88f57eadf6210438d69bd30ad-2</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nb.microservices.email</groupId>
+            <artifactId>email-service-model</artifactId>
+            <version>0.0.1-34fa08455f8b0e8e8c28e3d98af5b56b2f7d001f-2</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency> 

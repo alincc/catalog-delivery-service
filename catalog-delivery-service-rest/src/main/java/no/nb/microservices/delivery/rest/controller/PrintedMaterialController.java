@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -46,9 +47,9 @@ public class PrintedMaterialController {
             setText(false);
         }};
 
-        Future<PrintedMaterialResource> printedMaterialResourceFuture = printedMaterialService.getPrintedMaterialResourceAsync(printedMaterialRequest);
+        Future<List<PrintedMaterialResource>> printedMaterialResourceFuture = printedMaterialService.getPrintedMaterialResourcesAsync(printedMaterialRequest);
         Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(printedMaterialRequest.getUrn());
-        PrintedMaterialResource printedMaterialResource = printedMaterialResourceFuture.get();
+        PrintedMaterialResource printedMaterialResource = printedMaterialResourceFuture.get().get(0);
         ItemResource itemResource = itemResourceFuture.get();
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=" + itemResource.getMetadata().getTitleInfo().getTitle() + ".pdf");
