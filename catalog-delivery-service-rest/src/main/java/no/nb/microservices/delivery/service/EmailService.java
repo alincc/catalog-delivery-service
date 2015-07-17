@@ -27,6 +27,6 @@ public class EmailService implements IEmailService {
     }
 
     private void sendDeliveryEmailFallback() {
-
+        // TODO: Send email fallback
     }
 }

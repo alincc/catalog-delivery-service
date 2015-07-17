@@ -5,7 +5,7 @@ import no.nb.microservices.delivery.metadata.model.ItemMetadata;
 import no.nb.microservices.delivery.metadata.model.OrderMetadata;
 import no.nb.microservices.delivery.model.generic.ItemResource;
 import no.nb.microservices.delivery.model.order.ItemOrder;
-import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialResource;
+import no.nb.microservices.delivery.model.textual.TextualResource;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,15 +25,15 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService implements IOrderService {
 
-    private PrintedMaterialService printedMaterialService;
+    private TextualService textualService;
     private ZipService zipService;
     private DeliveryMetadataService deliveryMetadataService;
     private EmailService emailService;
     private ApplicationSettings applicationSettings;
 
     @Autowired
-    public OrderService(PrintedMaterialService printedMaterialService, ZipService zipService, DeliveryMetadataService deliveryMetadataService, EmailService emailService, ApplicationSettings applicationSettings) {
-        this.printedMaterialService = printedMaterialService;
+    public OrderService(TextualService textualService, ZipService zipService, DeliveryMetadataService deliveryMetadataService, EmailService emailService, ApplicationSettings applicationSettings) {
+        this.textualService = textualService;
         this.zipService = zipService;
         this.deliveryMetadataService = deliveryMetadataService;
         this.emailService = emailService;
@@ -43,8 +43,8 @@ public class OrderService implements IOrderService {
     @Override
     public void placeOrder(ItemOrder itemOrder) throws InterruptedException, ExecutionException {
         // Make async calls to get printed resources
-        List<Future<List<PrintedMaterialResource>>> printedMaterialResourceFutures = itemOrder.getPrintedMaterialRequests().stream()
-                        .map(request -> printedMaterialService.getPrintedMaterialResourcesAsync(request))
+        List<Future<List<TextualResource>>> textualResourcesFutureList = itemOrder.getTextualRequests().stream()
+                        .map(request -> textualService.getResourcesAsync(request))
                         .collect(Collectors.toList());
 
         // Make async calls to get video resources
@@ -53,8 +53,8 @@ public class OrderService implements IOrderService {
 
         // Gather all async calls
         List<ItemResource> itemResources = new ArrayList<>();
-        for (Future<List<PrintedMaterialResource>> printedMaterialResourceFuture : printedMaterialResourceFutures) {
-            itemResources.addAll(printedMaterialResourceFuture.get());
+        for (Future<List<TextualResource>> textualResourceFuture : textualResourcesFutureList) {
+            itemResources.addAll(textualResourceFuture.get());
         }
 
         // Zip all files to disk
@@ -72,7 +72,7 @@ public class OrderService implements IOrderService {
             setFileSizeInBytes(zippedFile.length());
             setPurpose(itemOrder.getPurpose());
             setOrderDate(Date.from(Instant.now()));
-            setKey(RandomStringUtils.random(16));
+            setKey(RandomStringUtils.randomAlphanumeric(16));
             setItemMetadatas(itemResources.stream().map(resource -> mapItem(resource)).collect(Collectors.toList()));
         }};
 

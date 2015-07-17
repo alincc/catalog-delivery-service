@@ -1,8 +1,10 @@
 package no.nb.microservices.delivery.model.order;
 
 import no.nb.microservices.delivery.model.audio.AudioRequest;
-import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialRequest;
+import no.nb.microservices.delivery.model.photo.PhotoRequest;
+import no.nb.microservices.delivery.model.textual.TextualRequest;
 import no.nb.microservices.delivery.model.video.VideoRequest;
+import org.hibernate.validator.constraints.Email;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,13 +14,18 @@ import java.util.UUID;
  */
 public class ItemOrder {
     private String orderId;
+
+    @Email
     private String destinationEmail;
+
+    @Email
     private String destinationCCEmail;
     private String purpose;
     private CompressionType compressionType;
-    private List<PrintedMaterialRequest> printedMaterialRequests;
+    private List<TextualRequest> textualRequests;
     private List<AudioRequest> audioRequests;
     private List<VideoRequest> videoRequests;
+    private List<PhotoRequest> photoRequests;
 
     public ItemOrder() {
         this.orderId = UUID.randomUUID().toString();
@@ -64,12 +71,12 @@ public class ItemOrder {
         this.compressionType = compressionType;
     }
 
-    public List<PrintedMaterialRequest> getPrintedMaterialRequests() {
-        return printedMaterialRequests;
+    public List<TextualRequest> getTextualRequests() {
+        return textualRequests;
     }
 
-    public void setPrintedMaterialRequests(List<PrintedMaterialRequest> printedMaterialRequests) {
-        this.printedMaterialRequests = printedMaterialRequests;
+    public void setTextualRequests(List<TextualRequest> textualRequests) {
+        this.textualRequests = textualRequests;
     }
 
     public List<AudioRequest> getAudioRequests() {
@@ -86,5 +93,13 @@ public class ItemOrder {
 
     public void setVideoRequests(List<VideoRequest> videoRequests) {
         this.videoRequests = videoRequests;
+    }
+
+    public List<PhotoRequest> getPhotoRequests() {
+        return photoRequests;
+    }
+
+    public void setPhotoRequests(List<PhotoRequest> photoRequests) {
+        this.photoRequests = photoRequests;
     }
 }

@@ -25,5 +25,4 @@ public interface DeliveryMetadataRepository {
 
     @RequestMapping(value = "/orders", method = RequestMethod.GET)
     List<OrderMetadata> getOrders();
-
 }

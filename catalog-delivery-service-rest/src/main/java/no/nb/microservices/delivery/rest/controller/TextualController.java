@@ -1,11 +1,11 @@
 package no.nb.microservices.delivery.rest.controller;
 
 import no.nb.microservices.catalogitem.rest.model.ItemResource;
-import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialFormat;
-import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialRequest;
-import no.nb.microservices.delivery.model.printedMaterial.PrintedMaterialResource;
+import no.nb.microservices.delivery.model.textual.TextualFormat;
+import no.nb.microservices.delivery.model.textual.TextualRequest;
+import no.nb.microservices.delivery.model.textual.TextualResource;
 import no.nb.microservices.delivery.service.ItemService;
-import no.nb.microservices.delivery.service.PrintedMaterialService;
+import no.nb.microservices.delivery.service.TextualService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,39 +21,39 @@ import java.util.concurrent.Future;
  * Created by andreasb on 07.07.15.
  */
 @RestController
-public class PrintedMaterialController {
+public class TextualController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PrintedMaterialController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TextualController.class);
 
-    private PrintedMaterialService printedMaterialService;
+    private TextualService textualService;
     private ItemService itemService;
 
     @Autowired
-    public PrintedMaterialController(PrintedMaterialService printedMaterialService, ItemService itemService) {
-        this.printedMaterialService = printedMaterialService;
+    public TextualController(TextualService textualService, ItemService itemService) {
+        this.textualService = textualService;
         this.itemService = itemService;
     }
 
-    @RequestMapping(value = "/download/printedMaterial/{urn}", method = RequestMethod.GET)
-    public void downloadPrintedMaterialResource(@PathVariable String urn,
+    @RequestMapping(value = "/download/textual/{urn}", method = RequestMethod.GET)
+    public void downloadTextualResource(@PathVariable String urn,
                                      @RequestParam(value = "pages", defaultValue = "all") String pages,
                                      @RequestParam(value = "highQuality", defaultValue = "false") boolean highQuality,
                                      HttpServletResponse response) throws IOException, InterruptedException, ExecutionException {
-        PrintedMaterialRequest printedMaterialRequest = new PrintedMaterialRequest() {{
+        TextualRequest textualRequest = new TextualRequest() {{
             setUrn(urn);
-            setFormat(PrintedMaterialFormat.PDF);
+            setFormat(TextualFormat.PDF);
             setPages(pages);
             setQuality((highQuality) ? 8 : 4);
             setText(false);
         }};
 
-        Future<List<PrintedMaterialResource>> printedMaterialResourceFuture = printedMaterialService.getPrintedMaterialResourcesAsync(printedMaterialRequest);
-        Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(printedMaterialRequest.getUrn());
-        PrintedMaterialResource printedMaterialResource = printedMaterialResourceFuture.get().get(0);
+        Future<List<TextualResource>> textualResourceFuture = textualService.getResourcesAsync(textualRequest);
+        Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(textualRequest.getUrn());
+        TextualResource textualResource = textualResourceFuture.get().get(0);
         ItemResource itemResource = itemResourceFuture.get();
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=" + itemResource.getMetadata().getTitleInfo().getTitle() + ".pdf");
-        response.getOutputStream().write(printedMaterialResource.getContent().getByteArray());
+        response.getOutputStream().write(textualResource.getContent().getByteArray());
 
         LOG.info("Printed material successfully downloaded: " + urn);
     }

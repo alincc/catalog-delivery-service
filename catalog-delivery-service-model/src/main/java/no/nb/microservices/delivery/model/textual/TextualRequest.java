@@ -1,13 +1,13 @@
-package no.nb.microservices.delivery.model.printedMaterial;
+package no.nb.microservices.delivery.model.textual;
 
 import no.nb.microservices.delivery.model.generic.ItemRequest;
 
 /**
  * Created by andreasb on 08.07.15.
  */
-public class PrintedMaterialRequest extends ItemRequest {
+public class TextualRequest extends ItemRequest {
     private String pages;
-    private PrintedMaterialFormat format;
+    private TextualFormat format;
     private int quality;
     private boolean text;
 
@@ -19,11 +19,11 @@ public class PrintedMaterialRequest extends ItemRequest {
         this.pages = pages;
     }
 
-    public PrintedMaterialFormat getFormat() {
+    public TextualFormat getFormat() {
         return format;
     }
 
-    public void setFormat(PrintedMaterialFormat format) {
+    public void setFormat(TextualFormat format) {
         this.format = format;
     }
 
@@ -41,5 +41,16 @@ public class PrintedMaterialRequest extends ItemRequest {
 
     public void setText(boolean text) {
         this.text = text;
+    }
+
+    public boolean isImages() {
+        if (TextualFormat.BMP.equals(this.format) ||
+                TextualFormat.JP2.equals(this.format) ||
+                TextualFormat.JPEG.equals(this.format) ||
+                TextualFormat.PNG.equals(this.format) ||
+                TextualFormat.TIFF.equals(this.format)) {
+           return true;
+        }
+        return false;
     }
 }
