@@ -103,6 +103,11 @@
             <artifactId>catalog-item-service-model</artifactId>
             <version>0.0.1-209d47bd63fda11840f22591b7c4b3f059d9caf9-45</version>
         </dependency>
+        <dependency>
+            <groupId>no.nb.microservices.email</groupId>
+            <artifactId>email-service-model</artifactId>
+            <version>0.0.1-10d9917f08283e5fb879d940b1a5149f6209b9b9-3</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>

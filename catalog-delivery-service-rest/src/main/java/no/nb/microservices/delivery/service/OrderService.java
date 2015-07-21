@@ -6,6 +6,7 @@ import no.nb.microservices.delivery.metadata.model.OrderMetadata;
 import no.nb.microservices.delivery.model.generic.ItemResource;
 import no.nb.microservices.delivery.model.order.ItemOrder;
 import no.nb.microservices.delivery.model.textual.TextualResource;
+import no.nb.microservices.email.model.Email;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,16 @@ public class OrderService implements IOrderService {
         OrderMetadata orderMetadataResponseEntity = deliveryMetadataService.saveOrder(orderMetadata);
 
         // Send email to user with download details
-        emailService.sendDeliveryEmail(orderMetadataResponseEntity);
+        Email email = new Email() {{
+            setTo(orderMetadataResponseEntity.getDestinationEmail());
+            setCc(orderMetadataResponseEntity.getDestinationCCEmail());
+            setSubject("Din bestilling");
+            setFrom("bestilling@nb.no");
+            setTemplate("delivery.vm");
+            setContent(orderMetadataResponseEntity);
+
+        }};
+        emailService.sendEmail(email);
     }
 
     private ItemMetadata mapItem(ItemResource itemResource) {

@@ -7,6 +7,7 @@ import no.nb.microservices.delivery.model.order.ItemOrder;
 import no.nb.microservices.delivery.model.textual.TextualFormat;
 import no.nb.microservices.delivery.model.textual.TextualRequest;
 import no.nb.microservices.delivery.model.textual.TextualResource;
+import no.nb.microservices.email.model.Email;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,11 +89,12 @@ public class OrderServiceTest {
 
         orderService.placeOrder(itemOrder);
 
-        ArgumentCaptor<OrderMetadata> argumentCaptor = ArgumentCaptor.forClass(OrderMetadata.class);
-        verify(emailService, times(1)).sendDeliveryEmail(argumentCaptor.capture());
-        assertEquals(itemOrder.getDestinationEmail(), argumentCaptor.getValue().getDestinationEmail());
-        assertTrue(argumentCaptor.getValue().getExpireDate().after(Date.from(Instant.now())));
-        assertTrue(argumentCaptor.getValue().getKey().matches("^\\w{16}$"));
+        ArgumentCaptor<Email> argumentCaptor = ArgumentCaptor.forClass(Email.class);
+        verify(emailService, times(1)).sendEmail(argumentCaptor.capture());
+        OrderMetadata itemOrderCaptor = (OrderMetadata)argumentCaptor.getValue().getContent();
+        assertEquals(itemOrder.getDestinationEmail(), argumentCaptor.getValue().getTo());
+        assertTrue(itemOrderCaptor.getExpireDate().after(Date.from(Instant.now())));
+        assertTrue(itemOrderCaptor.getKey().matches("^\\w{16}$"));
     }
 
     private ItemOrder getItemOrderOne() {
