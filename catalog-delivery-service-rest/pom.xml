@@ -42,7 +42,7 @@
         <dependency>
             <groupId>no.nb.microservices.pdfgenerator</groupId>
             <artifactId>catalog-pdf-generator-service-model</artifactId>
-            <version>3.0.12-BUILD-SNAPSHOT</version>
+            <version>3.0.12-cd195a76f22ea57803c0122f59e1d41360154049-2</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.delivery.metadata</groupId>
