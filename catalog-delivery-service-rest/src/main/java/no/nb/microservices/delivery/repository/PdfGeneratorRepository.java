@@ -16,7 +16,7 @@ public interface PdfGeneratorRepository {
 
     @RequestMapping(method = RequestMethod.GET, value = "/pdf/generate")
     ByteArrayResource generate(@RequestParam("urn") List<String> urns,
-                          @RequestParam("pages") String[] pages,
+                          @RequestParam("pages") List<String> pages,
                           @RequestParam("type") String type,
                           @RequestParam("text") boolean text,
                           @RequestParam("resolutionlevel") List<String> resolutionlevel,

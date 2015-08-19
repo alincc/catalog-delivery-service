@@ -1,6 +1,6 @@
-package no.nb.microservices.delivery.service;
+package no.nb.microservices.delivery.service.order;
 
-import no.nb.microservices.delivery.model.generic.ItemResource;
+import no.nb.microservices.delivery.model.generic.DeliveryResource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -15,12 +15,12 @@ import java.util.zip.ZipOutputStream;
 public class ZipService implements IZipService {
 
     @Override
-    public File zipIt(String outputZipPath, List<ItemResource> itemResources) {
+    public File zipIt(String outputZipPath, List<DeliveryResource> deliveryResources) {
         try {
             FileOutputStream fos = new FileOutputStream(outputZipPath);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             ZipOutputStream zos = new ZipOutputStream(bos);
-            for(ItemResource resource : itemResources) {
+            for(DeliveryResource resource : deliveryResources) {
                 ZipEntry ze = new ZipEntry(resource.getFilename());
                 zos.putNextEntry(ze);
                 zos.write(resource.getContent().getByteArray());

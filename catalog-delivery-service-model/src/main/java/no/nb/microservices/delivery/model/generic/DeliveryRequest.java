@@ -3,7 +3,7 @@ package no.nb.microservices.delivery.model.generic;
 /**
  * Created by andreasb on 13.07.15.
  */
-public abstract class ItemRequest {
+public abstract class DeliveryRequest {
     private String urn;
 
     public String getUrn() {

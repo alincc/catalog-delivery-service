@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.service;
+package no.nb.microservices.delivery.service.order;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import no.nb.microservices.delivery.metadata.model.OrderMetadata;
@@ -24,11 +24,10 @@ public class EmailService implements IEmailService {
     @Override
     @HystrixCommand(fallbackMethod = "sendEmailFallback")
     public void sendEmail(Email email) {
-
-        ResponseEntity responseEntity = emailRepository.sendEmail(email);
+        emailRepository.sendEmail(email);
     }
 
-    private void sendEmailFallback() {
+    private void sendEmailFallback(Email email) {
         // TODO: Send email fallback
     }
 }

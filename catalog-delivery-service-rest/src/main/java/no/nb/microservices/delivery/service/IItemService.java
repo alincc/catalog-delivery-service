@@ -6,5 +6,5 @@ import java.util.concurrent.Future;
 
 public interface IItemService {
 
-    Future<ItemResource> getItemByIdAsync(String id) throws InterruptedException;
+    Future<ItemResource> getItemByIdAsync(String id);
 }

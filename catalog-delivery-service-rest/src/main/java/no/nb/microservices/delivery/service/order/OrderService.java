@@ -1,11 +1,12 @@
-package no.nb.microservices.delivery.service;
+package no.nb.microservices.delivery.service.order;
 
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.metadata.model.ItemMetadata;
 import no.nb.microservices.delivery.metadata.model.OrderMetadata;
-import no.nb.microservices.delivery.model.generic.ItemResource;
+import no.nb.microservices.delivery.model.generic.DeliveryResource;
 import no.nb.microservices.delivery.model.order.ItemOrder;
-import no.nb.microservices.delivery.model.textual.TextualResource;
+import no.nb.microservices.delivery.service.IItemService;
+import no.nb.microservices.delivery.service.ITextualService;
 import no.nb.microservices.email.model.Email;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,25 +27,27 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService implements IOrderService {
 
-    private TextualService textualService;
-    private ZipService zipService;
-    private DeliveryMetadataService deliveryMetadataService;
-    private EmailService emailService;
-    private ApplicationSettings applicationSettings;
+    private final ITextualService textualService;
+    private final IZipService zipService;
+    private final IDeliveryMetadataService deliveryMetadataService;
+    private final IItemService itemService;
+    private final IEmailService emailService;
+    private final ApplicationSettings applicationSettings;
 
     @Autowired
-    public OrderService(TextualService textualService, ZipService zipService, DeliveryMetadataService deliveryMetadataService, EmailService emailService, ApplicationSettings applicationSettings) {
+    public OrderService(ITextualService textualService, IZipService zipService, IDeliveryMetadataService deliveryMetadataService, IItemService itemService, IEmailService emailService, ApplicationSettings applicationSettings) {
         this.textualService = textualService;
         this.zipService = zipService;
         this.deliveryMetadataService = deliveryMetadataService;
+        this.itemService = itemService;
         this.emailService = emailService;
         this.applicationSettings = applicationSettings;
     }
 
     @Override
     public void placeOrder(ItemOrder itemOrder) throws InterruptedException, ExecutionException {
-        // Make async calls to get printed resources
-        List<Future<List<TextualResource>>> textualResourcesFutureList = itemOrder.getTextualRequests().stream()
+        // Make async calls to get textual resources
+        List<Future<DeliveryResource>> textualResourcesFutureList = itemOrder.getFileRequests().stream()
                         .map(request -> textualService.getResourcesAsync(request))
                         .collect(Collectors.toList());
 
@@ -53,28 +56,28 @@ public class OrderService implements IOrderService {
         // Make async calls to get photo resources
 
         // Gather all async calls
-        List<ItemResource> itemResources = new ArrayList<>();
-        for (Future<List<TextualResource>> textualResourceFuture : textualResourcesFutureList) {
-            itemResources.addAll(textualResourceFuture.get());
+        List<DeliveryResource> deliveryResources = new ArrayList<>();
+        for (Future<DeliveryResource> textualResourceFuture : textualResourcesFutureList) {
+            deliveryResources.add(textualResourceFuture.get());
         }
 
         // Zip all files to disk
         String zipFilename = itemOrder.getOrderId() + ".zip";
         String zipOutputPath = applicationSettings.getZipFilePath() + zipFilename;
-        File zippedFile = zipService.zipIt(zipOutputPath, itemResources);
+        File zippedFile = zipService.zipIt(zipOutputPath, deliveryResources);
 
         // Store information about the order
         OrderMetadata orderMetadata = new OrderMetadata() {{
             setOrderId(itemOrder.getOrderId());
-            setDestinationEmail(itemOrder.getDestinationEmail());
-            setDestinationCCEmail(itemOrder.getDestinationCCEmail());
+            setEmailTo(itemOrder.getEmailTo());
+            setEmailCc(itemOrder.getEmailCc());
             setExpireDate(Date.from(Instant.now().plusSeconds(604800))); // 1 week
             setFilename(zipFilename);
             setFileSizeInBytes(zippedFile.length());
             setPurpose(itemOrder.getPurpose());
             setOrderDate(Date.from(Instant.now()));
             setKey(RandomStringUtils.randomAlphanumeric(16));
-            setItemMetadatas(itemResources.stream().map(resource -> mapItem(resource)).collect(Collectors.toList()));
+            setItems(deliveryResources.stream().map(resource -> mapItem(resource)).collect(Collectors.toList()));
         }};
 
         // Save order to database
@@ -82,8 +85,8 @@ public class OrderService implements IOrderService {
 
         // Send email to user with download details
         Email email = new Email() {{
-            setTo(orderMetadataResponseEntity.getDestinationEmail());
-            setCc(orderMetadataResponseEntity.getDestinationCCEmail());
+            setTo(orderMetadataResponseEntity.getEmailTo());
+            setCc(orderMetadataResponseEntity.getEmailCc());
             setSubject("Din bestilling");
             setFrom("bestilling@nb.no");
             setTemplate("delivery.vm");
@@ -93,9 +96,9 @@ public class OrderService implements IOrderService {
         emailService.sendEmail(email);
     }
 
-    private ItemMetadata mapItem(ItemResource itemResource) {
+    private ItemMetadata mapItem(DeliveryResource deliveryResource) {
         ItemMetadata itemMetadata = new ItemMetadata() {{
-            setUrn(itemResource.getUrn());
+            //setUrn(deliveryResource.getUrn());
         }};
 
         return itemMetadata;

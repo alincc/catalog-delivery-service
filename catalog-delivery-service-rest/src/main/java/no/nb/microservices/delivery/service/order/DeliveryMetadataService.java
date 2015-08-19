@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.service;
+package no.nb.microservices.delivery.service.order;
 
 import no.nb.microservices.delivery.metadata.model.OrderMetadata;
 import no.nb.microservices.delivery.repository.DeliveryMetadataRepository;
@@ -24,8 +24,7 @@ public class DeliveryMetadataService implements IDeliveryMetadataService {
 
     @Override
     public OrderMetadata saveOrder(OrderMetadata orderMetadata) {
-        ResponseEntity<OrderMetadata> responseEntity = deliveryMetadataRepository.saveOrder(orderMetadata);
-        return responseEntity.getBody();
+        return deliveryMetadataRepository.saveOrder(orderMetadata);
     }
 
     @Override

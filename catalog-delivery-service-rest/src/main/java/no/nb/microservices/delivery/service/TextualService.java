@@ -1,20 +1,25 @@
 package no.nb.microservices.delivery.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.netflix.hystrix.contrib.javanica.command.AsyncResult;
+import no.nb.microservices.delivery.model.generic.DeliveryResource;
+import no.nb.microservices.delivery.model.generic.FileRequest;
 import no.nb.microservices.delivery.model.textual.TextualFormat;
 import no.nb.microservices.delivery.model.textual.TextualRequest;
-import no.nb.microservices.delivery.model.textual.TextualResource;
 import no.nb.microservices.delivery.repository.PdfGeneratorRepository;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Created by andreasb on 09.07.15.
@@ -30,22 +35,33 @@ public class TextualService implements ITextualService {
     }
 
     @Override
-    @HystrixCommand(fallbackMethod = "getDefaultResources")
-    public Future<List<TextualResource>> getResourcesAsync(TextualRequest textualRequest) {
-        return new AsyncResult<List<TextualResource>>() {
+    @HystrixCommand(fallbackMethod = "getDefaultResources",
+        commandProperties = {
+                @HystrixProperty(name="execution.timeout.enabled", value="600000")
+        })
+    public Future<DeliveryResource> getResourcesAsync(FileRequest fileRequest) {
+        return new AsyncResult<DeliveryResource>() {
             @Override
-            public List<TextualResource> invoke() {
+            public DeliveryResource invoke() {
 
-                List<TextualResource> textualResources = new ArrayList<>();
+                DeliveryResource textualResources;
+                List<TextualRequest> requests = fileRequest.getTextualRequests();
+                List<String> urns = requests.stream().map(q -> q.getUrn()).collect(Collectors.toList());
+                List<String> pages = requests.stream().map(q -> q.getPages()).collect(Collectors.toList());
+                List<String> quality = requests.stream().map(q -> q.getQuality() + "").collect(Collectors.toList());
 
-                if (TextualFormat.PDF.equals(textualRequest.getFormat())) {
-                    TextualResource textualResource = new TextualResource(textualRequest.getUrn(), textualRequest.getFormat(), getTextualAsPdf(textualRequest));
-                    textualResources.add(textualResource);
+                if (fileRequest.getFormat().equalsIgnoreCase("pdf")) {
+                    ByteArrayResource response = pdfGeneratorRepository.generate(urns, pages, "book", fileRequest.isText(), quality, "", "");
+                    textualResources = new DeliveryResource(
+                            urns,
+                            (fileRequest.getFilename() != null) ? fileRequest.getFilename() : "Collection",
+                            "pdf",
+                            response);
                 }
-                else if (TextualFormat.EPUB.equals(textualRequest.getFormat())) {
+                else if (TextualFormat.EPUB.equals(fileRequest.getFormat())) {
                     throw new NotImplementedException("Format not implemented");
                 }
-                else if (textualRequest.isImages()) {
+                else if (fileRequest.isImages()) {
                     throw new NotImplementedException("Format not implemented");
                 }
                 else {
@@ -57,13 +73,8 @@ public class TextualService implements ITextualService {
         };
     }
 
-    private ByteArrayResource getTextualAsPdf(TextualRequest textualRequest) {
-        ByteArrayResource response = pdfGeneratorRepository.generate(Arrays.asList(textualRequest.getUrn()), null, "", false, null, "", "");
-        return response;
-    }
-
-    private TextualResource getDefaultResources() {
-        TextualResource textualResource = new TextualResource("urn", TextualFormat.PDF, null);
-        return textualResource;
+    private DeliveryResource getDefaultResources(FileRequest fileRequest) {
+        DeliveryResource deliveryResource = new DeliveryResource(Arrays.asList("URN:NBN:no-nb_digibok_2010082422018"), "default", "pdf", null);
+        return deliveryResource;
     }
 }

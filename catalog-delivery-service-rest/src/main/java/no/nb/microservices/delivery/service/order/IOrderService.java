@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.service;
+package no.nb.microservices.delivery.service.order;
 
 import no.nb.microservices.delivery.model.order.ItemOrder;
 

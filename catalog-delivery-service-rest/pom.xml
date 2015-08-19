@@ -33,6 +33,12 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Microservices -->
+        <dependency>
+            <groupId>no.nb.microservices.delivery</groupId>
+            <artifactId>catalog-delivery-service-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>no.nb.microservices.pdfgenerator</groupId>
             <artifactId>catalog-pdf-generator-service-model</artifactId>
@@ -41,13 +47,20 @@
         <dependency>
             <groupId>no.nb.microservices.delivery.metadata</groupId>
             <artifactId>catalog-delivery-metadata-service-model</artifactId>
-            <version>0.0.1-7f70a5781f73c6b88f57eadf6210438d69bd30ad-2</version>
+            <version>0.0.1-7</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.email</groupId>
             <artifactId>email-service-model</artifactId>
-            <version>0.0.1-34fa08455f8b0e8e8c28e3d98af5b56b2f7d001f-2</version>
+            <version>0.0.1-5</version>
         </dependency>
+        <dependency>
+            <groupId>no.nb.microservices.catalogitem</groupId>
+            <artifactId>catalog-item-service-model</artifactId>
+            <version>0.0.1-209d47bd63fda11840f22591b7c4b3f059d9caf9-45</version>
+        </dependency>
+
+        <!-- Third party -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
@@ -56,10 +69,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-security</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-oauth2</artifactId>
@@ -92,21 +105,6 @@
             <groupId>com.wordnik</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>1.5.3-M1</version>
-        </dependency>  
-        <dependency>
-            <groupId>no.nb.microservices.delivery</groupId>
-            <artifactId>catalog-delivery-service-model</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>no.nb.microservices.catalogitem</groupId>
-            <artifactId>catalog-item-service-model</artifactId>
-            <version>0.0.1-209d47bd63fda11840f22591b7c4b3f059d9caf9-45</version>
-        </dependency>
-        <dependency>
-            <groupId>no.nb.microservices.email</groupId>
-            <artifactId>email-service-model</artifactId>
-            <version>0.0.1-10d9917f08283e5fb879d940b1a5149f6209b9b9-3</version>
         </dependency>
 
         <!-- Testing -->

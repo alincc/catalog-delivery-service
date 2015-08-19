@@ -1,6 +1,7 @@
 package no.nb.microservices.delivery.model.order;
 
 import no.nb.microservices.delivery.model.audio.AudioRequest;
+import no.nb.microservices.delivery.model.generic.FileRequest;
 import no.nb.microservices.delivery.model.photo.PhotoRequest;
 import no.nb.microservices.delivery.model.textual.TextualRequest;
 import no.nb.microservices.delivery.model.video.VideoRequest;
@@ -16,16 +17,14 @@ public class ItemOrder {
     private String orderId;
 
     @Email
-    private String destinationEmail;
+    private String emailTo;
 
     @Email
-    private String destinationCCEmail;
+    private String emailCc;
+
     private String purpose;
     private CompressionType compressionType;
-    private List<TextualRequest> textualRequests;
-    private List<AudioRequest> audioRequests;
-    private List<VideoRequest> videoRequests;
-    private List<PhotoRequest> photoRequests;
+    private List<FileRequest> fileRequests;
 
     public ItemOrder() {
         this.orderId = UUID.randomUUID().toString();
@@ -39,20 +38,20 @@ public class ItemOrder {
         this.orderId = orderId;
     }
 
-    public String getDestinationEmail() {
-        return destinationEmail;
+    public String getEmailTo() {
+        return emailTo;
     }
 
-    public void setDestinationEmail(String destinationEmail) {
-        this.destinationEmail = destinationEmail;
+    public void setEmailTo(String emailTo) {
+        this.emailTo = emailTo;
     }
 
-    public String getDestinationCCEmail() {
-        return destinationCCEmail;
+    public String getEmailCc() {
+        return emailCc;
     }
 
-    public void setDestinationCCEmail(String destinationCCEmail) {
-        this.destinationCCEmail = destinationCCEmail;
+    public void setEmailCc(String emailCc) {
+        this.emailCc = emailCc;
     }
 
     public String getPurpose() {
@@ -71,35 +70,11 @@ public class ItemOrder {
         this.compressionType = compressionType;
     }
 
-    public List<TextualRequest> getTextualRequests() {
-        return textualRequests;
+    public List<FileRequest> getFileRequests() {
+        return fileRequests;
     }
 
-    public void setTextualRequests(List<TextualRequest> textualRequests) {
-        this.textualRequests = textualRequests;
-    }
-
-    public List<AudioRequest> getAudioRequests() {
-        return audioRequests;
-    }
-
-    public void setAudioRequests(List<AudioRequest> audioRequests) {
-        this.audioRequests = audioRequests;
-    }
-
-    public List<VideoRequest> getVideoRequests() {
-        return videoRequests;
-    }
-
-    public void setVideoRequests(List<VideoRequest> videoRequests) {
-        this.videoRequests = videoRequests;
-    }
-
-    public List<PhotoRequest> getPhotoRequests() {
-        return photoRequests;
-    }
-
-    public void setPhotoRequests(List<PhotoRequest> photoRequests) {
-        this.photoRequests = photoRequests;
+    public void setFileRequests(List<FileRequest> fileRequests) {
+        this.fileRequests = fileRequests;
     }
 }

@@ -3,7 +3,10 @@ package no.nb.microservices.delivery.service;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.command.AsyncResult;
 import no.nb.microservices.catalogitem.rest.model.ItemResource;
+import no.nb.microservices.catalogitem.rest.model.Metadata;
+import no.nb.microservices.catalogitem.rest.model.TitleInfo;
 import no.nb.microservices.delivery.repository.ItemRepository;
+import org.bouncycastle.asn1.cms.MetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,7 @@ public class ItemService implements IItemService {
 
     @Override
     @HystrixCommand(fallbackMethod = "getDefaultItem")
-    public Future<ItemResource> getItemByIdAsync(String id) throws InterruptedException {
+    public Future<ItemResource> getItemByIdAsync(String id) {
         LOGGER.info("Fetching item from catalog-item-service by id " + id);
         return new AsyncResult<ItemResource>() {
             @Override
@@ -40,7 +43,12 @@ public class ItemService implements IItemService {
     
     private ItemResource getDefaultItem(String id) {
         LOGGER.warn("Failed to get item from catalog-item-service. Returning default item with id " + id);
+        TitleInfo titleInfo = new TitleInfo();
+        titleInfo.setTitle("No title");
+        Metadata metadata = new Metadata();
+        metadata.setTitleInfo(titleInfo);
         ItemResource item = new ItemResource();
+        item.setMetadata(metadata);
         return item;
     }
 }
