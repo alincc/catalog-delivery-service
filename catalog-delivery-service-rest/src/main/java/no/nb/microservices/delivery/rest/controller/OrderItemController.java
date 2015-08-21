@@ -1,15 +1,17 @@
 package no.nb.microservices.delivery.rest.controller;
 
-import no.nb.microservices.delivery.model.order.ItemOrder;
-import no.nb.microservices.delivery.service.order.IOrderService;
+import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
 import no.nb.microservices.delivery.service.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -26,8 +28,18 @@ public class OrderItemController {
     }
 
     @RequestMapping(value = "/order", method = RequestMethod.POST)
-    public ResponseEntity<String> orderItems(@RequestBody @Valid ItemOrder itemOrder) throws ExecutionException, InterruptedException {
-        orderService.placeOrder(itemOrder);
+    public ResponseEntity<String> orderItems(@RequestBody @Valid DeliveryOrderRequest deliveryOrderRequest) throws ExecutionException, InterruptedException {
+        orderService.placeOrder(deliveryOrderRequest);
         return new ResponseEntity<String>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/order/{key}")
+    public void downloadOrder(@PathVariable("key") String key,
+                              HttpServletResponse response) throws IOException {
+        File order = orderService.getOrder(key);
+
+        response.setContentType("application/zip, application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=" + order.getName());
+        response.getOutputStream().write(Files.readAllBytes(order.toPath()));
     }
 }

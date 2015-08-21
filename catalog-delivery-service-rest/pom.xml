@@ -47,7 +47,7 @@
         <dependency>
             <groupId>no.nb.microservices.delivery.metadata</groupId>
             <artifactId>catalog-delivery-metadata-service-model</artifactId>
-            <version>0.0.1-7</version>
+            <version>0.0.1-14</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.email</groupId>

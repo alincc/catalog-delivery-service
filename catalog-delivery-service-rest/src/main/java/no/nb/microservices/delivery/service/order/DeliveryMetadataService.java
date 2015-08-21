@@ -1,9 +1,8 @@
 package no.nb.microservices.delivery.service.order;
 
-import no.nb.microservices.delivery.metadata.model.OrderMetadata;
+import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
 import no.nb.microservices.delivery.repository.DeliveryMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,17 +22,17 @@ public class DeliveryMetadataService implements IDeliveryMetadataService {
 
 
     @Override
-    public OrderMetadata saveOrder(OrderMetadata orderMetadata) {
+    public DeliveryOrder saveOrder(DeliveryOrder orderMetadata) {
         return deliveryMetadataRepository.saveOrder(orderMetadata);
     }
 
     @Override
-    public OrderMetadata getOrderById(String orderId) {
-        return deliveryMetadataRepository.getOrderById(orderId);
+    public DeliveryOrder getOrderByIdOrKey(String value) {
+        return deliveryMetadataRepository.getOrderByIdOrKey(value);
     }
 
     @Override
-    public List<OrderMetadata> getOrders() {
+    public List<DeliveryOrder> getOrders() {
         return deliveryMetadataRepository.getOrders();
     }
 }

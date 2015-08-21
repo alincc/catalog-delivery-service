@@ -1,11 +1,11 @@
 package no.nb.microservices.delivery.model.textual;
 
-import no.nb.microservices.delivery.model.generic.DeliveryRequest;
+import no.nb.microservices.delivery.model.order.DeliveryResourceRequest;
 
 /**
  * Created by andreasb on 08.07.15.
  */
-public class TextualRequest extends DeliveryRequest {
+public class TextualResourceRequest extends DeliveryResourceRequest {
     private String pages;
     private int quality;
 

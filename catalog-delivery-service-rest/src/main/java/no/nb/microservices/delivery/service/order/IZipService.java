@@ -1,6 +1,6 @@
 package no.nb.microservices.delivery.service.order;
 
-import no.nb.microservices.delivery.model.generic.DeliveryResource;
+import no.nb.microservices.delivery.metadata.model.DeliveryFile;
 
 import java.io.File;
 import java.util.List;
@@ -9,5 +9,5 @@ import java.util.List;
  * Created by andreasb on 14.07.15.
  */
 public interface IZipService {
-    File zipIt(String outputZipPath, List<DeliveryResource> deliveryResources);
+    File zipIt(String outputZipPath, List<DeliveryFile> deliveryFiles);
 }

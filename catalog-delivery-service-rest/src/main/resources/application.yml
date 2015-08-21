@@ -26,6 +26,7 @@ ribbon:
 
 delivery:
   zipFilePath: /tmp/delivery/
+  downloadPath: http://andreasb.nb.no:8066/order/
 
 ---
 spring:

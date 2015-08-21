@@ -1,16 +1,12 @@
 package no.nb.microservices.delivery.repository;
 
-import feign.Headers;
-import no.nb.microservices.delivery.metadata.model.ItemMetadata;
-import no.nb.microservices.delivery.metadata.model.OrderMetadata;
+import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -20,11 +16,11 @@ import java.util.List;
 public interface DeliveryMetadataRepository {
 
     @RequestMapping(value = "/orders", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    OrderMetadata saveOrder(OrderMetadata orderMetadata);
+    DeliveryOrder saveOrder(DeliveryOrder orderMetadata);
 
-    @RequestMapping(value = "/orders/{orderId}", method = RequestMethod.GET)
-    OrderMetadata getOrderById(@PathVariable("orderId") String orderId);
+    @RequestMapping(value = "/orders/{value}", method = RequestMethod.GET)
+    DeliveryOrder getOrderByIdOrKey(@PathVariable("value") String value);
 
     @RequestMapping(value = "/orders", method = RequestMethod.GET)
-    List<OrderMetadata> getOrders();
+    List<DeliveryOrder> getOrders();
 }

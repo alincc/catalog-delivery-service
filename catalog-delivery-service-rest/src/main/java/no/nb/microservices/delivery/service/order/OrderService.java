@@ -1,15 +1,16 @@
 package no.nb.microservices.delivery.service.order;
 
 import no.nb.microservices.delivery.config.ApplicationSettings;
-import no.nb.microservices.delivery.metadata.model.ItemMetadata;
-import no.nb.microservices.delivery.metadata.model.OrderMetadata;
-import no.nb.microservices.delivery.model.generic.DeliveryResource;
-import no.nb.microservices.delivery.model.order.ItemOrder;
+import no.nb.microservices.delivery.metadata.model.DeliveryFile;
+import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
+import no.nb.microservices.delivery.metadata.model.TextualFile;
+import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
 import no.nb.microservices.delivery.service.IItemService;
 import no.nb.microservices.delivery.service.ITextualService;
 import no.nb.microservices.email.model.Email;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -45,9 +46,9 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public void placeOrder(ItemOrder itemOrder) throws InterruptedException, ExecutionException {
+    public void placeOrder(DeliveryOrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException {
         // Make async calls to get textual resources
-        List<Future<DeliveryResource>> textualResourcesFutureList = itemOrder.getFileRequests().stream()
+        List<Future<TextualFile>> textualResourcesFutureList = deliveryOrderRequest.getTextualFileRequests().stream()
                         .map(request -> textualService.getResourcesAsync(request))
                         .collect(Collectors.toList());
 
@@ -56,32 +57,34 @@ public class OrderService implements IOrderService {
         // Make async calls to get photo resources
 
         // Gather all async calls
-        List<DeliveryResource> deliveryResources = new ArrayList<>();
-        for (Future<DeliveryResource> textualResourceFuture : textualResourcesFutureList) {
-            deliveryResources.add(textualResourceFuture.get());
+        List<DeliveryFile> deliveryFiles = new ArrayList<>();
+        for (Future<TextualFile> textualResourceFuture : textualResourcesFutureList) {
+            deliveryFiles.add(textualResourceFuture.get());
         }
 
         // Zip all files to disk
-        String zipFilename = itemOrder.getOrderId() + ".zip";
+        String zipFilename = deliveryOrderRequest.getOrderId() + ".zip";
         String zipOutputPath = applicationSettings.getZipFilePath() + zipFilename;
-        File zippedFile = zipService.zipIt(zipOutputPath, deliveryResources);
+        File zippedFile = zipService.zipIt(zipOutputPath, deliveryFiles);
 
         // Store information about the order
-        OrderMetadata orderMetadata = new OrderMetadata() {{
-            setOrderId(itemOrder.getOrderId());
-            setEmailTo(itemOrder.getEmailTo());
-            setEmailCc(itemOrder.getEmailCc());
+        String orderKey = RandomStringUtils.randomAlphanumeric(16);
+        DeliveryOrder orderMetadata = new DeliveryOrder() {{
+            setOrderId(deliveryOrderRequest.getOrderId());
+            setEmailTo(deliveryOrderRequest.getEmailTo());
+            setEmailCc(deliveryOrderRequest.getEmailCc());
             setExpireDate(Date.from(Instant.now().plusSeconds(604800))); // 1 week
             setFilename(zipFilename);
             setFileSizeInBytes(zippedFile.length());
-            setPurpose(itemOrder.getPurpose());
+            setPurpose(deliveryOrderRequest.getPurpose());
             setOrderDate(Date.from(Instant.now()));
-            setKey(RandomStringUtils.randomAlphanumeric(16));
-            setItems(deliveryResources.stream().map(resource -> mapItem(resource)).collect(Collectors.toList()));
+            setKey(orderKey);
+            setDownloadUrl(applicationSettings.getDownloadPath() + orderKey);
+            setTextualFiles(deliveryFiles.stream().filter(q -> q instanceof TextualFile).map(q -> (TextualFile) q).collect(Collectors.toList()));
         }};
 
         // Save order to database
-        OrderMetadata orderMetadataResponseEntity = deliveryMetadataService.saveOrder(orderMetadata);
+        DeliveryOrder orderMetadataResponseEntity = deliveryMetadataService.saveOrder(orderMetadata);
 
         // Send email to user with download details
         Email email = new Email() {{
@@ -96,11 +99,12 @@ public class OrderService implements IOrderService {
         emailService.sendEmail(email);
     }
 
-    private ItemMetadata mapItem(DeliveryResource deliveryResource) {
-        ItemMetadata itemMetadata = new ItemMetadata() {{
-            //setUrn(deliveryResource.getUrn());
-        }};
-
-        return itemMetadata;
+    public File getOrder(String key) {
+        DeliveryOrder order = deliveryMetadataService.getOrderByIdOrKey(key);
+        if (Date.from(Instant.now()).after(order.getExpireDate())) {
+            throw new AccessDeniedException("This order has expired");
+        }
+        File zippedFile = new File(applicationSettings.getZipFilePath() + order.getFilename());
+        return zippedFile;
     }
 }

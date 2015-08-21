@@ -6,7 +6,6 @@ import no.nb.microservices.catalogitem.rest.model.ItemResource;
 import no.nb.microservices.catalogitem.rest.model.Metadata;
 import no.nb.microservices.catalogitem.rest.model.TitleInfo;
 import no.nb.microservices.delivery.repository.ItemRepository;
-import org.bouncycastle.asn1.cms.MetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

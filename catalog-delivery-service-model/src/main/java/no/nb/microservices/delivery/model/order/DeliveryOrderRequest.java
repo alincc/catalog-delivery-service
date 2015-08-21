@@ -1,10 +1,6 @@
 package no.nb.microservices.delivery.model.order;
 
-import no.nb.microservices.delivery.model.audio.AudioRequest;
-import no.nb.microservices.delivery.model.generic.FileRequest;
-import no.nb.microservices.delivery.model.photo.PhotoRequest;
-import no.nb.microservices.delivery.model.textual.TextualRequest;
-import no.nb.microservices.delivery.model.video.VideoRequest;
+import no.nb.microservices.delivery.model.textual.TextualFileRequest;
 import org.hibernate.validator.constraints.Email;
 
 import java.util.List;
@@ -13,7 +9,7 @@ import java.util.UUID;
 /**
  * Created by andreasb on 10.07.15.
  */
-public class ItemOrder {
+public class DeliveryOrderRequest {
     private String orderId;
 
     @Email
@@ -24,9 +20,9 @@ public class ItemOrder {
 
     private String purpose;
     private CompressionType compressionType;
-    private List<FileRequest> fileRequests;
+    private List<TextualFileRequest> textualFileRequests;
 
-    public ItemOrder() {
+    public DeliveryOrderRequest() {
         this.orderId = UUID.randomUUID().toString();
     }
 
@@ -70,11 +66,11 @@ public class ItemOrder {
         this.compressionType = compressionType;
     }
 
-    public List<FileRequest> getFileRequests() {
-        return fileRequests;
+    public List<TextualFileRequest> getTextualFileRequests() {
+        return textualFileRequests;
     }
 
-    public void setFileRequests(List<FileRequest> fileRequests) {
-        this.fileRequests = fileRequests;
+    public void setTextualFileRequests(List<TextualFileRequest> textualFileRequests) {
+        this.textualFileRequests = textualFileRequests;
     }
 }

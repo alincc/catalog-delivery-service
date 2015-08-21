@@ -1,10 +1,6 @@
 package no.nb.microservices.delivery.service.order;
 
-import no.nb.microservices.delivery.metadata.model.OrderMetadata;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
 
 import java.util.List;
 
@@ -13,9 +9,9 @@ import java.util.List;
  */
 public interface IDeliveryMetadataService {
 
-    OrderMetadata saveOrder(OrderMetadata orderMetadata);
+    DeliveryOrder saveOrder(DeliveryOrder orderMetadata);
 
-    OrderMetadata getOrderById(String orderId);
+    DeliveryOrder getOrderByIdOrKey(String value);
 
-    List<OrderMetadata> getOrders();
+    List<DeliveryOrder> getOrders();
 }
