@@ -24,7 +24,7 @@ public class ZipService implements IZipService {
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             ZipOutputStream zos = new ZipOutputStream(bos);
             for(DeliveryFile file : deliveryFiles) {
-                ZipEntry ze = new ZipEntry(file.getFilename());
+                ZipEntry ze = new ZipEntry(file.getFilename() + "." + file.getExtension());
                 zos.putNextEntry(ze);
                 zos.write(file.getContent().getByteArray());
                 zos.closeEntry();

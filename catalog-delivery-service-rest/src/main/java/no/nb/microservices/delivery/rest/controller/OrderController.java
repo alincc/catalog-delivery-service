@@ -18,17 +18,17 @@ import java.util.concurrent.ExecutionException;
  * Created by andreasb on 07.07.15.
  */
 @RestController
-public class OrderItemController {
+public class OrderController {
 
     private final OrderService orderService;
 
     @Autowired
-    public OrderItemController(OrderService orderService) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
     @RequestMapping(value = "/order", method = RequestMethod.POST)
-    public ResponseEntity<String> orderItems(@RequestBody @Valid DeliveryOrderRequest deliveryOrderRequest) throws ExecutionException, InterruptedException {
+    public ResponseEntity<String> placeOrder(@RequestBody @Valid DeliveryOrderRequest deliveryOrderRequest) throws ExecutionException, InterruptedException {
         orderService.placeOrder(deliveryOrderRequest);
         return new ResponseEntity<String>(HttpStatus.OK);
     }

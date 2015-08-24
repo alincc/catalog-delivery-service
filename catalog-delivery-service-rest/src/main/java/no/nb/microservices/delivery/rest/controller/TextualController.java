@@ -1,5 +1,9 @@
 package no.nb.microservices.delivery.rest.controller;
 
+import no.nb.microservices.catalogitem.rest.model.ItemResource;
+import no.nb.microservices.delivery.metadata.model.TextualFile;
+import no.nb.microservices.delivery.model.textual.TextualFileRequest;
+import no.nb.microservices.delivery.model.textual.TextualResourceRequest;
 import no.nb.microservices.delivery.service.IItemService;
 import no.nb.microservices.delivery.service.ITextualService;
 import org.slf4j.Logger;
@@ -9,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Created by andreasb on 07.07.15.
@@ -34,26 +40,26 @@ public class TextualController {
                                      @RequestParam(value = "highQuality", defaultValue = "false") boolean highQuality,
                                      HttpServletResponse response) throws IOException, InterruptedException, ExecutionException {
 
-//        TextualRequest textualRequest = new TextualRequest() {{
-//            setUrn(urn);
-//            setPages(pages);
-//            setQuality((highQuality) ? 6 : 5);
-//        }};
-//
-//        TextualFileRequest fileRequest = new TextualFileRequest() {{
-//            setFormat("pdf");
-//            setText(true);
-//            setTextualRequests(Arrays.asList(textualRequest));
-//        }};
-//
-//        Future<DeliveryResource> textualResourceFuture = textualService.getResourcesAsync(fileRequest);
-//        Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(textualRequest.getUrn());
-//        DeliveryResource textualResource = textualResourceFuture.get();
-//        ItemResource itemResource = itemResourceFuture.get();
-//        response.setContentType("application/pdf");
-//        response.setHeader("Content-Disposition", "attachment; filename=" + itemResource.getMetadata().getTitleInfo().getTitle() + ".pdf");
-//        response.getOutputStream().write(textualResource.getContent().getByteArray());
-//
-//        LOG.info("Printed material successfully downloaded: " + urn);
+        TextualResourceRequest textualRequest = new TextualResourceRequest() {{
+            setUrn(urn);
+            setPages(pages);
+            setQuality((highQuality) ? 6 : 5);
+        }};
+
+        TextualFileRequest fileRequest = new TextualFileRequest() {{
+            setFormat("pdf");
+            setText(true);
+            setTextualResourceRequests(Arrays.asList(textualRequest));
+        }};
+
+        Future<TextualFile> textualResourceFuture = textualService.getResourcesAsync(fileRequest);
+        Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(textualRequest.getUrn());
+        TextualFile textualResource = textualResourceFuture.get();
+        ItemResource itemResource = itemResourceFuture.get();
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=" + itemResource.getMetadata().getTitleInfo().getTitle() + ".pdf");
+        response.getOutputStream().write(textualResource.getContent().getByteArray());
+
+        LOG.info("Printed material successfully downloaded: " + urn);
     }
 }
