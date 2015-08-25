@@ -40,35 +40,39 @@ public class TextualService implements ITextualService {
         return new AsyncResult<TextualFile>() {
             @Override
             public TextualFile invoke() {
-
-                TextualFile textualFile = new TextualFile();
-                textualFile.setFilename((fileRequest.getFilename() != null) ? fileRequest.getFilename() : "Collection");
-                textualFile.setTextualResources(fileRequest.getTextualResourceRequests().stream().map(q -> map(q)).collect(Collectors.toList()));
-
-                List<TextualResourceRequest> requests = fileRequest.getTextualResourceRequests();
-                List<String> urns = requests.stream().map(q -> q.getUrn()).collect(Collectors.toList());
-                List<String> pages = requests.stream().map(q -> q.getPages()).collect(Collectors.toList());
-                List<String> quality = requests.stream().map(q -> q.getQuality() + "").collect(Collectors.toList());
-
-                if (fileRequest.getFormat().equalsIgnoreCase("pdf")) {
-                    ByteArrayResource response = pdfGeneratorRepository.generate(urns, pages, "book", fileRequest.isText(), quality, "", "");
-                    textualFile.setContent(response);
-                    textualFile.setExtension("pdf");
-                    textualFile.setHasText(fileRequest.isText());
-                }
-                else if (TextualFormat.EPUB.equals(fileRequest.getFormat())) {
-                    throw new NotImplementedException("Format not implemented");
-                }
-                else if (fileRequest.isImages()) {
-                    throw new NotImplementedException("Format not implemented");
-                }
-                else {
-                    throw new IllegalArgumentException("Format is invalid in query");
-                }
-
-                return textualFile;
+                return getResource(fileRequest);
             }
         };
+    }
+
+    public TextualFile getResource(TextualFileRequest fileRequest) {
+        TextualFile textualFile = new TextualFile();
+        textualFile.setFilename((fileRequest.getFilename() != null) ? fileRequest.getFilename() : "Collection");
+        textualFile.setTextualResources(fileRequest.getTextualResourceRequests().stream().map(q -> map(q)).collect(Collectors.toList()));
+
+        List<TextualResourceRequest> requests = fileRequest.getTextualResourceRequests();
+        List<String> urns = requests.stream().map(q -> q.getUrn()).collect(Collectors.toList());
+        List<String> pages = requests.stream().map(q -> q.getPages()).collect(Collectors.toList());
+        List<String> quality = requests.stream().map(q -> q.getQuality() + "").collect(Collectors.toList());
+
+        if (fileRequest.getFormat().equalsIgnoreCase("pdf")) {
+            ByteArrayResource response = pdfGeneratorRepository.generate(urns, pages, "book", fileRequest.isText(), quality, "", "");
+            textualFile.setContent(response);
+            textualFile.setFileSizeInBytes(response.contentLength());
+            textualFile.setExtension("pdf");
+            textualFile.setHasText(fileRequest.isText());
+        }
+        else if (TextualFormat.EPUB.equals(fileRequest.getFormat())) {
+            throw new NotImplementedException("Format not implemented");
+        }
+        else if (fileRequest.isImages()) {
+            throw new NotImplementedException("Format not implemented");
+        }
+        else {
+            throw new IllegalArgumentException("Format is invalid in query");
+        }
+
+        return textualFile;
     }
 
     private TextualResource map(TextualResourceRequest textualResourceRequest) {

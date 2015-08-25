@@ -1,5 +1,6 @@
 package no.nb.microservices.delivery.service;
 
+import junit.framework.Assert;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
 import no.nb.microservices.delivery.metadata.model.TextualFile;
@@ -23,7 +24,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.AccessDeniedException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
@@ -32,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.*;
@@ -96,6 +100,7 @@ public class OrderServiceTest {
         TextualFile textualFile = new TextualFile() {{
             setFilename("dummy");
             setExtension("pdf");
+
             setTextualResources(Arrays.asList(textualResource));
             setContent(byteArrayResource);
         }};
@@ -125,5 +130,33 @@ public class OrderServiceTest {
         }};
 
         return itemOrder;
+    }
+
+    @Test
+    public void getOrderTest() {
+        String orderKey = "d8o00w7zz2cRy8Wm";
+        DeliveryOrder deliveryOrder = new DeliveryOrder() {{
+            setFilename("ecd270f69cb8a9063306fcecd4b1a769.zip");
+            setExpireDate(Date.from(Instant.now().plusSeconds(3600)));
+        }};
+        when(applicationSettings.getZipFilePath()).thenReturn("");
+        when(deliveryMetadataService.getOrderByIdOrKey(eq(orderKey))).thenReturn(deliveryOrder);
+
+        File file = orderService.getOrder(orderKey);
+        assertNotNull(file);
+        assertEquals(deliveryOrder.getFilename(), file.getPath());
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void getOrderTestExpired() {
+        String orderKey = "d8o00w7zz2cRy8Wm";
+        DeliveryOrder deliveryOrder = new DeliveryOrder() {{
+            setFilename("ecd270f69cb8a9063306fcecd4b1a769.zip");
+            setExpireDate(Date.from(Instant.now().minusSeconds(3600)));
+        }};
+        when(applicationSettings.getZipFilePath()).thenReturn("");
+        when(deliveryMetadataService.getOrderByIdOrKey(eq(orderKey))).thenReturn(deliveryOrder);
+
+        File file = orderService.getOrder(orderKey);
     }
 }
