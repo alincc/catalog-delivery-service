@@ -52,7 +52,7 @@ public class TextualServiceTest {
             setText(false);
             setFormat("pdf");
             setFilename("dummy");
-            setTextualResourceRequests(Arrays.asList(textualResourceRequest));
+            setResources(Arrays.asList(textualResourceRequest));
         }};
 
         TextualFile textualFile = textualService.getResource(textualFileRequest);

@@ -4,7 +4,6 @@ import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
 import no.nb.microservices.delivery.metadata.model.TextualFile;
 import no.nb.microservices.delivery.metadata.model.TextualResource;
-import no.nb.microservices.delivery.model.order.CompressionType;
 import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
 import no.nb.microservices.delivery.model.textual.TextualFileRequest;
 import no.nb.microservices.delivery.model.textual.TextualResourceRequest;
@@ -118,14 +117,14 @@ public class OrderServiceTest {
             setText(false);
             setFilename("dummy");
             setFormat("pdf");
-            setTextualResourceRequests(Arrays.asList(textualRequest));
+            setResources(Arrays.asList(textualRequest));
         }};
 
         DeliveryOrderRequest itemOrder = new DeliveryOrderRequest() {{
             setEmailTo("example@example.com");
             setEmailCc("example-cc@example.com");
             setPurpose("Testing purpose");
-            setCompressionType(CompressionType.ZIP);
+            setCompressionType("zip");
             setTextualFileRequests(Arrays.asList(textualFileRequest));
         }};
 

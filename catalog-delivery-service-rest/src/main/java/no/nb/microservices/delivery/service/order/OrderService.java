@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -74,7 +75,7 @@ public class OrderService implements IOrderService {
             setOrderId(deliveryOrderRequest.getOrderId());
             setEmailTo(deliveryOrderRequest.getEmailTo());
             setEmailCc(deliveryOrderRequest.getEmailCc());
-            setExpireDate(Date.from(Instant.now().plusSeconds(604800))); // 1 week
+            setExpireDate(Date.from(Instant.now().plusSeconds(604800))); // 604800 seconds = 1 week
             setFilename(zipFilename);
             setFileSizeInBytes(zippedFile.length());
             setPurpose(deliveryOrderRequest.getPurpose());
@@ -100,12 +101,12 @@ public class OrderService implements IOrderService {
         emailService.sendEmail(email);
     }
 
+    @Override
     public File getOrder(String key) {
         DeliveryOrder order = deliveryMetadataService.getOrderByIdOrKey(key);
         if (Date.from(Instant.now()).after(order.getExpireDate())) {
             throw new AccessDeniedException("This order has expired");
         }
-        File zippedFile = new File(applicationSettings.getZipFilePath() + order.getFilename());
-        return zippedFile;
+        return new File(applicationSettings.getZipFilePath() + order.getFilename());
     }
 }

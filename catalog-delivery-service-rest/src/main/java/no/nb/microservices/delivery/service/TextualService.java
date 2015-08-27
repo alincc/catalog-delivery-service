@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -46,18 +47,26 @@ public class TextualService implements ITextualService {
     @Override
     public TextualFile getResource(TextualFileRequest fileRequest) {
         TextualFile textualFile = new TextualFile();
-        textualFile.setTextualResources(fileRequest.getTextualResourceRequests().stream().map(q -> map(q)).collect(Collectors.toList()));
+        textualFile.setTextualResources(fileRequest.getResources().stream().map(q -> map(q)).collect(Collectors.toList()));
 
-        List<TextualResourceRequest> requests = fileRequest.getTextualResourceRequests();
+        List<TextualResourceRequest> requests = fileRequest.getResources();
         List<String> urns = requests.stream().map(q -> q.getUrn()).collect(Collectors.toList());
         List<String> pages = requests.stream().map(q -> q.getPages()).collect(Collectors.toList());
         List<String> quality = requests.stream().map(q -> q.getQuality() + "").collect(Collectors.toList());
 
-        ByteArrayResource response = textualGeneratorRepository.generate(urns, pages, fileRequest.getPageSelection(), fileRequest.isText(), quality, fileRequest.getFilename(), fileRequest.getFormat());
-        textualFile.setFilename(fileRequest.getFilename() + "." + (fileRequest.isImages() ? "zip" : fileRequest.getFormat()));
-        textualFile.setFormat(fileRequest.getFormat());
-        textualFile.setFileSizeInBytes(response.contentLength());
-        textualFile.setContent(response);
+        List<String> graphicFormats = Arrays.asList("pdf", "jpg", "tif", "jp2");
+        List<String> textFormats = Arrays.asList("alto", "txt");
+
+        if (graphicFormats.contains(fileRequest.getFormat())) {
+            ByteArrayResource response = textualGeneratorRepository.generate(urns, pages, fileRequest.getPageSelection(), fileRequest.isText(), quality, fileRequest.getFilename(), fileRequest.getFormat());
+            textualFile.setFilename(fileRequest.getFilename() + "." + (fileRequest.isImages() ? "zip" : fileRequest.getFormat()));
+            textualFile.setFormat(fileRequest.getFormat());
+            textualFile.setFileSizeInBytes(response.contentLength());
+            textualFile.setContent(response);
+        }
+        else  if (textFormats.contains(fileRequest.getFormat())) {
+
+        }
 
         return textualFile;
     }

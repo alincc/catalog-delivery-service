@@ -49,7 +49,7 @@ public class TextualController {
         TextualFileRequest fileRequest = new TextualFileRequest() {{
             setFormat("pdf");
             setText(true);
-            setTextualResourceRequests(Arrays.asList(textualRequest));
+            setResources(Arrays.asList(textualRequest));
         }};
 
         Future<TextualFile> textualResourceFuture = textualService.getResourceAsync(fileRequest);

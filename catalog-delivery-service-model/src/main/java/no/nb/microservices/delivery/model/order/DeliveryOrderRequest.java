@@ -2,7 +2,9 @@ package no.nb.microservices.delivery.model.order;
 
 import no.nb.microservices.delivery.model.textual.TextualFileRequest;
 import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,8 +20,13 @@ public class DeliveryOrderRequest {
     @Email
     private String emailCc;
 
+    @Length(max = 360)
     private String purpose;
-    private CompressionType compressionType;
+
+    @Length(max = 6)
+    private String compressionType = "zip";
+
+    @Size(max = 64)
     private List<TextualFileRequest> textualFileRequests;
 
     public DeliveryOrderRequest() {
@@ -58,11 +65,11 @@ public class DeliveryOrderRequest {
         this.purpose = purpose;
     }
 
-    public CompressionType getCompressionType() {
+    public String getCompressionType() {
         return compressionType;
     }
 
-    public void setCompressionType(CompressionType compressionType) {
+    public void setCompressionType(String compressionType) {
         this.compressionType = compressionType;
     }
 

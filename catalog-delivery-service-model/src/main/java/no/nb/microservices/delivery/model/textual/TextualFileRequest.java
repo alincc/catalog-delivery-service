@@ -1,7 +1,9 @@
 package no.nb.microservices.delivery.model.textual;
 
 import no.nb.microservices.delivery.model.order.DeliveryFileRequest;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -9,9 +11,13 @@ import java.util.List;
  */
 public class TextualFileRequest extends DeliveryFileRequest {
 
-    private String pageSelection;
     private boolean text;
-    private List<TextualResourceRequest> textualResourceRequests;
+
+    @Length(max = 6)
+    private String pageSelection;
+
+    @Size(max = 64)
+    private List<TextualResourceRequest> resources;
 
     public boolean isImages() {
         if ("jp2".equalsIgnoreCase(super.getFormat()) ||
@@ -38,11 +44,11 @@ public class TextualFileRequest extends DeliveryFileRequest {
         this.text = text;
     }
 
-    public List<TextualResourceRequest> getTextualResourceRequests() {
-        return textualResourceRequests;
+    public List<TextualResourceRequest> getResources() {
+        return resources;
     }
 
-    public void setTextualResourceRequests(List<TextualResourceRequest> textualResourceRequests) {
-        this.textualResourceRequests = textualResourceRequests;
+    public void setResources(List<TextualResourceRequest> resources) {
+        this.resources = resources;
     }
 }
