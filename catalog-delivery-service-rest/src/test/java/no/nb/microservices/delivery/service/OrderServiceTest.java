@@ -1,6 +1,5 @@
 package no.nb.microservices.delivery.service;
 
-import junit.framework.Assert;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
 import no.nb.microservices.delivery.metadata.model.TextualFile;
@@ -8,18 +7,18 @@ import no.nb.microservices.delivery.metadata.model.TextualResource;
 import no.nb.microservices.delivery.model.order.CompressionType;
 import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
 import no.nb.microservices.delivery.model.textual.TextualFileRequest;
-import no.nb.microservices.delivery.model.textual.TextualFormat;
 import no.nb.microservices.delivery.model.textual.TextualResourceRequest;
-import no.nb.microservices.delivery.service.order.*;
+import no.nb.microservices.delivery.service.order.DeliveryMetadataService;
+import no.nb.microservices.delivery.service.order.EmailService;
+import no.nb.microservices.delivery.service.order.OrderService;
+import no.nb.microservices.delivery.service.order.ZipService;
 import no.nb.microservices.email.model.Email;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
@@ -33,15 +32,17 @@ import java.sql.Date;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 /**
  * Created by andreasb on 16.07.15.
@@ -72,7 +73,7 @@ public class OrderServiceTest {
         DeliveryOrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
         Future<TextualFile> textualResourceListFuture = getTextualItem();
 
-        when(textualService.getResourcesAsync(eq(deliveryOrderRequest.getTextualFileRequests().get(0)))).thenReturn(textualResourceListFuture);
+        when(textualService.getResourceAsync(eq(deliveryOrderRequest.getTextualFileRequests().get(0)))).thenReturn(textualResourceListFuture);
         when(applicationSettings.getZipFilePath()).thenReturn("");
 
         Resource zippedfile = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.zip");
@@ -98,8 +99,7 @@ public class OrderServiceTest {
             setUrn("URN:NBN:no-nb_digibok_2014020626009");
         }};
         TextualFile textualFile = new TextualFile() {{
-            setFilename("dummy");
-            setExtension("pdf");
+            setFilename("dummy.pdf");
 
             setTextualResources(Arrays.asList(textualResource));
             setContent(byteArrayResource);

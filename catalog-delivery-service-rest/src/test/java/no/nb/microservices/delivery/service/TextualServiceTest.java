@@ -1,10 +1,9 @@
 package no.nb.microservices.delivery.service;
 
 import no.nb.microservices.delivery.metadata.model.TextualFile;
-import no.nb.microservices.delivery.metadata.model.TextualResource;
 import no.nb.microservices.delivery.model.textual.TextualFileRequest;
 import no.nb.microservices.delivery.model.textual.TextualResourceRequest;
-import no.nb.microservices.delivery.repository.PdfGeneratorRepository;
+import no.nb.microservices.delivery.repository.TextualGeneratorRepository;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,9 +17,7 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -36,7 +33,7 @@ public class TextualServiceTest {
     TextualService textualService;
 
     @Mock
-    PdfGeneratorRepository pdfGeneratorRepository;
+    TextualGeneratorRepository textualGeneratorRepository;
 
     @Test
     public void getResourcesTest() throws IOException, ExecutionException, InterruptedException {
@@ -44,7 +41,7 @@ public class TextualServiceTest {
         InputStream inputStream = resource.getInputStream();
         ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
 
-        when(pdfGeneratorRepository.generate(anyListOf(String.class), anyListOf(String.class), eq("book"), anyBoolean(), anyListOf(String.class), anyString(), anyString())).thenReturn(byteArrayResource);
+        when(textualGeneratorRepository.generate(anyListOf(String.class), anyListOf(String.class), anyString(), anyBoolean(), anyListOf(String.class), anyString(), anyString())).thenReturn(byteArrayResource);
 
         TextualResourceRequest textualResourceRequest = new TextualResourceRequest() {{
             setUrn("URN:NBN:no-nb_digibok_2008040300029");
@@ -60,9 +57,7 @@ public class TextualServiceTest {
 
         TextualFile textualFile = textualService.getResource(textualFileRequest);
 
-        assertEquals("pdf", textualFile.getExtension());
-        assertEquals("dummy", textualFile.getFilename());
-        assertEquals("dummy.pdf", textualFile.getFullFilename());
+        assertEquals("dummy.pdf", textualFile.getFilename());
         assertNotNull(textualFile.getContent());
         assertEquals(1495308, textualFile.getFileSizeInBytes());
     }

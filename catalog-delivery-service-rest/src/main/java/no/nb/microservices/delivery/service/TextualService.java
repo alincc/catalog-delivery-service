@@ -6,10 +6,8 @@ import com.netflix.hystrix.contrib.javanica.command.AsyncResult;
 import no.nb.microservices.delivery.metadata.model.TextualFile;
 import no.nb.microservices.delivery.metadata.model.TextualResource;
 import no.nb.microservices.delivery.model.textual.TextualFileRequest;
-import no.nb.microservices.delivery.model.textual.TextualFormat;
 import no.nb.microservices.delivery.model.textual.TextualResourceRequest;
-import no.nb.microservices.delivery.repository.PdfGeneratorRepository;
-import org.apache.commons.lang3.NotImplementedException;
+import no.nb.microservices.delivery.repository.TextualGeneratorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -24,11 +22,11 @@ import java.util.stream.Collectors;
 @Service
 public class TextualService implements ITextualService {
 
-    private final PdfGeneratorRepository pdfGeneratorRepository;
+    private final TextualGeneratorRepository textualGeneratorRepository;
 
     @Autowired
-    public TextualService(PdfGeneratorRepository pdfGeneratorRepository) {
-        this.pdfGeneratorRepository = pdfGeneratorRepository;
+    public TextualService(TextualGeneratorRepository textualGeneratorRepository) {
+        this.textualGeneratorRepository = textualGeneratorRepository;
     }
 
     @Override
@@ -36,7 +34,7 @@ public class TextualService implements ITextualService {
         commandProperties = {
                 @HystrixProperty(name="execution.timeout.enabled", value="600000")
         })
-    public Future<TextualFile> getResourcesAsync(TextualFileRequest fileRequest) {
+    public Future<TextualFile> getResourceAsync(TextualFileRequest fileRequest) {
         return new AsyncResult<TextualFile>() {
             @Override
             public TextualFile invoke() {
@@ -45,9 +43,9 @@ public class TextualService implements ITextualService {
         };
     }
 
+    @Override
     public TextualFile getResource(TextualFileRequest fileRequest) {
         TextualFile textualFile = new TextualFile();
-        textualFile.setFilename((fileRequest.getFilename() != null) ? fileRequest.getFilename() : "Collection");
         textualFile.setTextualResources(fileRequest.getTextualResourceRequests().stream().map(q -> map(q)).collect(Collectors.toList()));
 
         List<TextualResourceRequest> requests = fileRequest.getTextualResourceRequests();
@@ -55,22 +53,11 @@ public class TextualService implements ITextualService {
         List<String> pages = requests.stream().map(q -> q.getPages()).collect(Collectors.toList());
         List<String> quality = requests.stream().map(q -> q.getQuality() + "").collect(Collectors.toList());
 
-        if (fileRequest.getFormat().equalsIgnoreCase("pdf")) {
-            ByteArrayResource response = pdfGeneratorRepository.generate(urns, pages, "book", fileRequest.isText(), quality, "", "");
-            textualFile.setContent(response);
-            textualFile.setFileSizeInBytes(response.contentLength());
-            textualFile.setExtension("pdf");
-            textualFile.setHasText(fileRequest.isText());
-        }
-        else if (TextualFormat.EPUB.equals(fileRequest.getFormat())) {
-            throw new NotImplementedException("Format not implemented");
-        }
-        else if (fileRequest.isImages()) {
-            throw new NotImplementedException("Format not implemented");
-        }
-        else {
-            throw new IllegalArgumentException("Format is invalid in query");
-        }
+        ByteArrayResource response = textualGeneratorRepository.generate(urns, pages, fileRequest.getPageSelection(), fileRequest.isText(), quality, fileRequest.getFilename(), fileRequest.getFormat());
+        textualFile.setFilename(fileRequest.getFilename() + "." + (fileRequest.isImages() ? "zip" : fileRequest.getFormat()));
+        textualFile.setFormat(fileRequest.getFormat());
+        textualFile.setFileSizeInBytes(response.contentLength());
+        textualFile.setContent(response);
 
         return textualFile;
     }

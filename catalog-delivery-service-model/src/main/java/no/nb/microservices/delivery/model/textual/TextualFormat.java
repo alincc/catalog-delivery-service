@@ -6,8 +6,8 @@ package no.nb.microservices.delivery.model.textual;
 public enum TextualFormat {
     PDF,
     EPUB,
-    JPEG,
-    TIFF,
+    JPG,
+    TIF,
     JP2,
     BMP,
     PNG,

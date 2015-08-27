@@ -9,18 +9,25 @@ import java.util.List;
  */
 public class TextualFileRequest extends DeliveryFileRequest {
 
+    private String pageSelection;
     private boolean text;
     private List<TextualResourceRequest> textualResourceRequests;
 
     public boolean isImages() {
-        if (TextualFormat.BMP.equals(super.getFormat()) ||
-                TextualFormat.JP2.equals(super.getFormat()) ||
-                TextualFormat.JPEG.equals(super.getFormat()) ||
-                TextualFormat.PNG.equals(super.getFormat()) ||
-                TextualFormat.TIFF.equals(super.getFormat())) {
+        if ("jp2".equalsIgnoreCase(super.getFormat()) ||
+                "jpg".equalsIgnoreCase(super.getFormat()) ||
+               "tif".equalsIgnoreCase(super.getFormat())) {
             return true;
         }
         return false;
+    }
+
+    public String getPageSelection() {
+        return pageSelection;
+    }
+
+    public void setPageSelection(String pageSelection) {
+        this.pageSelection = pageSelection;
     }
 
     public boolean isText() {

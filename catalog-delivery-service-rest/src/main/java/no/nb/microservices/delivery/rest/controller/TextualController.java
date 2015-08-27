@@ -52,7 +52,7 @@ public class TextualController {
             setTextualResourceRequests(Arrays.asList(textualRequest));
         }};
 
-        Future<TextualFile> textualResourceFuture = textualService.getResourcesAsync(fileRequest);
+        Future<TextualFile> textualResourceFuture = textualService.getResourceAsync(fileRequest);
         Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(textualRequest.getUrn());
         TextualFile textualResource = textualResourceFuture.get();
         ItemResource itemResource = itemResourceFuture.get();

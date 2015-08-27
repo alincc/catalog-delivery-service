@@ -14,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,10 +47,10 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public void placeOrder(DeliveryOrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException {
+    public void placeOrder(DeliveryOrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException {
         // Make async calls to get textual resources
         List<Future<TextualFile>> textualResourcesFutureList = deliveryOrderRequest.getTextualFileRequests().stream()
-                        .map(request -> textualService.getResourcesAsync(request))
+                        .map(request -> textualService.getResourceAsync(request))
                         .collect(Collectors.toList());
 
         // Make async calls to get video resources

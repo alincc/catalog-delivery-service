@@ -9,5 +9,6 @@ import java.util.concurrent.Future;
  * Created by andreasb on 09.07.15.
  */
 public interface ITextualService {
-    Future<TextualFile> getResourcesAsync(TextualFileRequest fileRequest);
+    Future<TextualFile> getResourceAsync(TextualFileRequest fileRequest);
+    TextualFile getResource(TextualFileRequest fileRequest);
 }
