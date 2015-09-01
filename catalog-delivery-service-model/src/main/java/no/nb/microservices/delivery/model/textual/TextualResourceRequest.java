@@ -1,6 +1,5 @@
 package no.nb.microservices.delivery.model.textual;
 
-import no.nb.microservices.delivery.model.order.DeliveryResourceRequest;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Max;
@@ -8,13 +7,24 @@ import javax.validation.constraints.Max;
 /**
  * Created by andreasb on 08.07.15.
  */
-public class TextualResourceRequest extends DeliveryResourceRequest {
+public class TextualResourceRequest {
+
+    @Length(max = 64)
+    private String urn;
 
     @Length(max = 64)
     private String pages;
 
     @Max(6)
     private int quality;
+
+    public String getUrn() {
+        return urn;
+    }
+
+    public void setUrn(String urn) {
+        this.urn = urn;
+    }
 
     public String getPages() {
         return pages;

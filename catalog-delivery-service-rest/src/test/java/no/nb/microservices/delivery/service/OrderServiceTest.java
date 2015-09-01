@@ -2,9 +2,11 @@ package no.nb.microservices.delivery.service;
 
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
+import no.nb.microservices.delivery.metadata.model.PhotoFile;
 import no.nb.microservices.delivery.metadata.model.TextualFile;
 import no.nb.microservices.delivery.metadata.model.TextualResource;
 import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
+import no.nb.microservices.delivery.model.photo.PhotoRequest;
 import no.nb.microservices.delivery.model.textual.TextualFileRequest;
 import no.nb.microservices.delivery.model.textual.TextualResourceRequest;
 import no.nb.microservices.delivery.service.order.DeliveryMetadataService;
@@ -56,6 +58,9 @@ public class OrderServiceTest {
     TextualService textualService;
 
     @Mock
+    PhotoService photoService;
+
+    @Mock
     ZipService zipService;
 
     @Mock
@@ -71,8 +76,10 @@ public class OrderServiceTest {
     public void placeOrderTest() throws ExecutionException, InterruptedException, IOException {
         DeliveryOrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
         Future<TextualFile> textualResourceListFuture = getTextualItem();
+        Future<PhotoFile> photoFileFuture = getPhoto();
 
-        when(textualService.getResourceAsync(eq(deliveryOrderRequest.getTextualFileRequests().get(0)))).thenReturn(textualResourceListFuture);
+        when(textualService.getResourceAsync(eq(deliveryOrderRequest.getTextuals().get(0)))).thenReturn(textualResourceListFuture);
+        when(photoService.getResourceAsync(eq(deliveryOrderRequest.getPhotos().get(0)))).thenReturn(photoFileFuture);
         when(applicationSettings.getZipFilePath()).thenReturn("");
 
         Resource zippedfile = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.zip");
@@ -100,10 +107,25 @@ public class OrderServiceTest {
         TextualFile textualFile = new TextualFile() {{
             setFilename("dummy.pdf");
 
-            setTextualResources(Arrays.asList(textualResource));
+            setResources(Arrays.asList(textualResource));
             setContent(byteArrayResource);
         }};
         return CompletableFuture.completedFuture(textualFile);
+    }
+
+    private Future<PhotoFile> getPhoto() throws IOException {
+        Resource resource = new ClassPathResource("myphoto.zip");
+        InputStream inputStream = resource.getInputStream();
+        ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
+        PhotoFile photoFile = new PhotoFile();
+        photoFile.setUrn("URN:NBN:no-nb_digifoto_20150213_00406_NB_WF_NOK_097120");
+        photoFile.setQuality(4);
+        photoFile.setContent(byteArrayResource);
+        photoFile.setFormat("jpg");
+        photoFile.setFilename("myphoto.zip");
+        photoFile.setFileSizeInBytes(byteArrayResource.contentLength());
+
+        return CompletableFuture.completedFuture(photoFile);
     }
 
     private DeliveryOrderRequest getDeliveryOrderRequest() {
@@ -120,12 +142,20 @@ public class OrderServiceTest {
             setResources(Arrays.asList(textualRequest));
         }};
 
+        PhotoRequest photoRequest = new PhotoRequest();
+        photoRequest.setUrn("URN:NBN:no-nb_digifoto_20150213_00406_NB_WF_NOK_097120");
+        photoRequest.setFormat("jpg");
+        photoRequest.setFilename("myphotos");
+        photoRequest.setQuality(4);
+
+
         DeliveryOrderRequest itemOrder = new DeliveryOrderRequest() {{
             setEmailTo("example@example.com");
             setEmailCc("example-cc@example.com");
             setPurpose("Testing purpose");
             setCompressionType("zip");
-            setTextualFileRequests(Arrays.asList(textualFileRequest));
+            setTextuals(Arrays.asList(textualFileRequest));
+            setPhotos(Arrays.asList(photoRequest));
         }};
 
         return itemOrder;

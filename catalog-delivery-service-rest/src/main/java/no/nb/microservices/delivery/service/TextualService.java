@@ -47,11 +47,11 @@ public class TextualService implements ITextualService {
     @Override
     public TextualFile getResource(TextualFileRequest fileRequest) {
         TextualFile textualFile = new TextualFile();
-        textualFile.setTextualResources(fileRequest.getResources().stream().map(q -> map(q)).collect(Collectors.toList()));
+        textualFile.setResources(fileRequest.getResources().stream().map(q -> map(q)).collect(Collectors.toList()));
 
         List<TextualResourceRequest> requests = fileRequest.getResources();
         List<String> urns = requests.stream().map(q -> q.getUrn()).collect(Collectors.toList());
-        List<String> pages = requests.stream().map(q -> q.getPages()).collect(Collectors.toList());
+        List<String> pages = requests.stream().filter(q -> q.getPages() != null).map(q -> q.getPages()).collect(Collectors.toList());
         List<String> quality = requests.stream().map(q -> q.getQuality() + "").collect(Collectors.toList());
 
         List<String> graphicFormats = Arrays.asList("pdf", "jpg", "tif", "jp2");

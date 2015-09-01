@@ -3,9 +3,11 @@ package no.nb.microservices.delivery.service.order;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.metadata.model.DeliveryFile;
 import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
+import no.nb.microservices.delivery.metadata.model.PhotoFile;
 import no.nb.microservices.delivery.metadata.model.TextualFile;
 import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
 import no.nb.microservices.delivery.service.IItemService;
+import no.nb.microservices.delivery.service.IPhotoService;
 import no.nb.microservices.delivery.service.ITextualService;
 import no.nb.microservices.email.model.Email;
 import org.apache.commons.lang.RandomStringUtils;
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -36,32 +37,38 @@ public class OrderService implements IOrderService {
     private final IItemService itemService;
     private final IEmailService emailService;
     private final ApplicationSettings applicationSettings;
+    private final IPhotoService photoService;
 
     @Autowired
-    public OrderService(ITextualService textualService, IZipService zipService, IDeliveryMetadataService deliveryMetadataService, IItemService itemService, IEmailService emailService, ApplicationSettings applicationSettings) {
+    public OrderService(ITextualService textualService, IZipService zipService, IDeliveryMetadataService deliveryMetadataService, IItemService itemService, IEmailService emailService, ApplicationSettings applicationSettings, IPhotoService photoService) {
         this.textualService = textualService;
         this.zipService = zipService;
         this.deliveryMetadataService = deliveryMetadataService;
         this.itemService = itemService;
         this.emailService = emailService;
         this.applicationSettings = applicationSettings;
+        this.photoService = photoService;
     }
 
     @Override
     public void placeOrder(DeliveryOrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException {
         // Make async calls to get textual resources
-        List<Future<TextualFile>> textualResourcesFutureList = deliveryOrderRequest.getTextualFileRequests().stream()
+        List<Future<TextualFile>> textualResourcesFutureList = deliveryOrderRequest.getTextuals().stream()
                         .map(request -> textualService.getResourceAsync(request))
                         .collect(Collectors.toList());
 
-        // Make async calls to get video resources
-        // Make async calls to get audio resources
         // Make async calls to get photo resources
+        List<Future<PhotoFile>> photosFutureList = deliveryOrderRequest.getPhotos().stream()
+                .map(request -> photoService.getResourceAsync(request))
+                .collect(Collectors.toList());
 
         // Gather all async calls
         List<DeliveryFile> deliveryFiles = new ArrayList<>();
         for (Future<TextualFile> textualResourceFuture : textualResourcesFutureList) {
             deliveryFiles.add(textualResourceFuture.get());
+        }
+        for (Future<PhotoFile> photoFuture : photosFutureList) {
+            deliveryFiles.add(photoFuture.get());
         }
 
         // Zip all files to disk
@@ -82,7 +89,8 @@ public class OrderService implements IOrderService {
             setOrderDate(Date.from(Instant.now()));
             setKey(orderKey);
             setDownloadUrl(applicationSettings.getDownloadPath() + orderKey);
-            setTextualFiles(deliveryFiles.stream().filter(q -> q instanceof TextualFile).map(q -> (TextualFile) q).collect(Collectors.toList()));
+            setTextuals(deliveryFiles.stream().filter(q -> q instanceof TextualFile).map(q -> (TextualFile) q).collect(Collectors.toList()));
+            setPhotos(deliveryFiles.stream().filter(q -> q instanceof PhotoFile).map(q -> (PhotoFile) q).collect(Collectors.toList()));
         }};
 
         // Save order to database

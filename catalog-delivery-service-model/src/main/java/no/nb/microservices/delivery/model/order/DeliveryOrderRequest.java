@@ -1,5 +1,6 @@
 package no.nb.microservices.delivery.model.order;
 
+import no.nb.microservices.delivery.model.photo.PhotoRequest;
 import no.nb.microservices.delivery.model.textual.TextualFileRequest;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
@@ -27,7 +28,10 @@ public class DeliveryOrderRequest {
     private String compressionType = "zip";
 
     @Size(max = 64)
-    private List<TextualFileRequest> textualFileRequests;
+    private List<TextualFileRequest> textuals;
+
+    @Size(max = 64)
+    private List<PhotoRequest> photos;
 
     public DeliveryOrderRequest() {
         this.orderId = UUID.randomUUID().toString();
@@ -73,11 +77,19 @@ public class DeliveryOrderRequest {
         this.compressionType = compressionType;
     }
 
-    public List<TextualFileRequest> getTextualFileRequests() {
-        return textualFileRequests;
+    public List<TextualFileRequest> getTextuals() {
+        return textuals;
     }
 
-    public void setTextualFileRequests(List<TextualFileRequest> textualFileRequests) {
-        this.textualFileRequests = textualFileRequests;
+    public void setTextuals(List<TextualFileRequest> textuals) {
+        this.textuals = textuals;
+    }
+
+    public List<PhotoRequest> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<PhotoRequest> photos) {
+        this.photos = photos;
     }
 }
