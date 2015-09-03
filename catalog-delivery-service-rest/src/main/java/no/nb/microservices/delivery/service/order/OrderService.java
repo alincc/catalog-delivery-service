@@ -3,12 +3,12 @@ package no.nb.microservices.delivery.service.order;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.metadata.model.DeliveryFile;
 import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
-import no.nb.microservices.delivery.metadata.model.PhotoFile;
-import no.nb.microservices.delivery.metadata.model.TextualFile;
+import no.nb.microservices.delivery.metadata.model.PrintedFile;
 import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
-import no.nb.microservices.delivery.service.IItemService;
-import no.nb.microservices.delivery.service.IPhotoService;
-import no.nb.microservices.delivery.service.ITextualService;
+import no.nb.microservices.delivery.service.cloud.IDeliveryMetadataService;
+import no.nb.microservices.delivery.service.cloud.IEmailService;
+import no.nb.microservices.delivery.service.cloud.IItemService;
+import no.nb.microservices.delivery.service.print.IPrintedService;
 import no.nb.microservices.email.model.Email;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,44 +31,34 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService implements IOrderService {
 
-    private final ITextualService textualService;
+    private final IPrintedService printedService;
     private final IZipService zipService;
     private final IDeliveryMetadataService deliveryMetadataService;
     private final IItemService itemService;
     private final IEmailService emailService;
     private final ApplicationSettings applicationSettings;
-    private final IPhotoService photoService;
 
     @Autowired
-    public OrderService(ITextualService textualService, IZipService zipService, IDeliveryMetadataService deliveryMetadataService, IItemService itemService, IEmailService emailService, ApplicationSettings applicationSettings, IPhotoService photoService) {
-        this.textualService = textualService;
+    public OrderService(IPrintedService printedService, IZipService zipService, IDeliveryMetadataService deliveryMetadataService, IItemService itemService, IEmailService emailService, ApplicationSettings applicationSettings) {
+        this.printedService = printedService;
         this.zipService = zipService;
         this.deliveryMetadataService = deliveryMetadataService;
         this.itemService = itemService;
         this.emailService = emailService;
         this.applicationSettings = applicationSettings;
-        this.photoService = photoService;
     }
 
     @Override
     public void placeOrder(DeliveryOrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException {
-        // Make async calls to get textual resources
-        List<Future<TextualFile>> textualResourcesFutureList = deliveryOrderRequest.getTextuals().stream()
-                        .map(request -> textualService.getResourceAsync(request))
-                        .collect(Collectors.toList());
-
-        // Make async calls to get photo resources
-        List<Future<PhotoFile>> photosFutureList = deliveryOrderRequest.getPhotos().stream()
-                .map(request -> photoService.getResourceAsync(request))
+        // Make async calls to get printed resources
+        List<Future<PrintedFile>> textualResourcesFutureList = deliveryOrderRequest.getPrints().stream()
+                .map(request -> printedService.getResourceAsync(request))
                 .collect(Collectors.toList());
 
         // Gather all async calls
         List<DeliveryFile> deliveryFiles = new ArrayList<>();
-        for (Future<TextualFile> textualResourceFuture : textualResourcesFutureList) {
+        for (Future<PrintedFile> textualResourceFuture : textualResourcesFutureList) {
             deliveryFiles.add(textualResourceFuture.get());
-        }
-        for (Future<PhotoFile> photoFuture : photosFutureList) {
-            deliveryFiles.add(photoFuture.get());
         }
 
         // Zip all files to disk
@@ -89,8 +79,7 @@ public class OrderService implements IOrderService {
             setOrderDate(Date.from(Instant.now()));
             setKey(orderKey);
             setDownloadUrl(applicationSettings.getDownloadPath() + orderKey);
-            setTextuals(deliveryFiles.stream().filter(q -> q instanceof TextualFile).map(q -> (TextualFile) q).collect(Collectors.toList()));
-            setPhotos(deliveryFiles.stream().filter(q -> q instanceof PhotoFile).map(q -> (PhotoFile) q).collect(Collectors.toList()));
+            setPrints(deliveryFiles.stream().filter(q -> q instanceof PrintedFile).map(q -> (PrintedFile) q).collect(Collectors.toList()));
         }};
 
         // Save order to database

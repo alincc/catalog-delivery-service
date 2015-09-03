@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.service;
+package no.nb.microservices.delivery.service.cloud;
 
 import no.nb.microservices.catalogmetadata.model.struct.StructMap;
 

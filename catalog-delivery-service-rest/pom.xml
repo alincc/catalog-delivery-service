@@ -42,12 +42,12 @@
         <dependency>
             <groupId>no.nb.microservices.pdfgenerator</groupId>
             <artifactId>catalog-pdf-generator-service-model</artifactId>
-            <version>3.0.12-cd195a76f22ea57803c0122f59e1d41360154049-2</version>
+            <version>3.0.12-8</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.delivery.metadata</groupId>
             <artifactId>catalog-delivery-metadata-service-model</artifactId>
-            <version>0.0.1-17</version>
+            <version>0.0.1-18</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.email</groupId>
@@ -57,12 +57,12 @@
         <dependency>
             <groupId>no.nb.microservices.catalogitem</groupId>
             <artifactId>catalog-item-service-model</artifactId>
-            <version>0.0.1-209d47bd63fda11840f22591b7c4b3f059d9caf9-45</version>
+            <version>0.0.1-3d73000545f1a5a2ac1ecbcd731562445e2e3771-64</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices</groupId>
             <artifactId>catalog-metadata-model</artifactId>
-            <version>0.0.1-eea9029ecba244d64ece73de1b2b303cb015e0ef-72</version>
+            <version>0.0.1-9092c43cb817d53176641ceba7e270bad1c9ba08-89</version>
         </dependency>
 
         <!-- Third party -->

@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.service.order;
+package no.nb.microservices.delivery.service.cloud;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import no.nb.microservices.delivery.repository.EmailRepository;

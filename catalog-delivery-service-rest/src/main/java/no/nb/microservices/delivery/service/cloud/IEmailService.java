@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.service.order;
+package no.nb.microservices.delivery.service.cloud;
 
 import no.nb.microservices.email.model.Email;
 

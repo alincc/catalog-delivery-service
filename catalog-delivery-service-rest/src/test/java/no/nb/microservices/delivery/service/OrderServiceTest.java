@@ -2,17 +2,16 @@ package no.nb.microservices.delivery.service;
 
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
-import no.nb.microservices.delivery.metadata.model.PhotoFile;
-import no.nb.microservices.delivery.metadata.model.TextualFile;
-import no.nb.microservices.delivery.metadata.model.TextualResource;
+import no.nb.microservices.delivery.metadata.model.PrintedFile;
+import no.nb.microservices.delivery.metadata.model.PrintedResource;
 import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
-import no.nb.microservices.delivery.model.photo.PhotoRequest;
-import no.nb.microservices.delivery.model.textual.TextualFileRequest;
-import no.nb.microservices.delivery.model.textual.TextualResourceRequest;
-import no.nb.microservices.delivery.service.order.DeliveryMetadataService;
-import no.nb.microservices.delivery.service.order.EmailService;
+import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
+import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
+import no.nb.microservices.delivery.service.cloud.DeliveryMetadataService;
+import no.nb.microservices.delivery.service.cloud.EmailService;
 import no.nb.microservices.delivery.service.order.OrderService;
 import no.nb.microservices.delivery.service.order.ZipService;
+import no.nb.microservices.delivery.service.print.PrintedService;
 import no.nb.microservices.email.model.Email;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -55,10 +54,7 @@ public class OrderServiceTest {
     OrderService orderService;
 
     @Mock
-    TextualService textualService;
-
-    @Mock
-    PhotoService photoService;
+    PrintedService printedService;
 
     @Mock
     ZipService zipService;
@@ -75,11 +71,9 @@ public class OrderServiceTest {
     @Test
     public void placeOrderTest() throws ExecutionException, InterruptedException, IOException {
         DeliveryOrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
-        Future<TextualFile> textualResourceListFuture = getTextualItem();
-        Future<PhotoFile> photoFileFuture = getPhoto();
+        Future<PrintedFile> printedFileFuture = getTextualItem();
 
-        when(textualService.getResourceAsync(eq(deliveryOrderRequest.getTextuals().get(0)))).thenReturn(textualResourceListFuture);
-        when(photoService.getResourceAsync(eq(deliveryOrderRequest.getPhotos().get(0)))).thenReturn(photoFileFuture);
+        when(printedService.getResourceAsync(eq(deliveryOrderRequest.getPrints().get(0)))).thenReturn(printedFileFuture);
         when(applicationSettings.getZipFilePath()).thenReturn("");
 
         Resource zippedfile = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.zip");
@@ -97,65 +91,26 @@ public class OrderServiceTest {
         assertTrue(itemOrderCaptor.getKey().matches("^\\w{16}$"));
     }
 
-    private Future<TextualFile> getTextualItem() throws IOException {
+    private Future<PrintedFile> getTextualItem() throws IOException {
         Resource resource = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.pdf");
         InputStream inputStream = resource.getInputStream();
         ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
-        TextualResource textualResource = new TextualResource() {{
-            setUrn("URN:NBN:no-nb_digibok_2014020626009");
-        }};
-        TextualFile textualFile = new TextualFile() {{
-            setFilename("dummy.pdf");
-
-            setResources(Arrays.asList(textualResource));
-            setContent(byteArrayResource);
-        }};
-        return CompletableFuture.completedFuture(textualFile);
-    }
-
-    private Future<PhotoFile> getPhoto() throws IOException {
-        Resource resource = new ClassPathResource("myphoto.zip");
-        InputStream inputStream = resource.getInputStream();
-        ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
-        PhotoFile photoFile = new PhotoFile();
-        photoFile.setUrn("URN:NBN:no-nb_digifoto_20150213_00406_NB_WF_NOK_097120");
-        photoFile.setQuality(4);
-        photoFile.setContent(byteArrayResource);
-        photoFile.setFormat("jpg");
-        photoFile.setFilename("myphoto.zip");
-        photoFile.setFileSizeInBytes(byteArrayResource.contentLength());
-
-        return CompletableFuture.completedFuture(photoFile);
+        PrintedResource printedResource = new PrintedResource("URN:NBN:no-nb_digibok_2014020626009", "book", 4, "ALL");
+        PrintedFile printedFile = new PrintedFile("dummy.pdf", "pdf", Arrays.asList(printedResource));
+        printedFile.setContent(byteArrayResource);
+        return CompletableFuture.completedFuture(printedFile);
     }
 
     private DeliveryOrderRequest getDeliveryOrderRequest() {
-        TextualResourceRequest textualRequest = new TextualResourceRequest() {{
-            setUrn("URN:NBN:no-nb_digibok_2014020626009");
-            setPages("ALL");
-            setQuality(1);
-        }};
-
-        TextualFileRequest textualFileRequest = new TextualFileRequest() {{
-            setText(false);
-            setFilename("dummy");
-            setFormat("pdf");
-            setResources(Arrays.asList(textualRequest));
-        }};
-
-        PhotoRequest photoRequest = new PhotoRequest();
-        photoRequest.setUrn("URN:NBN:no-nb_digifoto_20150213_00406_NB_WF_NOK_097120");
-        photoRequest.setFormat("jpg");
-        photoRequest.setFilename("myphotos");
-        photoRequest.setQuality(4);
-
+        PrintedResourceRequest textualRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014020626009", 1, "ALL", "id", false);
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("dummy", "pdf", Arrays.asList(textualRequest));
 
         DeliveryOrderRequest itemOrder = new DeliveryOrderRequest() {{
             setEmailTo("example@example.com");
             setEmailCc("example-cc@example.com");
             setPurpose("Testing purpose");
             setCompressionType("zip");
-            setTextuals(Arrays.asList(textualFileRequest));
-            setPhotos(Arrays.asList(photoRequest));
+            setPrints(Arrays.asList(printedFileRequest));
         }};
 
         return itemOrder;

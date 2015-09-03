@@ -1,9 +1,10 @@
 package no.nb.microservices.delivery.service;
 
-import no.nb.microservices.delivery.metadata.model.TextualFile;
-import no.nb.microservices.delivery.model.textual.TextualFileRequest;
-import no.nb.microservices.delivery.model.textual.TextualResourceRequest;
-import no.nb.microservices.delivery.repository.TextualGeneratorRepository;
+import no.nb.microservices.delivery.metadata.model.PrintedFile;
+import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
+import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
+import no.nb.microservices.delivery.repository.PrintGeneratorRepository;
+import no.nb.microservices.delivery.service.print.PrintedService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +22,8 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -30,10 +32,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class TextualServiceTest {
     @InjectMocks
-    TextualService textualService;
+    PrintedService printedService;
 
     @Mock
-    TextualGeneratorRepository textualGeneratorRepository;
+    PrintGeneratorRepository printGeneratorRepository;
 
     @Test
     public void getResourcesTest() throws IOException, ExecutionException, InterruptedException {
@@ -41,21 +43,12 @@ public class TextualServiceTest {
         InputStream inputStream = resource.getInputStream();
         ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
 
-        when(textualGeneratorRepository.generate(anyListOf(String.class), anyListOf(String.class), anyString(), anyBoolean(), anyListOf(String.class), anyString(), anyString())).thenReturn(byteArrayResource);
+        when(printGeneratorRepository.generate(anyListOf(String.class), anyListOf(String.class), anyListOf(String.class), anyListOf(Boolean.class), anyListOf(String.class), anyString(), anyString())).thenReturn(byteArrayResource);
 
-        TextualResourceRequest textualResourceRequest = new TextualResourceRequest() {{
-            setUrn("URN:NBN:no-nb_digibok_2008040300029");
-            setPages("1");
-            setQuality(1);
-        }};
-        TextualFileRequest textualFileRequest = new TextualFileRequest() {{
-            setText(false);
-            setFormat("pdf");
-            setFilename("dummy");
-            setResources(Arrays.asList(textualResourceRequest));
-        }};
+        PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2008040300029", 1, "1", "id", false);
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("dummy", "pdf", Arrays.asList(printedResourceRequest));
 
-        TextualFile textualFile = textualService.getResource(textualFileRequest);
+        PrintedFile textualFile = printedService.getResource(printedFileRequest);
 
         assertEquals("dummy.pdf", textualFile.getFilename());
         assertNotNull(textualFile.getContent());

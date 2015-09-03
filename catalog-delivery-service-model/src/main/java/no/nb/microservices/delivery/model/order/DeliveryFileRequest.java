@@ -6,17 +6,18 @@ import org.hibernate.validator.constraints.Length;
  * Created by andreasb on 18.08.15.
  */
 public abstract class DeliveryFileRequest {
-    @Length(max = 4)
-    private String format;
+
 
     @Length(max = 64)
     private String filename;
 
-    public String getFormat() {
-        return format;
-    }
+    @Length(max = 4)
+    private String format;
 
-    public void setFormat(String format) {
+    public DeliveryFileRequest() { }
+
+    public DeliveryFileRequest(String filename, String format) {
+        this.filename = filename;
         this.format = format;
     }
 
@@ -26,5 +27,13 @@ public abstract class DeliveryFileRequest {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 }

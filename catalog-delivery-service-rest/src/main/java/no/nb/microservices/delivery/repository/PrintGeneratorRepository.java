@@ -12,13 +12,13 @@ import java.util.List;
  * Created by andreasb on 09.07.15.
  */
 @FeignClient("catalog-pdf-generator-service")
-public interface TextualGeneratorRepository {
+public interface PrintGeneratorRepository {
 
     @RequestMapping(method = RequestMethod.GET, value = "/generate")
     ByteArrayResource generate(@RequestParam("urn") List<String> urns,
                           @RequestParam("pages") List<String> pages,
-                          @RequestParam("pageSelection") String pageSelection,
-                          @RequestParam("text") boolean text,
+                          @RequestParam("pageSelection") List<String> pageSelection,
+                          @RequestParam("addText") List<Boolean> addText,
                           @RequestParam("resolutionlevel") List<String> resolutionlevel,
                           @RequestParam("filename") String filename,
                           @RequestParam("filetype") String filetype);

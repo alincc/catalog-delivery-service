@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.service.order;
+package no.nb.microservices.delivery.service.cloud;
 
 import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
 import no.nb.microservices.delivery.repository.DeliveryMetadataRepository;
