@@ -3,6 +3,7 @@ package no.nb.microservices.delivery.service;
 import no.nb.microservices.delivery.metadata.model.PrintedFile;
 import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
 import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
+import no.nb.microservices.delivery.repository.CatalogDeliveryTextRepository;
 import no.nb.microservices.delivery.repository.PrintGeneratorRepository;
 import no.nb.microservices.delivery.service.print.PrintedService;
 import org.apache.commons.io.IOUtils;
@@ -30,12 +31,15 @@ import static org.mockito.Mockito.when;
  * Created by andreasb on 24.08.15.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TextualServiceTest {
+public class PrintedServiceTest {
     @InjectMocks
     PrintedService printedService;
 
     @Mock
     PrintGeneratorRepository printGeneratorRepository;
+
+    @Mock
+    CatalogDeliveryTextRepository catalogDeliveryTextRepository;
 
     @Test
     public void getResourcesTest() throws IOException, ExecutionException, InterruptedException {
@@ -53,5 +57,47 @@ public class TextualServiceTest {
         assertEquals("dummy.pdf", textualFile.getFilename());
         assertNotNull(textualFile.getContent());
         assertEquals(1495308, textualFile.getFileSizeInBytes());
+    }
+
+    @Test
+    public void getResourceAltoTest() throws IOException {
+        String urn = "urn:nbn:no-nb_digibok_2014062307158";
+        String pages = "";
+        String pageSelection = "id";
+
+        Resource resource = new ClassPathResource("alto/urn:nbn:no-nb_digibok_2014062307158_all.zip");
+        InputStream inputStream = resource.getInputStream();
+        ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
+
+        when(catalogDeliveryTextRepository.getAltos(urn, pages, pageSelection)).thenReturn(byteArrayResource);
+
+        PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest(urn, pages, pageSelection);
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("dummy", "alto", Arrays.asList(printedResourceRequest));
+        PrintedFile textualFile = printedService.getResource(printedFileRequest);
+
+        assertEquals("dummy.zip", textualFile.getFilename());
+        assertNotNull(textualFile.getContent());
+        assertEquals(22338, textualFile.getFileSizeInBytes());
+    }
+
+    @Test
+    public void getResourceAltoTestWithPages() throws IOException {
+        String urn = "urn:nbn:no-nb_digibok_2014062307158";
+        String pages = "1-3";
+        String pageSelection = "id";
+
+        Resource resource = new ClassPathResource("alto/urn:nbn:no-nb_digibok_2014062307158_1-3.zip");
+        InputStream inputStream = resource.getInputStream();
+        ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
+
+        when(catalogDeliveryTextRepository.getAltos(urn, pages, pageSelection)).thenReturn(byteArrayResource);
+
+        PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest(urn, pages, pageSelection);
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("dummy", "alto", Arrays.asList(printedResourceRequest));
+        PrintedFile textualFile = printedService.getResource(printedFileRequest);
+
+        assertEquals("dummy.zip", textualFile.getFilename());
+        assertNotNull(textualFile.getContent());
+        assertEquals(5003, textualFile.getFileSizeInBytes());
     }
 }

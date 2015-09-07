@@ -7,6 +7,7 @@ import no.nb.microservices.delivery.metadata.model.PrintedFile;
 import no.nb.microservices.delivery.metadata.model.PrintedResource;
 import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
 import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
+import no.nb.microservices.delivery.repository.CatalogDeliveryTextRepository;
 import no.nb.microservices.delivery.repository.PrintGeneratorRepository;
 import no.nb.microservices.delivery.service.print.IPrintedService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,12 @@ import java.util.stream.Collectors;
 public class PrintedService implements IPrintedService {
 
     private final PrintGeneratorRepository printGeneratorRepository;
+    private final CatalogDeliveryTextRepository catalogDeliveryTextRepository;
 
     @Autowired
-    public PrintedService(PrintGeneratorRepository printGeneratorRepository) {
+    public PrintedService(PrintGeneratorRepository printGeneratorRepository, CatalogDeliveryTextRepository catalogDeliveryTextRepository) {
         this.printGeneratorRepository = printGeneratorRepository;
+        this.catalogDeliveryTextRepository = catalogDeliveryTextRepository;
     }
 
     @Override
@@ -68,7 +71,11 @@ public class PrintedService implements IPrintedService {
             printedFile.setContent(response);
         }
         else  if (textFormats.contains(fileRequest.getFormat())) {
-
+            ByteArrayResource response = catalogDeliveryTextRepository.getAltos(urns.get(0), pages.get(0), requests.get(0).getPageSelection());
+            printedFile.setFilename(fileRequest.getFilename() + ".zip");
+            printedFile.setFormat(fileRequest.getFormat());
+            printedFile.setFileSizeInBytes(response.contentLength());
+            printedFile.setContent(response);
         }
 
         return printedFile;

@@ -31,6 +31,12 @@ public class PrintedResourceRequest {
         this.quality = quality;
     }
 
+    public PrintedResourceRequest(String urn, String pages, String pageSelection) {
+        this.urn = urn;
+        this.pages = pages;
+        this.pageSelection = pageSelection;
+    }
+
     public PrintedResourceRequest(String urn, int quality, String pages, String pageSelection, boolean isText) {
         this.urn = urn;
         this.quality = quality;
