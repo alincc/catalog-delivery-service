@@ -15,4 +15,7 @@ public interface CatalogDeliveryTextRepository {
 
     @RequestMapping(value = "/alto/{urn}", method = RequestMethod.GET)
     ByteArrayResource getAltos(@PathVariable String urn, @RequestParam String pages, @RequestParam String pageSelection);
+
+    @RequestMapping(value = "/text/{urn}", method = RequestMethod.GET)
+    ByteArrayResource getText(@PathVariable String urn, @RequestParam String pages, @RequestParam String pageSelection);
 }

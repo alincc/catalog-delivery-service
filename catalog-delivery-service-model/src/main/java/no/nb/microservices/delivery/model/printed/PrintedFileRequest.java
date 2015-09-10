@@ -1,6 +1,6 @@
 package no.nb.microservices.delivery.model.printed;
 
-import no.nb.microservices.delivery.model.order.DeliveryFileRequest;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -8,7 +8,10 @@ import java.util.List;
 /**
  * Created by andreasb on 19.08.15.
  */
-public class PrintedFileRequest extends DeliveryFileRequest {
+public class PrintedFileRequest {
+
+    @Length(max = 4)
+    private String format;
 
     @Size(max = 64)
     private List<PrintedResourceRequest> resources;
@@ -16,15 +19,15 @@ public class PrintedFileRequest extends DeliveryFileRequest {
     public PrintedFileRequest() {
     }
 
-    public PrintedFileRequest(String filename, String format, List<PrintedResourceRequest> resources) {
-        super(filename, format);
+    public PrintedFileRequest(String format, List<PrintedResourceRequest> resources) {
+        this.format = format;
         this.resources = resources;
     }
 
     public boolean isImages() {
-        if ("jp2".equalsIgnoreCase(super.getFormat()) ||
-                "jpg".equalsIgnoreCase(super.getFormat()) ||
-                "tif".equalsIgnoreCase(super.getFormat())) {
+        if ("jp2".equalsIgnoreCase(this.getFormat()) ||
+                "jpg".equalsIgnoreCase(this.getFormat()) ||
+                "tif".equalsIgnoreCase(this.getFormat())) {
             return true;
         }
         return false;
@@ -38,4 +41,11 @@ public class PrintedFileRequest extends DeliveryFileRequest {
         this.resources = resources;
     }
 
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
 }

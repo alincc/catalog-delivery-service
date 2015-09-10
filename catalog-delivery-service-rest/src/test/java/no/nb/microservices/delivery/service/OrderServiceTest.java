@@ -103,7 +103,7 @@ public class OrderServiceTest {
 
     private DeliveryOrderRequest getDeliveryOrderRequest() {
         PrintedResourceRequest textualRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014020626009", 1, "ALL", "id", false);
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest("dummy", "pdf", Arrays.asList(textualRequest));
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("pdf", Arrays.asList(textualRequest));
 
         DeliveryOrderRequest itemOrder = new DeliveryOrderRequest() {{
             setEmailTo("example@example.com");

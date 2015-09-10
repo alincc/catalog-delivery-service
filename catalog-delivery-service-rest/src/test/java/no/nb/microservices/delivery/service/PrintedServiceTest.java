@@ -50,11 +50,11 @@ public class PrintedServiceTest {
         when(printGeneratorRepository.generate(anyListOf(String.class), anyListOf(String.class), anyListOf(String.class), anyListOf(Boolean.class), anyListOf(String.class), anyString(), anyString())).thenReturn(byteArrayResource);
 
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2008040300029", 1, "1", "id", false);
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest("dummy", "pdf", Arrays.asList(printedResourceRequest));
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("pdf", Arrays.asList(printedResourceRequest));
 
         PrintedFile textualFile = printedService.getResource(printedFileRequest);
 
-        assertEquals("dummy.pdf", textualFile.getFilename());
+        assertEquals("URN:NBN:no-nb_digibok_2008040300029.pdf", textualFile.getFilename());
         assertNotNull(textualFile.getContent());
         assertEquals(1495308, textualFile.getFileSizeInBytes());
     }
@@ -72,10 +72,10 @@ public class PrintedServiceTest {
         when(catalogDeliveryTextRepository.getAltos(urn, pages, pageSelection)).thenReturn(byteArrayResource);
 
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest(urn, pages, pageSelection);
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest("dummy", "alto", Arrays.asList(printedResourceRequest));
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("alto", Arrays.asList(printedResourceRequest));
         PrintedFile textualFile = printedService.getResource(printedFileRequest);
 
-        assertEquals("dummy.zip", textualFile.getFilename());
+        assertEquals("urn:nbn:no-nb_digibok_2014062307158.zip", textualFile.getFilename());
         assertNotNull(textualFile.getContent());
         assertEquals(22338, textualFile.getFileSizeInBytes());
     }
@@ -93,11 +93,32 @@ public class PrintedServiceTest {
         when(catalogDeliveryTextRepository.getAltos(urn, pages, pageSelection)).thenReturn(byteArrayResource);
 
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest(urn, pages, pageSelection);
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest("dummy", "alto", Arrays.asList(printedResourceRequest));
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("alto", Arrays.asList(printedResourceRequest));
         PrintedFile textualFile = printedService.getResource(printedFileRequest);
 
-        assertEquals("dummy.zip", textualFile.getFilename());
+        assertEquals("urn:nbn:no-nb_digibok_2014062307158.zip", textualFile.getFilename());
         assertNotNull(textualFile.getContent());
         assertEquals(5003, textualFile.getFileSizeInBytes());
+    }
+
+    @Test
+    public void getResourceTextTest() throws IOException {
+        String urn = "urn:nbn:no-nb_digibok_2014062307158";
+        String pages = "";
+        String pageSelection = "id";
+
+        Resource resource = new ClassPathResource("text/URN:NBN:no-nb_digibok_2014062307158.zip");
+        InputStream inputStream = resource.getInputStream();
+        ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
+
+        when(catalogDeliveryTextRepository.getText(urn, pages, pageSelection)).thenReturn(byteArrayResource);
+
+        PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest(urn, pages, pageSelection);
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest("txt", Arrays.asList(printedResourceRequest));
+        PrintedFile textualFile = printedService.getResource(printedFileRequest);
+
+        assertEquals("urn:nbn:no-nb_digibok_2014062307158.zip", textualFile.getFilename());
+        assertNotNull(textualFile.getContent());
+        assertEquals(428, textualFile.getFileSizeInBytes());
     }
 }

@@ -9,7 +9,6 @@ import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
 import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
 import no.nb.microservices.delivery.repository.CatalogDeliveryTextRepository;
 import no.nb.microservices.delivery.repository.PrintGeneratorRepository;
-import no.nb.microservices.delivery.service.print.IPrintedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -59,24 +58,25 @@ public class PrintedService implements IPrintedService {
         List<String> pageSelections = requests.stream().filter(q -> q.getPageSelection() != null).map(q -> q.getPageSelection()).collect(Collectors.toList());
         List<String> quality = requests.stream().map(q -> q.getQuality() + "").collect(Collectors.toList());
         List<Boolean> addTexts = requests.stream().map(q -> q.isText()).collect(Collectors.toList());
-
         List<String> graphicFormats = Arrays.asList("pdf", "jpg", "tif", "jp2");
-        List<String> textFormats = Arrays.asList("alto", "txt");
 
+        ByteArrayResource response = null;
         if (graphicFormats.contains(fileRequest.getFormat())) {
-            ByteArrayResource response = printGeneratorRepository.generate(urns, pages, pageSelections, addTexts, quality, fileRequest.getFilename(), fileRequest.getFormat());
-            printedFile.setFilename(fileRequest.getFilename() + "." + (fileRequest.getResources().size() > 1 ? "zip " : fileRequest.getFormat()));
-            printedFile.setFormat(fileRequest.getFormat());
-            printedFile.setFileSizeInBytes(response.contentLength());
-            printedFile.setContent(response);
+            response = printGeneratorRepository.generate(urns, pages, pageSelections, addTexts, quality, "filename", fileRequest.getFormat());
+            printedFile.setFilename(urns.get(0) + "." + (fileRequest.getResources().size() > 1 ? "zip " : fileRequest.getFormat()));
         }
-        else  if (textFormats.contains(fileRequest.getFormat())) {
-            ByteArrayResource response = catalogDeliveryTextRepository.getAltos(urns.get(0), pages.get(0), requests.get(0).getPageSelection());
-            printedFile.setFilename(fileRequest.getFilename() + ".zip");
-            printedFile.setFormat(fileRequest.getFormat());
-            printedFile.setFileSizeInBytes(response.contentLength());
-            printedFile.setContent(response);
+        else if ("alto".equalsIgnoreCase(fileRequest.getFormat())) {
+            response = catalogDeliveryTextRepository.getAltos(urns.get(0), pages.get(0), requests.get(0).getPageSelection());
+            printedFile.setFilename(urns.get(0) + ".zip");
         }
+        else if ("txt".equalsIgnoreCase(fileRequest.getFormat())) {
+            response = catalogDeliveryTextRepository.getText(urns.get(0), pages.get(0), requests.get(0).getPageSelection());
+            printedFile.setFilename(urns.get(0) + ".zip");
+        }
+
+        printedFile.setFormat(fileRequest.getFormat());
+        printedFile.setFileSizeInBytes(response.contentLength());
+        printedFile.setContent(response);
 
         return printedFile;
     }

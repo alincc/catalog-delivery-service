@@ -44,14 +44,14 @@ public class PrintsController {
                                      HttpServletResponse response) throws IOException, InterruptedException, ExecutionException {
 
         PrintedResourceRequest textualRequest = new PrintedResourceRequest(urn, (highQuality) ? 6 : 5, pages, "id", false);
-        PrintedFileRequest fileRequest = new PrintedFileRequest("filename", format, Arrays.asList(textualRequest));
+        PrintedFileRequest fileRequest = new PrintedFileRequest(format, Arrays.asList(textualRequest));
 
         Future<PrintedFile> printedFileFuture = printedService.getResourceAsync(fileRequest);
         Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(textualRequest.getUrn());
         PrintedFile printedFile = printedFileFuture.get();
         ItemResource itemResource = itemResourceFuture.get();
         String outputFilename = itemResource.getMetadata().getTitleInfo().getTitle() + "." + printedFile.getFormat();
-        String contentType = Files.probeContentType(new File("outputFilename").toPath());
+        String contentType = Files.probeContentType(new File(outputFilename).toPath());
         response.setContentType(contentType);
         response.setHeader("Content-Disposition", "attachment; filename=" + outputFilename);
         response.getOutputStream().write(printedFile.getContent().getByteArray());
