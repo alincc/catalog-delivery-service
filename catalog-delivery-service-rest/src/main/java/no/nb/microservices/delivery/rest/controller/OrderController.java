@@ -1,7 +1,7 @@
 package no.nb.microservices.delivery.rest.controller;
 
+import no.nb.microservices.delivery.core.order.service.OrderService;
 import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
-import no.nb.microservices.delivery.service.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

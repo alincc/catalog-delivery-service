@@ -1,1 +1,0 @@
-package no.nb.microservices.delivery.domain;

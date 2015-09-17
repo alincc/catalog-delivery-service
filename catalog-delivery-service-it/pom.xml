@@ -12,6 +12,11 @@
     <artifactId>catalog-delivery-service-it</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>no.nb.microservices.delivery</groupId>
+            <artifactId>catalog-delivery-service-rest</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,11 +1,11 @@
 package no.nb.microservices.delivery.rest.controller;
 
 import no.nb.microservices.catalogitem.rest.model.ItemResource;
+import no.nb.microservices.delivery.core.item.service.IItemService;
+import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.metadata.model.PrintedFile;
 import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
 import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
-import no.nb.microservices.delivery.service.cloud.IItemService;
-import no.nb.microservices.delivery.service.print.IPrintedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

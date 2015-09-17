@@ -8,6 +8,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.security.oauth2.resource.EnableOAuth2Resource;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
 
@@ -19,6 +20,7 @@ import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType
 @EnableOAuth2Resource
 @RefreshScope
 @EnableHypermediaSupport(type= {HypermediaType.HAL})
+@ComponentScan(basePackages = {"no.nb.microservices.delivery", "no.nb.commons"})
 public class Application {
 
     public static void main(String[] args) {

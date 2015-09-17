@@ -47,7 +47,7 @@
         <dependency>
             <groupId>no.nb.microservices.delivery.metadata</groupId>
             <artifactId>catalog-delivery-metadata-service-model</artifactId>
-            <version>0.0.1-18</version>
+            <version>0.0.1-19</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.email</groupId>
@@ -57,12 +57,19 @@
         <dependency>
             <groupId>no.nb.microservices.catalogitem</groupId>
             <artifactId>catalog-item-service-model</artifactId>
-            <version>0.0.1-3d73000545f1a5a2ac1ecbcd731562445e2e3771-64</version>
+            <version>0.0.1-8a292736b2cd69a579d783982badb054fbe53c1e-90</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices</groupId>
             <artifactId>catalog-metadata-model</artifactId>
             <version>0.0.1-9092c43cb817d53176641ceba7e270bad1c9ba08-89</version>
+        </dependency>
+
+        <!-- Utils -->
+        <dependency>
+            <groupId>no.nb.commons</groupId>
+            <artifactId>commons-io-utils</artifactId>
+            <version>-4</version>
         </dependency>
 
         <!-- Third party -->
@@ -139,6 +146,11 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.8.1</version>
         </dependency>
     </dependencies>
 
