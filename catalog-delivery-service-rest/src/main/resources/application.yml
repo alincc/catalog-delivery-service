@@ -10,7 +10,7 @@ endpoints:
     enabled: true
 
 server:
-  port: 8066
+  port: 8080
 
 eureka:
   instance:
