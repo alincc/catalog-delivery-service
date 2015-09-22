@@ -13,7 +13,6 @@ import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
 import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
 import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
 import no.nb.microservices.email.model.Email;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,12 +73,14 @@ public class OrderServiceTest {
 
     @Test
     public void placeOrderTest() throws ExecutionException, InterruptedException, IOException {
+        String tmpDir = System.getProperty("java.io.tmpdir");
+
         DeliveryOrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
         Future<PrintedFile> printedFileFuture = getTextualItem();
 
         when(packageFactory.getPackageService(eq("zip"))).thenReturn(new ZipService());
         when(printedService.getResourceAsync(eq(deliveryOrderRequest.getPrints().get(0)))).thenReturn(printedFileFuture);
-        when(applicationSettings.getZipFilePath()).thenReturn(FileUtils.getTempDirectoryPath() + "/");
+        when(applicationSettings.getZipFilePath()).thenReturn(tmpDir + "/");
 
         Resource zippedfile = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.zip");
         when(zipService.packToPath(any(List.class), anyString())).thenReturn(zippedfile.getFile());

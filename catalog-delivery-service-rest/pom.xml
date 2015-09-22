@@ -42,34 +42,34 @@
         <dependency>
             <groupId>no.nb.microservices.pdfgenerator</groupId>
             <artifactId>catalog-pdf-generator-service-model</artifactId>
-            <version>3.0.12-8</version>
+            <version>3.0.12-12</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.delivery.metadata</groupId>
             <artifactId>catalog-delivery-metadata-service-model</artifactId>
-            <version>0.0.1-19</version>
+            <version>0.0.1-22</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.email</groupId>
             <artifactId>email-service-model</artifactId>
-            <version>0.0.1-5</version>
+            <version>0.0.1-8</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.catalogitem</groupId>
             <artifactId>catalog-item-service-model</artifactId>
-            <version>0.0.1-8a292736b2cd69a579d783982badb054fbe53c1e-90</version>
+            <version>0.0.1-84eeae25492ff8684d24cabede290f240007749c-91</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices</groupId>
             <artifactId>catalog-metadata-model</artifactId>
-            <version>0.0.1-9092c43cb817d53176641ceba7e270bad1c9ba08-89</version>
+            <version>0.0.1-93</version>
         </dependency>
 
         <!-- Utils -->
         <dependency>
             <groupId>no.nb.commons</groupId>
             <artifactId>commons-io-utils</artifactId>
-            <version>-4</version>
+            <version>-8</version>
         </dependency>
 
         <!-- Third party -->
@@ -146,11 +146,6 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>1.8.1</version>
         </dependency>
     </dependencies>
 

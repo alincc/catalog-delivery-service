@@ -50,7 +50,13 @@ public class PrintsController {
         Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(textualRequest.getUrn());
         PrintedFile printedFile = printedFileFuture.get();
         ItemResource itemResource = itemResourceFuture.get();
-        String outputFilename = itemResource.getMetadata().getTitleInfo().getTitle() + "." + printedFile.getFormat();
+        String outputFilename;
+        if (itemResource.getMetadata().getTitleInfo() != null) {
+            outputFilename = itemResource.getMetadata().getTitleInfo().getTitle() + "." + printedFile.getFormat();
+        }
+        else {
+            outputFilename = urn + "." + printedFile.getFormat();
+        }
         String contentType = Files.probeContentType(new File(outputFilename).toPath());
         response.setContentType(contentType);
         response.setHeader("Content-Disposition", "attachment; filename=" + outputFilename);
