@@ -64,12 +64,17 @@
             <artifactId>catalog-metadata-model</artifactId>
             <version>0.0.1-93</version>
         </dependency>
+        <dependency>
+            <groupId>no.nb.microservices.catalogsearchindex</groupId>
+            <artifactId>catalog-search-index-model</artifactId>
+            <version>-b30fdc37729c2568e3d8e08d8b9d291e81cc7e4a-39</version>
+        </dependency>
 
         <!-- Utils -->
         <dependency>
             <groupId>no.nb.commons</groupId>
             <artifactId>commons-io-utils</artifactId>
-            <version>-8</version>
+            <version>-9</version>
         </dependency>
 
         <!-- Third party -->

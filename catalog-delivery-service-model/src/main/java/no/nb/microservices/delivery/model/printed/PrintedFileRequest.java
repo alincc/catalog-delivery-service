@@ -10,6 +10,9 @@ import java.util.List;
  */
 public class PrintedFileRequest {
 
+    @Length(max = 6)
+    private String packageFormat = "zip";
+
     @Length(max = 4)
     private String format;
 
@@ -47,5 +50,13 @@ public class PrintedFileRequest {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public String getPackageFormat() {
+        return packageFormat;
+    }
+
+    public void setPackageFormat(String packageFormat) {
+        this.packageFormat = packageFormat;
     }
 }

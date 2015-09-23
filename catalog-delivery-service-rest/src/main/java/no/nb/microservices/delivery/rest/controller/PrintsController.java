@@ -47,7 +47,7 @@ public class PrintsController {
         PrintedFileRequest fileRequest = new PrintedFileRequest(format, Arrays.asList(textualRequest));
 
         Future<PrintedFile> printedFileFuture = printedService.getResourceAsync(fileRequest);
-        Future<ItemResource> itemResourceFuture = itemService.getItemByIdAsync(textualRequest.getUrn());
+        Future<ItemResource> itemResourceFuture = itemService.getItemByUrnAsync(textualRequest.getUrn());
         PrintedFile printedFile = printedFileFuture.get();
         ItemResource itemResource = itemResourceFuture.get();
         String outputFilename;

@@ -66,12 +66,12 @@ public class PrintedService implements IPrintedService {
             printedFile.setFilename(urns.get(0) + "." + (fileRequest.getResources().size() > 1 ? "zip " : fileRequest.getFormat()));
         }
         else if ("alto".equalsIgnoreCase(fileRequest.getFormat())) {
-            response = catalogDeliveryTextRepository.getAltos(urns.get(0), pages.get(0), requests.get(0).getPageSelection());
-            printedFile.setFilename(urns.get(0) + ".zip");
+            response = catalogDeliveryTextRepository.getAltos(requests.get(0).getUrn(), requests.get(0).getPages(), requests.get(0).getPageSelection(), fileRequest.getPackageFormat());
+            printedFile.setFilename(requests.get(0).getUrn() + ".zip");
         }
         else if ("txt".equalsIgnoreCase(fileRequest.getFormat())) {
-            response = catalogDeliveryTextRepository.getText(urns.get(0), pages.get(0), requests.get(0).getPageSelection());
-            printedFile.setFilename(urns.get(0) + ".zip");
+            response = catalogDeliveryTextRepository.getText(requests.get(0).getUrn(), requests.get(0).getPages(), requests.get(0).getPageSelection());
+            printedFile.setFilename(requests.get(0).getUrn() + ".zip");
         }
 
         printedFile.setFormat(fileRequest.getFormat());

@@ -14,9 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient("catalog-delivery-text-service")
 public interface CatalogDeliveryTextRepository {
 
-    @RequestMapping(value = "/alto/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    ByteArrayResource getAltos(@PathVariable("id") String id, @RequestParam("pages") String pages, @RequestParam("pageSelection") String pageSelection);
+    @RequestMapping(value = "/alto/{urn}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    ByteArrayResource getAltos(@PathVariable("urn") String urn,
+                               @RequestParam("pages") String pages,
+                               @RequestParam("pageSelection") String pageSelection,
+                               @RequestParam("packageFormat") String packageFormat);
 
     @RequestMapping(value = "/text/{urn}", method = RequestMethod.GET)
-    ByteArrayResource getText(@PathVariable("urn") String urn, @RequestParam("pages") String pages, @RequestParam("pageSelection") String pageSelection);
+    ByteArrayResource getText(@PathVariable("urn") String urn,
+                              @RequestParam("pages") String pages,
+                              @RequestParam("pageSelection") String pageSelection);
 }

@@ -63,12 +63,13 @@ public class PrintedServiceTest {
         String urn = "urn:nbn:no-nb_digibok_2014062307158";
         String pages = "";
         String pageSelection = "id";
+        String format = "zip";
 
         Resource resource = new ClassPathResource("alto/urn:nbn:no-nb_digibok_2014062307158_all.zip");
         InputStream inputStream = resource.getInputStream();
         ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
 
-        when(catalogDeliveryTextRepository.getAltos(urn, pages, pageSelection)).thenReturn(byteArrayResource);
+        when(catalogDeliveryTextRepository.getAltos(urn, pages, pageSelection, format)).thenReturn(byteArrayResource);
 
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest(urn, pages, pageSelection);
         PrintedFileRequest printedFileRequest = new PrintedFileRequest("alto", Arrays.asList(printedResourceRequest));
@@ -84,12 +85,14 @@ public class PrintedServiceTest {
         String urn = "urn:nbn:no-nb_digibok_2014062307158";
         String pages = "1-3";
         String pageSelection = "id";
+        String format = "zip";
+
 
         Resource resource = new ClassPathResource("alto/urn:nbn:no-nb_digibok_2014062307158_1-3.zip");
         InputStream inputStream = resource.getInputStream();
         ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
 
-        when(catalogDeliveryTextRepository.getAltos(urn, pages, pageSelection)).thenReturn(byteArrayResource);
+        when(catalogDeliveryTextRepository.getAltos(urn, pages, pageSelection, format)).thenReturn(byteArrayResource);
 
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest(urn, pages, pageSelection);
         PrintedFileRequest printedFileRequest = new PrintedFileRequest("alto", Arrays.asList(printedResourceRequest));

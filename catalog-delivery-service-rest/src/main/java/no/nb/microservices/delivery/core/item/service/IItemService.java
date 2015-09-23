@@ -7,4 +7,5 @@ import java.util.concurrent.Future;
 public interface IItemService {
 
     Future<ItemResource> getItemByIdAsync(String id);
+    Future<ItemResource> getItemByUrnAsync(String urn);
 }
