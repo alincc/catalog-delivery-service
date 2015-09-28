@@ -21,10 +21,13 @@ public class PrintedResourceRequest {
     @Length(max = 6)
     private String pageSelection;
 
-    private boolean isText;
+    private boolean ocrText;
 
     public PrintedResourceRequest() {}
 
+    public PrintedResourceRequest(String urn) {
+        this.urn = urn;
+    }
 
     public PrintedResourceRequest(String urn, int quality) {
         this.urn = urn;
@@ -37,12 +40,12 @@ public class PrintedResourceRequest {
         this.pageSelection = pageSelection;
     }
 
-    public PrintedResourceRequest(String urn, int quality, String pages, String pageSelection, boolean isText) {
+    public PrintedResourceRequest(String urn, int quality, String pages, String pageSelection, boolean ocrText) {
         this.urn = urn;
         this.quality = quality;
         this.pages = pages;
         this.pageSelection = pageSelection;
-        this.isText = isText;
+        this.ocrText = ocrText;
     }
 
     public String getUrn() {
@@ -77,11 +80,11 @@ public class PrintedResourceRequest {
         this.pageSelection = pageSelection;
     }
 
-    public boolean isText() {
-        return isText;
+    public boolean isOcrText() {
+        return ocrText;
     }
 
     public void setIsText(boolean isText) {
-        this.isText = isText;
+        this.ocrText = isText;
     }
 }

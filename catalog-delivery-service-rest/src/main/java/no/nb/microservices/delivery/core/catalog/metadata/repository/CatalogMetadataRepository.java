@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @FeignClient
 public interface CatalogMetadataRepository {
-    @RequestMapping(value = "{id}/struct", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
+    @RequestMapping(value = "/catalog/metadata/{id}/struct", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
     ResponseEntity<StructMap> getStructure(@PathVariable String id);
 }

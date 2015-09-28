@@ -24,7 +24,7 @@ public class DeliveryOrderRequest {
     private String purpose;
 
     @Length(max = 6)
-    private String compressionType = "zip";
+    private String packageFormat = "zip";
 
     @Size(max = 64)
     private List<PrintedFileRequest> prints;
@@ -65,12 +65,12 @@ public class DeliveryOrderRequest {
         this.purpose = purpose;
     }
 
-    public String getCompressionType() {
-        return compressionType;
+    public String getPackageFormat() {
+        return packageFormat;
     }
 
-    public void setCompressionType(String compressionType) {
-        this.compressionType = compressionType;
+    public void setPackageFormat(String packageFormat) {
+        this.packageFormat = packageFormat;
     }
 
     public List<PrintedFileRequest> getPrints() {

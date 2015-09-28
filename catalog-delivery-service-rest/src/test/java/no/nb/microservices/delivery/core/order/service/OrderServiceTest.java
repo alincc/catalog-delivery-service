@@ -3,6 +3,7 @@ package no.nb.microservices.delivery.core.order.service;
 import no.nb.commons.io.packaging.factory.PackageFactory;
 import no.nb.commons.io.packaging.service.ZipService;
 import no.nb.microservices.delivery.config.ApplicationSettings;
+import no.nb.microservices.delivery.config.EmailSettings;
 import no.nb.microservices.delivery.core.email.service.EmailService;
 import no.nb.microservices.delivery.core.metadata.service.DeliveryMetadataService;
 import no.nb.microservices.delivery.core.print.service.PrintedService;
@@ -78,9 +79,15 @@ public class OrderServiceTest {
         DeliveryOrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
         Future<PrintedFile> printedFileFuture = getTextualItem();
 
+        EmailSettings emailSettings = new EmailSettings();
+        emailSettings.setSubject("placeOrderTest");
+        emailSettings.setFrom("placeOrderTest@nb.no");
+        emailSettings.setTemplate("template.vm");
+
         when(packageFactory.getPackageService(eq("zip"))).thenReturn(new ZipService());
         when(printedService.getResourceAsync(eq(deliveryOrderRequest.getPrints().get(0)))).thenReturn(printedFileFuture);
         when(applicationSettings.getZipFilePath()).thenReturn(tmpDir + "/");
+        when(applicationSettings.getEmail()).thenReturn(emailSettings);
 
         Resource zippedfile = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.zip");
         when(zipService.packToPath(any(List.class), anyString())).thenReturn(zippedfile.getFile());
@@ -115,7 +122,7 @@ public class OrderServiceTest {
             setEmailTo("example@example.com");
             setEmailCc("example-cc@example.com");
             setPurpose("Testing purpose");
-            setCompressionType("zip");
+            setPackageFormat("zip");
             setPrints(Arrays.asList(printedFileRequest));
         }};
 

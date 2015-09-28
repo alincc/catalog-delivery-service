@@ -16,7 +16,7 @@ public class PrintedFileRequest {
     @Length(max = 4)
     private String format;
 
-    @Size(max = 64)
+    @Size(min = 1, max = 64)
     private List<PrintedResourceRequest> resources;
 
     public PrintedFileRequest() {
@@ -25,15 +25,6 @@ public class PrintedFileRequest {
     public PrintedFileRequest(String format, List<PrintedResourceRequest> resources) {
         this.format = format;
         this.resources = resources;
-    }
-
-    public boolean isImages() {
-        if ("jp2".equalsIgnoreCase(this.getFormat()) ||
-                "jpg".equalsIgnoreCase(this.getFormat()) ||
-                "tif".equalsIgnoreCase(this.getFormat())) {
-            return true;
-        }
-        return false;
     }
 
     public List<PrintedResourceRequest> getResources() {

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class ApplicationSettings {
     private String zipFilePath;
     private String downloadPath;
+    private EmailSettings email;
 
     public String getZipFilePath() {
         return zipFilePath;
@@ -23,5 +24,13 @@ public class ApplicationSettings {
 
     public void setDownloadPath(String downloadPath) {
         this.downloadPath = downloadPath;
+    }
+
+    public EmailSettings getEmail() {
+        return email;
+    }
+
+    public void setEmail(EmailSettings email) {
+        this.email = email;
     }
 }

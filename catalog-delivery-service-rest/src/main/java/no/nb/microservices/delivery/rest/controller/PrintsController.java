@@ -1,6 +1,5 @@
 package no.nb.microservices.delivery.rest.controller;
 
-import no.nb.microservices.catalogitem.rest.model.ItemResource;
 import no.nb.microservices.delivery.core.item.service.IItemService;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.metadata.model.PrintedFile;
@@ -47,16 +46,8 @@ public class PrintsController {
         PrintedFileRequest fileRequest = new PrintedFileRequest(format, Arrays.asList(textualRequest));
 
         Future<PrintedFile> printedFileFuture = printedService.getResourceAsync(fileRequest);
-        Future<ItemResource> itemResourceFuture = itemService.getItemByUrnAsync(textualRequest.getUrn());
         PrintedFile printedFile = printedFileFuture.get();
-        ItemResource itemResource = itemResourceFuture.get();
-        String outputFilename;
-        if (itemResource.getMetadata().getTitleInfo() != null) {
-            outputFilename = itemResource.getMetadata().getTitleInfo().getTitle() + "." + printedFile.getFormat();
-        }
-        else {
-            outputFilename = urn + "." + printedFile.getFormat();
-        }
+        String outputFilename = urn + "." + printedFile.getFileExtension();
         String contentType = Files.probeContentType(new File(outputFilename).toPath());
         response.setContentType(contentType);
         response.setHeader("Content-Disposition", "attachment; filename=" + outputFilename);

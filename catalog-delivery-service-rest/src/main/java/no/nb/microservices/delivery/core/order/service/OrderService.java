@@ -12,7 +12,7 @@ import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
 import no.nb.microservices.delivery.metadata.model.PrintedFile;
 import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
 import no.nb.microservices.email.model.Email;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -56,9 +56,9 @@ public class OrderService implements IOrderService {
         List<DeliveryFile> deliveryFiles = getAllResources(deliveryOrderRequest);
 
         // Package all files to disk
-        String packageFilename = deliveryOrderRequest.getOrderId() + "." + deliveryOrderRequest.getCompressionType();
+        String packageFilename = deliveryOrderRequest.getOrderId() + "." + deliveryOrderRequest.getPackageFormat();
         String packagePath = applicationSettings.getZipFilePath() + packageFilename;
-        File zippedFile = packageFactory.getPackageService(deliveryOrderRequest.getCompressionType())
+        File zippedFile = packageFactory.getPackageService(deliveryOrderRequest.getPackageFormat())
                 .packToPath(deliveryFiles.stream().map(q -> (Packable) q).collect(Collectors.toList()), packagePath);
 
         // Store information about the order
@@ -69,6 +69,7 @@ public class OrderService implements IOrderService {
     }
 
     private List<DeliveryFile> getAllResources(DeliveryOrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException {
+        deliveryOrderRequest.getPrints().stream().forEach(q -> q.setPackageFormat(deliveryOrderRequest.getPackageFormat()));
         List<Future<PrintedFile>> textualResourcesFutureList = deliveryOrderRequest.getPrints().stream()
                 .map(request -> printedService.getResourceAsync(request))
                 .collect(Collectors.toList());
@@ -78,11 +79,12 @@ public class OrderService implements IOrderService {
         for (Future<PrintedFile> textualResourceFuture : textualResourcesFutureList) {
             deliveryFiles.add(textualResourceFuture.get());
         }
+
         return deliveryFiles;
     }
 
     private DeliveryOrder saveOrder(final DeliveryOrderRequest deliveryOrderRequest, final List<DeliveryFile> deliveryFiles, final String zipFilename, final File zippedFile) {
-        String orderKey = RandomStringUtils.randomAlphanumeric(16);
+        String orderKey = RandomStringUtils.randomAlphanumeric(16).toLowerCase();
         DeliveryOrder orderMetadata = new DeliveryOrder() {{
             setOrderId(deliveryOrderRequest.getOrderId());
             setEmailTo(deliveryOrderRequest.getEmailTo());
@@ -105,9 +107,9 @@ public class OrderService implements IOrderService {
         Email email = new Email() {{
             setTo(orderMetadataResponseEntity.getEmailTo());
             setCc(orderMetadataResponseEntity.getEmailCc());
-            setSubject("Din bestilling");
-            setFrom("bestilling@nb.no");
-            setTemplate("delivery.vm");
+            setSubject(applicationSettings.getEmail().getSubject());
+            setFrom(applicationSettings.getEmail().getFrom());
+            setTemplate(applicationSettings.getEmail().getTemplate());
             setContent(orderMetadataResponseEntity);
 
         }};

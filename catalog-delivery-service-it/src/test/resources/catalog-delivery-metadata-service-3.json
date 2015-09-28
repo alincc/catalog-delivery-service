@@ -1,0 +1,25 @@
+{
+  "orderId": "71370c0b-4a24-4acd-a522-c4cdeb9d891b",
+  "emailTo": "dev@nb.no",
+  "userId": "",
+  "key": "d8sjxnajhd87caxa",
+  "filename": "d287191ca81f4bd702630e2ec74466bb-9088.tar.gz",
+  "downloadUrl": "http://localhost:8765/delivery/order/d8sjxnajhd87caxa",
+  "purpose": "test",
+  "orderDate": "2014-09-15T11:52:42.034Z",
+  "expireDate": "2014-09-22T11:52:42.034Z",
+  "prints" : [
+    {
+      "resources" : [
+        {
+          "urn" : "URN:NBN:no-nb_digibok_2014091948005",
+          "quality" : 5
+        }
+      ],
+      "filename" : "d287191ca81f4bd702630e2ec74466bb-9088",
+      "contentFormat" : "pdf",
+      "fileExtension" : "pdf",
+      "fileSizeInBytes" : 1009939
+    }
+    ]
+}

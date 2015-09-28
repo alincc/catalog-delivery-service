@@ -20,18 +20,6 @@
         <docker.image.prefix>nb</docker.image.prefix>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-parent</artifactId>
-                <version>1.0.0.RELEASE</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!-- Microservices -->
         <dependency>
@@ -47,7 +35,7 @@
         <dependency>
             <groupId>no.nb.microservices.delivery.metadata</groupId>
             <artifactId>catalog-delivery-metadata-service-model</artifactId>
-            <version>0.0.1-22</version>
+            <version>0.0.1-24</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.email</groupId>
@@ -62,7 +50,7 @@
         <dependency>
             <groupId>no.nb.microservices</groupId>
             <artifactId>catalog-metadata-model</artifactId>
-            <version>0.0.1-93</version>
+            <version>0.0.1-96</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.catalogsearchindex</groupId>
