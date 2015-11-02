@@ -45,12 +45,12 @@
         <dependency>
             <groupId>no.nb.microservices.catalogitem</groupId>
             <artifactId>catalog-item-service-model</artifactId>
-            <version>0.0.1-84eeae25492ff8684d24cabede290f240007749c-91</version>
+            <version>0.0.1-133</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices</groupId>
             <artifactId>catalog-metadata-model</artifactId>
-            <version>0.0.1-96</version>
+            <version>0.0.1-129</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.catalogsearchindex</groupId>

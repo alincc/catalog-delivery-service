@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.concurrent.Future;
 
 /**
@@ -61,7 +62,7 @@ public class ItemService implements IItemService {
         TitleInfo titleInfo = new TitleInfo();
         titleInfo.setTitle("No title");
         Metadata metadata = new Metadata();
-        metadata.setTitleInfo(titleInfo);
+        metadata.setTitleInfos(Arrays.asList(titleInfo));
         ItemResource item = new ItemResource();
         item.setMetadata(metadata);
         return item;
