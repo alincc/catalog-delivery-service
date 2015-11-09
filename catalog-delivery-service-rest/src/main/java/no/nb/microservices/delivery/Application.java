@@ -11,6 +11,8 @@ import org.springframework.cloud.security.oauth2.resource.EnableOAuth2Resource;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableConfigurationProperties
@@ -18,6 +20,8 @@ import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType
 @EnableFeignClients
 @EnableCircuitBreaker
 @EnableOAuth2Resource
+@EnableScheduling
+@EnableAsync
 @RefreshScope
 @EnableHypermediaSupport(type= {HypermediaType.HAL})
 @ComponentScan(basePackages = {"no.nb.microservices.delivery", "no.nb.commons"})

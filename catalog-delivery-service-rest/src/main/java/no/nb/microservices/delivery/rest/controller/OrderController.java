@@ -1,7 +1,8 @@
 package no.nb.microservices.delivery.rest.controller;
 
-import no.nb.microservices.delivery.core.order.service.OrderService;
-import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
+import no.nb.microservices.delivery.core.metadata.model.Order;
+import no.nb.microservices.delivery.core.order.service.IOrderService;
+import no.nb.microservices.delivery.model.order.OrderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,23 +16,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Created by andreasb on 07.07.15.
- */
 @RestController
+@RequestMapping("/delivery")
 public class OrderController {
 
-    private final OrderService orderService;
+    private final IOrderService orderService;
 
     @Autowired
-    public OrderController(OrderService orderService) {
+    public OrderController(IOrderService orderService) {
         this.orderService = orderService;
     }
 
     @RequestMapping(value = "/orders", method = RequestMethod.POST)
-    public ResponseEntity<String> placeOrder(@RequestBody @Valid DeliveryOrderRequest deliveryOrderRequest) throws ExecutionException, InterruptedException, IOException {
-        orderService.placeOrder(deliveryOrderRequest);
-        return new ResponseEntity<String>(HttpStatus.OK);
+    public ResponseEntity<Order> placeOrder(@RequestBody @Valid OrderRequest deliveryOrderRequest) throws ExecutionException, InterruptedException, IOException {
+        return new ResponseEntity<Order>(orderService.placeOrder(deliveryOrderRequest), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/orders/{key}")

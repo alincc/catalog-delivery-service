@@ -32,9 +32,21 @@ delivery:
     from: bestilling@nb.no
     template: delivery.vm
 
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: delivery
+
 ---
 spring:
     profiles: docker
+    data:
+      mongodb:
+        host: catalogDeliveryMongodb
+        port: 27017
+        database: delivery
 
 server:
   port: 8080

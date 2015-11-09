@@ -33,11 +33,6 @@
             <version>3.0.12-12</version>
         </dependency>
         <dependency>
-            <groupId>no.nb.microservices.delivery.metadata</groupId>
-            <artifactId>catalog-delivery-metadata-service-model</artifactId>
-            <version>0.0.1-24</version>
-        </dependency>
-        <dependency>
             <groupId>no.nb.microservices.email</groupId>
             <artifactId>email-service-model</artifactId>
             <version>0.0.1-8</version>
@@ -62,7 +57,7 @@
         <dependency>
             <groupId>no.nb.commons</groupId>
             <artifactId>commons-io-utils</artifactId>
-            <version>-9</version>
+            <version>-12</version>
         </dependency>
 
         <!-- Third party -->
@@ -78,6 +73,10 @@
             <!--<groupId>org.springframework.boot</groupId>-->
             <!--<artifactId>spring-boot-starter-security</artifactId>-->
         <!--</dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-oauth2</artifactId>

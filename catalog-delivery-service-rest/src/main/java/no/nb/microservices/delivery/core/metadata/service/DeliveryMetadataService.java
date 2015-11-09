@@ -1,38 +1,56 @@
 package no.nb.microservices.delivery.core.metadata.service;
 
-import no.nb.microservices.delivery.core.metadata.repository.DeliveryMetadataRepository;
-import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
+import no.nb.microservices.delivery.core.metadata.model.Order;
+import no.nb.microservices.delivery.core.metadata.model.State;
+import no.nb.microservices.delivery.core.metadata.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Created by andreasb on 15.07.15.
- */
 @Service
 public class DeliveryMetadataService implements IDeliveryMetadataService {
 
-    private DeliveryMetadataRepository deliveryMetadataRepository;
+    private OrderRepository orderRepository;
 
     @Autowired
-    public DeliveryMetadataService(DeliveryMetadataRepository deliveryMetadataRepository) {
-        this.deliveryMetadataRepository = deliveryMetadataRepository;
+    public DeliveryMetadataService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
 
     @Override
-    public DeliveryOrder saveOrder(DeliveryOrder orderMetadata) {
-        return deliveryMetadataRepository.saveOrder(orderMetadata);
+    public Order updateOrder(Order orderMetadata) {
+        Order savedOrder = orderRepository.save(orderMetadata);
+        return savedOrder;
     }
 
     @Override
-    public DeliveryOrder getOrderByIdOrKey(String value) {
-        return deliveryMetadataRepository.getOrderByIdOrKey(value);
+    public Order saveOrder(Order orderMetadata) {
+        Order savedOrder = orderRepository.save(orderMetadata);
+        return savedOrder;
     }
 
     @Override
-    public List<DeliveryOrder> getOrders() {
-        return deliveryMetadataRepository.getOrders();
+    public Order getOrderByIdOrKey(String value) {
+        if (value.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")) { // Is GUID
+            return orderRepository.findOne(value);
+        }
+        else { // Is key
+            return orderRepository.findByKey(value);
+        }
+    }
+
+    @Override
+    public List<Order> getOrdersByState(State state) {
+        return orderRepository.findByState(state.toString());
+    }
+
+    @Override
+    public Page<Order> getOrders(Pageable pageable) {
+        Page<Order> orderMetadatas = orderRepository.findAll(pageable);
+        return orderMetadatas;
     }
 }

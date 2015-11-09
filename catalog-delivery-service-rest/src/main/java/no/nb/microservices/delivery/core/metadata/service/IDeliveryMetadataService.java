@@ -1,17 +1,21 @@
 package no.nb.microservices.delivery.core.metadata.service;
 
-import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
+import no.nb.microservices.delivery.core.metadata.model.Order;
+import no.nb.microservices.delivery.core.metadata.model.State;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-/**
- * Created by andreasb on 15.07.15.
- */
 public interface IDeliveryMetadataService {
 
-    DeliveryOrder saveOrder(DeliveryOrder orderMetadata);
+    Order updateOrder(Order orderMetadata);
 
-    DeliveryOrder getOrderByIdOrKey(String value);
+    Order saveOrder(Order orderMetadata);
 
-    List<DeliveryOrder> getOrders();
+    Order getOrderByIdOrKey(String value);
+
+    List<Order> getOrdersByState(State state);
+
+    Page<Order> getOrders(Pageable pageable);
 }

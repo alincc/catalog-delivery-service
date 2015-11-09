@@ -5,16 +5,12 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-/**
- * Created by andreasb on 19.08.15.
- */
 public class PrintedFileRequest {
-
-    @Length(max = 6)
-    private String packageFormat = "zip";
 
     @Length(max = 4)
     private String format;
+
+    private boolean text;
 
     @Size(min = 1, max = 64)
     private List<PrintedResourceRequest> resources;
@@ -43,11 +39,11 @@ public class PrintedFileRequest {
         this.format = format;
     }
 
-    public String getPackageFormat() {
-        return packageFormat;
+    public boolean hasText() {
+        return text;
     }
 
-    public void setPackageFormat(String packageFormat) {
-        this.packageFormat = packageFormat;
+    public void setText(boolean text) {
+        this.text = text;
     }
 }

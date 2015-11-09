@@ -1,19 +1,23 @@
 package no.nb.microservices.delivery.core.order.service;
 
-import no.nb.commons.io.packaging.factory.PackageFactory;
-import no.nb.commons.io.packaging.service.Packable;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.DiscoveryClient;
+import no.nb.commons.io.compression.factory.Compressible;
+import no.nb.commons.io.compression.factory.CompressionStrategyFactory;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.email.service.IEmailService;
 import no.nb.microservices.delivery.core.item.service.IItemService;
+import no.nb.microservices.delivery.core.metadata.mapper.OrderMapper;
+import no.nb.microservices.delivery.core.metadata.model.Order;
+import no.nb.microservices.delivery.core.metadata.model.State;
 import no.nb.microservices.delivery.core.metadata.service.IDeliveryMetadataService;
+import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
-import no.nb.microservices.delivery.metadata.model.DeliveryFile;
-import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
-import no.nb.microservices.delivery.metadata.model.PrintedFile;
-import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
+import no.nb.microservices.delivery.model.order.OrderRequest;
 import no.nb.microservices.email.model.Email;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +31,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-/**
- * Created by andreasb on 10.07.15.
- */
 @Service
 public class OrderService implements IOrderService {
 
@@ -38,90 +39,93 @@ public class OrderService implements IOrderService {
     private final IItemService itemService;
     private final IEmailService emailService;
     private final ApplicationSettings applicationSettings;
-    private final PackageFactory packageFactory;
+    private final DiscoveryClient disoveryClient;
 
     @Autowired
-    public OrderService(IPrintedService printedService, IDeliveryMetadataService deliveryMetadataService, IItemService itemService, IEmailService emailService, ApplicationSettings applicationSettings, PackageFactory packageFactory) {
-        this.printedService = printedService;
-        this.deliveryMetadataService = deliveryMetadataService;
-        this.itemService = itemService;
-        this.emailService = emailService;
+    public OrderService(ApplicationSettings applicationSettings, IEmailService emailService, IItemService itemService, IDeliveryMetadataService deliveryMetadataService, IPrintedService printedService, DiscoveryClient disoveryClient) {
         this.applicationSettings = applicationSettings;
-        this.packageFactory = packageFactory;
+        this.emailService = emailService;
+        this.itemService = itemService;
+        this.deliveryMetadataService = deliveryMetadataService;
+        this.printedService = printedService;
+        this.disoveryClient = disoveryClient;
     }
 
     @Override
-    public void placeOrder(DeliveryOrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException {
-        // Make async calls to get printed resources
-        List<DeliveryFile> deliveryFiles = getAllResources(deliveryOrderRequest);
+    public Order placeOrder(OrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException {
+        String orderKey = RandomStringUtils.randomAlphanumeric(16).toLowerCase();
+        Order order = OrderMapper.map(deliveryOrderRequest);
+        order.setState(State.OPEN);
+        order.setKey(orderKey);
+        order.setFilename(order.getOrderId() + "." + order.getPackageFormat());
+        order.setExpireDate(Date.from(Instant.now().plusSeconds(604800))); // 604800 seconds = 1 week
+        order.setOrderDate(Date.from(Instant.now()));
 
-        // Package all files to disk
-        String packageFilename = deliveryOrderRequest.getOrderId() + "." + deliveryOrderRequest.getPackageFormat();
-        String packagePath = applicationSettings.getZipFilePath() + packageFilename;
-        File zippedFile = packageFactory.getPackageService(deliveryOrderRequest.getPackageFormat())
-                .packToPath(deliveryFiles.stream().map(q -> (Packable) q).collect(Collectors.toList()), packagePath);
+        InstanceInfo instance = disoveryClient.getNextServerFromEureka("ZUULSERVER", false);
+        order.setDownloadUrl(instance.getHomePageUrl() + "delivery/orders/" + orderKey);
 
-        // Store information about the order
-        DeliveryOrder orderMetadataResponseEntity = saveOrder(deliveryOrderRequest, deliveryFiles, packageFilename, zippedFile);
-
-        // Send email to user with download details
-        sendConfirmationEmail(orderMetadataResponseEntity);
+        return deliveryMetadataService.saveOrder(order);
     }
 
-    private List<DeliveryFile> getAllResources(DeliveryOrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException {
-        deliveryOrderRequest.getPrints().stream().forEach(q -> q.setPackageFormat(deliveryOrderRequest.getPackageFormat()));
-        List<Future<PrintedFile>> textualResourcesFutureList = deliveryOrderRequest.getPrints().stream()
-                .map(request -> printedService.getResourceAsync(request))
+    @Override
+    public File getOrder(String key) {
+        Order order = deliveryMetadataService.getOrderByIdOrKey(key);
+        if (Date.from(Instant.now()).after(order.getExpireDate())) {
+            throw new AccessDeniedException("This order has expired");
+        }
+        return new File(applicationSettings.getZipFilePath() + order.getFilename());
+    }
+
+    @Async
+    @Override
+    public void processOrder(Order deliveryOrder) {
+        // Make async calls to get printed resources
+        try {
+            List<CatalogFile> printedOutputStreams = getAllResources(deliveryOrder);
+
+            // Package all files to disk
+            String packageFilename = deliveryOrder.getOrderId() + "." + deliveryOrder.getPackageFormat();
+            String packagePath = applicationSettings.getZipFilePath() + packageFilename;
+            File zippedFile = CompressionStrategyFactory.create(deliveryOrder.getPackageFormat())
+                    .compress(printedOutputStreams.stream().map(q -> (Compressible)q).collect(Collectors.toList()), packagePath);
+
+            // Send email to user with download details
+            sendConfirmationEmail(deliveryOrder);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            // TODO: Mark as error
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            // TODO: Mark as error
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            // TODO: Mark as error
+        }
+    }
+
+    private List<CatalogFile> getAllResources(Order deliveryOrder) throws InterruptedException, ExecutionException {
+        List<Future<CatalogFile>> textualResourcesFutureList = deliveryOrder.getPrints().stream()
+                .map(request -> printedService.getResourceAsync(request, deliveryOrder.getPackageFormat()))
                 .collect(Collectors.toList());
 
         // Gather all async calls
-        List<DeliveryFile> deliveryFiles = new ArrayList<>();
-        for (Future<PrintedFile> textualResourceFuture : textualResourcesFutureList) {
+        List<CatalogFile> deliveryFiles = new ArrayList<>();
+        for (Future<CatalogFile> textualResourceFuture : textualResourcesFutureList) {
             deliveryFiles.add(textualResourceFuture.get());
         }
 
         return deliveryFiles;
     }
 
-    private DeliveryOrder saveOrder(final DeliveryOrderRequest deliveryOrderRequest, final List<DeliveryFile> deliveryFiles, final String zipFilename, final File zippedFile) {
-        String orderKey = RandomStringUtils.randomAlphanumeric(16).toLowerCase();
-        DeliveryOrder orderMetadata = new DeliveryOrder() {{
-            setOrderId(deliveryOrderRequest.getOrderId());
-            setEmailTo(deliveryOrderRequest.getEmailTo());
-            setEmailCc(deliveryOrderRequest.getEmailCc());
-            setExpireDate(Date.from(Instant.now().plusSeconds(604800))); // 604800 seconds = 1 week
-            setFilename(zipFilename);
-            setFileSizeInBytes(zippedFile.length());
-            setPurpose(deliveryOrderRequest.getPurpose());
-            setOrderDate(Date.from(Instant.now()));
-            setKey(orderKey);
-            setDownloadUrl(applicationSettings.getDownloadPath() + orderKey);
-            setPrints(deliveryFiles.stream().filter(q -> q instanceof PrintedFile).map(q -> (PrintedFile) q).collect(Collectors.toList()));
-        }};
+    private void sendConfirmationEmail(final Order deliveryOrder) {
+        Email email = new Email();
+        email.setTo(deliveryOrder.getEmailTo());
+        email.setCc(deliveryOrder.getEmailCc());
+        email.setSubject(applicationSettings.getEmail().getSubject());
+        email.setFrom(applicationSettings.getEmail().getFrom());
+        email.setTemplate(applicationSettings.getEmail().getTemplate());
+        email.setContent(deliveryOrder);
 
-        // Save order to database
-        return deliveryMetadataService.saveOrder(orderMetadata);
-    }
-
-    private void sendConfirmationEmail(final DeliveryOrder orderMetadataResponseEntity) {
-        Email email = new Email() {{
-            setTo(orderMetadataResponseEntity.getEmailTo());
-            setCc(orderMetadataResponseEntity.getEmailCc());
-            setSubject(applicationSettings.getEmail().getSubject());
-            setFrom(applicationSettings.getEmail().getFrom());
-            setTemplate(applicationSettings.getEmail().getTemplate());
-            setContent(orderMetadataResponseEntity);
-
-        }};
         emailService.sendEmail(email);
-    }
-
-    @Override
-    public File getOrder(String key) {
-        DeliveryOrder order = deliveryMetadataService.getOrderByIdOrKey(key);
-        if (Date.from(Instant.now()).after(order.getExpireDate())) {
-            throw new AccessDeniedException("This order has expired");
-        }
-        return new File(applicationSettings.getZipFilePath() + order.getFilename());
     }
 }

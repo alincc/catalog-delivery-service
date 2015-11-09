@@ -1,11 +1,9 @@
 package no.nb.microservices.delivery.core.print.service;
 
-import no.nb.microservices.delivery.metadata.model.PrintedFile;
-import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
+import no.nb.microservices.delivery.core.metadata.model.PrintedFile;
 
-/**
- * Created by andreasb on 23.09.15.
- */
+import java.io.InputStream;
+
 public interface FormatService {
-    PrintedFile getResource(PrintedFileRequest fileRequest);
+    InputStream getResource(PrintedFile fileRequest, String packageFormat);
 }

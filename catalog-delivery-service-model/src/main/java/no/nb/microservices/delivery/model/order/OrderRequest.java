@@ -8,10 +8,7 @@ import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Created by andreasb on 10.07.15.
- */
-public class DeliveryOrderRequest {
+public class OrderRequest {
     private String orderId;
 
     @Email
@@ -29,7 +26,7 @@ public class DeliveryOrderRequest {
     @Size(max = 64)
     private List<PrintedFileRequest> prints;
 
-    public DeliveryOrderRequest() {
+    public OrderRequest() {
         this.orderId = UUID.randomUUID().toString();
     }
 

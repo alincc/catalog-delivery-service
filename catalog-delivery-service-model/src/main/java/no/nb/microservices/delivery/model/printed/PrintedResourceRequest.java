@@ -4,24 +4,19 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Max;
 
-/**
- * Created by andreasb on 08.07.15.
- */
 public class PrintedResourceRequest {
 
     @Length(max = 64)
     private String urn;
 
     @Max(6)
-    private int quality;
+    private int quality = 3;
 
     @Length(max = 64)
-    private String pages;
+    private String pages = "";
 
     @Length(max = 6)
-    private String pageSelection;
-
-    private boolean ocrText;
+    private String pageSelection = "ID";
 
     public PrintedResourceRequest() {}
 
@@ -34,18 +29,18 @@ public class PrintedResourceRequest {
         this.quality = quality;
     }
 
-    public PrintedResourceRequest(String urn, String pages, String pageSelection) {
+    public PrintedResourceRequest(String urn, int quality, String pages) {
         this.urn = urn;
         this.pages = pages;
+        this.quality = quality;
         this.pageSelection = pageSelection;
     }
 
-    public PrintedResourceRequest(String urn, int quality, String pages, String pageSelection, boolean ocrText) {
+    public PrintedResourceRequest(String urn, int quality, String pages, String pageSelection) {
         this.urn = urn;
         this.quality = quality;
         this.pages = pages;
         this.pageSelection = pageSelection;
-        this.ocrText = ocrText;
     }
 
     public String getUrn() {
@@ -78,13 +73,5 @@ public class PrintedResourceRequest {
 
     public void setPageSelection(String pageSelection) {
         this.pageSelection = pageSelection;
-    }
-
-    public boolean isOcrText() {
-        return ocrText;
-    }
-
-    public void setIsText(boolean isText) {
-        this.ocrText = isText;
     }
 }

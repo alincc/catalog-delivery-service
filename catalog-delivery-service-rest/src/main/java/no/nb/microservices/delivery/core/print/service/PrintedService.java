@@ -1,24 +1,20 @@
 package no.nb.microservices.delivery.core.print.service;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
-import com.netflix.hystrix.contrib.javanica.command.AsyncResult;
+import no.nb.microservices.delivery.core.metadata.model.PrintedFile;
+import no.nb.microservices.delivery.core.metadata.model.PrintedResource;
+import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.factory.PrintFormatFactory;
 import no.nb.microservices.delivery.core.print.repository.PrintGeneratorRepository;
 import no.nb.microservices.delivery.core.text.repository.CatalogDeliveryTextRepository;
-import no.nb.microservices.delivery.metadata.model.PrintedFile;
-import no.nb.microservices.delivery.metadata.model.PrintedResource;
-import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
 import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
-/**
- * Created by andreasb on 09.07.15.
- */
 @Service
 public class PrintedService implements IPrintedService {
 
@@ -34,25 +30,27 @@ public class PrintedService implements IPrintedService {
     }
 
     @Override
-    @HystrixCommand(fallbackMethod = "getDefaultResources",
-        commandProperties = {
-                @HystrixProperty(name="execution.timeout.enabled", value="600000")
-        })
-    public Future<PrintedFile> getResourceAsync(PrintedFileRequest fileRequest) {
-        return new AsyncResult<PrintedFile>() {
-            @Override
-            public PrintedFile invoke() {
-                return getResource(fileRequest);
-            }
-        };
+    @Async
+//    @HystrixCommand(fallbackMethod = "getDefaultResources",
+//        commandProperties = {
+//                @HystrixProperty(name="execution.timeout.enabled", value="600000")
+//        })
+    public Future<CatalogFile> getResourceAsync(PrintedFile fileRequest, String packageFormat) {
+//        return new AsyncResult<CatalogFile>() {
+//            @Override
+//            public CatalogFile invoke() {
+//                return getResource(fileRequest, packageFormat);
+//            }
+//        };
+
+        return new org.springframework.scheduling.annotation.AsyncResult<CatalogFile>(getResource(fileRequest, packageFormat));
     }
 
     @Override
-    public PrintedFile getResource(PrintedFileRequest fileRequest) {
-        PrintedFile printedFile = printFormatFactory.getPrintFormat(fileRequest.getFormat()).getResource(fileRequest);
-        printedFile.setFilename(fileRequest.getResources().get(0).getUrn());
-        printedFile.setResources(fileRequest.getResources().stream().map(q -> map(q)).collect(Collectors.toList()));
-        return printedFile;
+    public CatalogFile getResource(PrintedFile fileRequest, String packageFormat) {
+        InputStream inputStream = printFormatFactory.getPrintFormat(fileRequest.getFormat()).getResource(fileRequest, packageFormat);
+        CatalogFile catalogFile = new CatalogFile(fileRequest.getFilename(), inputStream);
+        return catalogFile;
     }
 
     private PrintedResource map(PrintedResourceRequest printedResourceRequest) {
@@ -64,8 +62,8 @@ public class PrintedService implements IPrintedService {
         return printedResource;
     }
 
-    private PrintedFile getDefaultResources(PrintedFileRequest fileRequest) {
-        PrintedFile deliveryResource = new PrintedFile();
-        return deliveryResource;
+    private CatalogFile getDefaultResources(PrintedFile fileRequest, String packageFormat) {
+        CatalogFile catalogFile = new CatalogFile("empty." + packageFormat, new ByteArrayInputStream(new byte[1]));
+        return catalogFile;
     }
 }

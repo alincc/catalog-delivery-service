@@ -9,7 +9,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 import no.nb.microservices.delivery.Application;
 import no.nb.microservices.delivery.config.ApplicationSettings;
-import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
+import no.nb.microservices.delivery.model.order.OrderRequest;
 import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
 import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
 import okio.Buffer;
@@ -151,7 +151,7 @@ public class IntegrationTest {
     @Test
     public void placeOrderWithPdfShouldBeOk() throws URISyntaxException {
         URI uri = new URI("http://localhost:" + port + "/orders");
-        DeliveryOrderRequest deliveryOrderRequest = new DeliveryOrderRequest();
+        OrderRequest deliveryOrderRequest = new OrderRequest();
         deliveryOrderRequest.setEmailTo("dev@nb.no");
         deliveryOrderRequest.setPurpose("test");
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014091948005", 5);
@@ -165,7 +165,7 @@ public class IntegrationTest {
     @Test
     public void placeOrderWithAltoShouldBeOk() throws URISyntaxException {
         URI uri = new URI("http://localhost:" + port + "/orders");
-        DeliveryOrderRequest deliveryOrderRequest = new DeliveryOrderRequest();
+        OrderRequest deliveryOrderRequest = new OrderRequest();
         deliveryOrderRequest.setEmailTo("dev@nb.no");
         deliveryOrderRequest.setPurpose("test");
         deliveryOrderRequest.setPackageFormat("tar.gz");
