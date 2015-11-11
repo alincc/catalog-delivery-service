@@ -19,7 +19,7 @@ public class SearchIndexService implements ISearchIndexService {
 
     @Override
     public String getId(String urn) {
-        SearchResource searchResource = searchIndexRepository.search("urn:\"" + urn + "\"", null, 0,1,null);
+        SearchResource searchResource = searchIndexRepository.search("urn:\"" + urn + "\"", null, 0, 1, null);
         List<ItemResource> items = searchResource.getEmbedded().getItems();
         return items.get(0).getItemId();
     }

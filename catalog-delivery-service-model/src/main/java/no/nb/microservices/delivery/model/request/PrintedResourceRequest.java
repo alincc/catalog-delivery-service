@@ -13,7 +13,8 @@ public class PrintedResourceRequest {
     @Length(max = 6)
     private String pageSelection = "ID";
 
-    public PrintedResourceRequest() {}
+    public PrintedResourceRequest() {
+    }
 
     public PrintedResourceRequest(String urn) {
         this.urn = urn;

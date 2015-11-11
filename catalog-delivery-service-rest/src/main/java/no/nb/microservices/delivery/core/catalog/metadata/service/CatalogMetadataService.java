@@ -8,9 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.Future;
 
-/**
- * Created by andreasb on 25.08.15.
- */
 public class CatalogMetadataService implements ICatalogMetadataService {
 
     @Autowired

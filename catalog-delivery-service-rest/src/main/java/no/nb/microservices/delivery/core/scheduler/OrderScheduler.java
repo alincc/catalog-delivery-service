@@ -27,7 +27,7 @@ public class OrderScheduler {
         List<Order> openOrders = deliveryMetadataService.getOrdersByState(State.OPEN);
 
         if (!openOrders.isEmpty()) {
-            Order order = openOrders.get((int)Math.random() * (openOrders.size() - 1));
+            Order order = openOrders.get((int) Math.random() * (openOrders.size() - 1));
             order.setState(State.PROCESSING);
             deliveryMetadataService.updateOrder(order);
             orderService.processOrder(order);

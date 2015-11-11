@@ -8,9 +8,6 @@ import no.nb.microservices.email.model.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Created by andreasb on 15.07.15.
- */
 @Service
 public class EmailService implements IEmailService {
 
@@ -24,7 +21,6 @@ public class EmailService implements IEmailService {
     }
 
     @Override
-    @HystrixCommand(fallbackMethod = "sendEmailFallback")
     public void sendEmail(Email email) {
         emailRepository.sendEmail(email);
     }
@@ -41,10 +37,4 @@ public class EmailService implements IEmailService {
 
         this.sendEmail(email);
     }
-
-    private void sendEmailFallback(Email email) {
-        // TODO: Send email fallback
-    }
-
-
 }

@@ -7,6 +7,7 @@ import no.nb.microservices.delivery.core.text.repository.CatalogDeliveryTextRepo
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -30,26 +31,14 @@ public class PrintedService implements IPrintedService {
 
     @Override
     @Async
-//    @HystrixCommand(fallbackMethod = "getDefaultResources",
-//        commandProperties = {
-//                @HystrixProperty(name="execution.timeout.enabled", value="600000")
-//        })
     public Future<CatalogFile> getResourceAsync(PrintedFile fileRequest) {
-//        return new AsyncResult<CatalogFile>() {
-//            @Override
-//            public CatalogFile invoke() {
-//                return getResource(fileRequest, packageFormat);
-//            }
-//        };
-
         CatalogFile catalogFile = getResource(fileRequest);
-        org.springframework.scheduling.annotation.AsyncResult<CatalogFile> as = new org.springframework.scheduling.annotation.AsyncResult<CatalogFile>(catalogFile);
-
+        AsyncResult<CatalogFile> asyncResult = new AsyncResult<CatalogFile>(catalogFile);
         if (catalogFile == null) {
-            as.cancel(true);
+            asyncResult.cancel(true);
         }
 
-        return as;
+        return asyncResult;
     }
 
     @Override
@@ -58,14 +47,8 @@ public class PrintedService implements IPrintedService {
             InputStream inputStream = printFormatFactory.getPrintFormat(fileRequest.getFormat()).getResource(fileRequest);
             CatalogFile catalogFile = new CatalogFile(fileRequest.getFilename(), inputStream);
             return catalogFile;
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             return null;
         }
-    }
-
-    private CatalogFile getDefaultResources(PrintedFile fileRequest) {
-        CatalogFile catalogFile = new CatalogFile("empty." + fileRequest.getFormat().toString(), new ByteArrayInputStream(new byte[1]));
-        return catalogFile;
     }
 }

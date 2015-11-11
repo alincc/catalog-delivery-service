@@ -1,7 +1,7 @@
 package no.nb.microservices.delivery.rest.controller;
 
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
-import no.nb.microservices.delivery.core.print.builder.PrintedFileBuilder;
+import no.nb.microservices.delivery.rest.assembler.PrintedFileBuilder;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import no.nb.microservices.delivery.model.request.PrintFormat;
@@ -33,10 +33,10 @@ public class PrintsController {
 
     @RequestMapping(value = "/download/prints/{urn}", method = RequestMethod.GET)
     public void downloadTextualResource(@PathVariable String urn,
-                                     @RequestParam(value = "pages", defaultValue = "") String pages,
-                                     @RequestParam(value = "highQuality", defaultValue = "false") boolean highQuality,
-                                     @RequestParam(value = "format", defaultValue = "PDF") PrintFormat format,
-                                     HttpServletResponse response) throws IOException, InterruptedException, ExecutionException {
+                                        @RequestParam(value = "pages", defaultValue = "") String pages,
+                                        @RequestParam(value = "highQuality", defaultValue = "false") boolean highQuality,
+                                        @RequestParam(value = "format", defaultValue = "PDF") PrintFormat format,
+                                        HttpServletResponse response) throws IOException, InterruptedException, ExecutionException {
 
         PrintedFile request = new PrintedFileBuilder()
                 .withFormat(format)

@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class OrderRequest {
-    private String orderId;
-
     @Email
     private String emailTo;
 
@@ -26,15 +24,6 @@ public class OrderRequest {
     private List<PrintedFileRequest> prints;
 
     public OrderRequest() {
-        this.orderId = UUID.randomUUID().toString();
-    }
-
-    public String getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
     }
 
     public String getEmailTo() {

@@ -33,7 +33,7 @@ public class Order {
     private String packageFormat = "zip";
 
     @NotEmpty
-    private State state;
+    private State state = State.OPEN;
 
     @URL
     private String downloadUrl;
@@ -140,7 +140,7 @@ public class Order {
     }
 
     public double getFileSizeInMegaBytes() {
-        return (double)(fileSizeInBytes / 1024) / 1024;
+        return (double) (fileSizeInBytes / 1024) / 1024;
     }
 
     public String getDownloadUrl() {

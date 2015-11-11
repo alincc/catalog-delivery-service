@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.InputStream;
 
-/**
- * Created by andreasb on 07.09.15.
- */
 @FeignClient("catalog-delivery-text-service")
 public interface CatalogDeliveryTextRepository {
 
@@ -23,6 +20,6 @@ public interface CatalogDeliveryTextRepository {
 
     @RequestMapping(value = "/text/{urn}", method = RequestMethod.GET)
     InputStream getText(@PathVariable("urn") String urn,
-                              @RequestParam("pages") String pages,
-                              @RequestParam("pageSelection") String pageSelection);
+                        @RequestParam("pages") String pages,
+                        @RequestParam("pageSelection") String pageSelection);
 }

@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.core.print.builder;
+package no.nb.microservices.delivery.rest.assembler;
 
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import no.nb.microservices.delivery.model.metadata.PrintedResource;
@@ -78,14 +78,13 @@ public class PrintedFileBuilder {
         if (this.printedFile.getFormat() == PrintFormat.EPUB
                 || this.printedFile.getFormat() == PrintFormat.PDF
                 || this.printedFile.getFormat() == PrintFormat.TXT
-                    || ((this.printedFile.getFormat() == PrintFormat.JP2
-                    || this.printedFile.getFormat() == PrintFormat.JPG
-                    || this.printedFile.getFormat() == PrintFormat.TIF)
-                    && this.printedFile.getResources().size() == 1
-                    && StringUtils.isEmpty(this.printedFile.getResources().get(0).getPages()))) {
+                || ((this.printedFile.getFormat() == PrintFormat.JP2
+                || this.printedFile.getFormat() == PrintFormat.JPG
+                || this.printedFile.getFormat() == PrintFormat.TIF)
+                && this.printedFile.getResources().size() == 1
+                && StringUtils.isEmpty(this.printedFile.getResources().get(0).getPages()))) {
             this.printedFile.setExtension(this.printedFile.getFormat().toString().toLowerCase());
-        }
-        else {
+        } else {
             this.printedFile.setExtension(compression);
         }
 

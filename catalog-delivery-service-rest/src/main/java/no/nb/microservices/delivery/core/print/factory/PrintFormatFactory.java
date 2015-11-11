@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by andreasb on 23.09.15.
- */
 @Component
 public class PrintFormatFactory {
 
@@ -33,14 +30,11 @@ public class PrintFormatFactory {
 
         if (format == PrintFormat.PDF) {
             return bookPrintFormat;
-        }
-        else if (format == PrintFormat.ALTO) {
+        } else if (format == PrintFormat.ALTO) {
             return altoPrintFormat;
-        }
-        else if (format == PrintFormat.TXT) {
+        } else if (format == PrintFormat.TXT) {
             return textPrintFormat;
-        }
-        else if (images.contains(format.toString())) {
+        } else if (images.contains(format.toString())) {
             return imagePrintFormat;
         }
 

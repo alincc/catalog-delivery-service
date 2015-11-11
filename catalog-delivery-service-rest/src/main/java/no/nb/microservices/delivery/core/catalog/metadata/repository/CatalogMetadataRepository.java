@@ -8,9 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-/**
- * Created by andreasb on 25.08.15.
- */
 @FeignClient
 public interface CatalogMetadataRepository {
     @RequestMapping(value = "/catalog/metadata/{id}/struct", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)

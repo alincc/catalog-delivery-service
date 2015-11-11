@@ -5,15 +5,16 @@ import com.netflix.discovery.DiscoveryClient;
 import no.nb.commons.io.compression.factory.Compressible;
 import no.nb.commons.io.compression.factory.CompressionStrategyFactory;
 import no.nb.microservices.delivery.config.ApplicationSettings;
+import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.IEmailService;
 import no.nb.microservices.delivery.core.item.service.IItemService;
-import no.nb.microservices.delivery.core.metadata.mapper.OrderMapper;
 import no.nb.microservices.delivery.core.metadata.service.IDeliveryMetadataService;
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
+import no.nb.microservices.delivery.rest.assembler.OrderBuilder;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,21 +44,25 @@ public class OrderService implements IOrderService {
     private final IEmailService emailService;
     private final ApplicationSettings applicationSettings;
     private final DiscoveryClient disoveryClient;
+    private final CompressionService compressionService;
 
     @Autowired
-    public OrderService(ApplicationSettings applicationSettings, IEmailService emailService, IItemService itemService, IDeliveryMetadataService deliveryMetadataService, IPrintedService printedService, DiscoveryClient disoveryClient) {
+    public OrderService(ApplicationSettings applicationSettings, IEmailService emailService, IItemService itemService,
+                        IDeliveryMetadataService deliveryMetadataService, IPrintedService printedService, DiscoveryClient disoveryClient,
+                        CompressionService compressionService) {
         this.applicationSettings = applicationSettings;
         this.emailService = emailService;
         this.itemService = itemService;
         this.deliveryMetadataService = deliveryMetadataService;
         this.printedService = printedService;
         this.disoveryClient = disoveryClient;
+        this.compressionService = compressionService;
     }
 
     @Override
     public Order placeOrder(OrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException {
         String orderKey = RandomStringUtils.randomAlphanumeric(16).toLowerCase();
-        Order order = OrderMapper.map(deliveryOrderRequest);
+        Order order = new OrderBuilder(deliveryOrderRequest).build();
         order.setState(State.OPEN);
         order.setKey(orderKey);
         order.setFilename(order.getOrderId() + "." + order.getPackageFormat());
@@ -95,10 +100,8 @@ public class OrderService implements IOrderService {
             }
 
             // Package all files to disk
-            String packageFilename = deliveryOrder.getOrderId() + "." + deliveryOrder.getPackageFormat();
-            String packagePath = applicationSettings.getZipFilePath() + packageFilename;
-            File zippedFile = CompressionStrategyFactory.create(deliveryOrder.getPackageFormat())
-                    .compress(printedOutputStreams.stream().map(q -> (Compressible)q).collect(Collectors.toList()), packagePath);
+            File compressedFile = compressionService.compress(deliveryOrder,
+                    printedOutputStreams.stream().map(q -> (Compressible) q).collect(Collectors.toList()));
 
             // Send email to user with download details
             emailService.sendEmail(deliveryOrder);

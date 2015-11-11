@@ -24,7 +24,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @RefreshScope
 @EnableHypermediaSupport(type= {HypermediaType.HAL})
-@ComponentScan(basePackages = {"no.nb.microservices.delivery", "no.nb.commons"})
 public class Application {
 
     public static void main(String[] args) {

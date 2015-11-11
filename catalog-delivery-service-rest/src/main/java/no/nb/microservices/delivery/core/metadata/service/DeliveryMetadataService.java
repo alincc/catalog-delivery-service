@@ -37,8 +37,7 @@ public class DeliveryMetadataService implements IDeliveryMetadataService {
     public Order getOrderByIdOrKey(String value) {
         if (value.matches("[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")) { // Is GUID
             return orderRepository.findOne(value);
-        }
-        else { // Is key
+        } else { // Is key
             return orderRepository.findByKey(value);
         }
     }

@@ -1,5 +1,6 @@
 package no.nb.microservices.delivery.it;
 
+import com.mongodb.Mongo;
 import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -7,6 +8,7 @@ import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
+import cz.jirutka.spring.embedmongo.EmbeddedMongoBuilder;
 import no.nb.microservices.delivery.Application;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.metadata.repository.OrderRepository;
@@ -53,7 +55,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {Application.class, RibbonClientConfiguration.class})
+@SpringApplicationConfiguration(classes = {Application.class, RibbonClientConfiguration.class, MongoConfig.class})
 @WebIntegrationTest("server.port:0")
 public class IntegrationTest {
 
@@ -94,27 +96,21 @@ public class IntegrationTest {
 
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/urn%3Anbn%3Ano-nb_digibok_2014062307158")){
+                if (request.getPath().equals("/urn%3Anbn%3Ano-nb_digibok_2014062307158")) {
                     return new MockResponse().setBody(itemId1Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                }
-                else if (request.getPath().equals("/generate?urn=urn%3Anbn%3Ano-nb_digibok_2014062307158&pages=&pageSelection=id&addText=false&resolutionlevel=5&filename=filename&filetype=pdf")
+                } else if (request.getPath().equals("/generate?urn=urn%3Anbn%3Ano-nb_digibok_2014062307158&pages=&pageSelection=id&addText=false&resolutionlevel=5&filename=filename&filetype=pdf")
                         || request.getPath().equals("/generate?urn=URN%3ANBN%3Ano-nb_digibok_2014091948005&addText=false&resolutionlevel=5&filename=filename&filetype=pdf")
                         || request.getPath().equals("/generate?urn=urn%3Anbn%3Ano-nb_digibok_2014062307158&pages=&addText=false&resolutionlevel=5&filename=filename&filetype=PDF")) {
                     return getMockResponse("d287191ca81f4bd702630e2ec74466bb-9088.pdf");
-                }
-                else if (request.getPath().equals("/deliveryx/orders")) {
+                } else if (request.getPath().equals("/deliveryx/orders")) {
                     return new MockResponse().setBody(deliveryMetadata1Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                }
-                else if (request.getPath().equals("/deliveryx/orders/0YvkQv9myztAmAfs")) {
+                } else if (request.getPath().equals("/deliveryx/orders/0YvkQv9myztAmAfs")) {
                     return new MockResponse().setBody(deliveryMetadata1Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                }
-                else if (request.getPath().equals("/deliveryx/orders/YCFa5GcrIFQUlDKW")) {
+                } else if (request.getPath().equals("/deliveryx/orders/YCFa5GcrIFQUlDKW")) {
                     return new MockResponse().setBody(deliveryMetadata2Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                }
-                else if (request.getPath().equals("/deliveryx/orders/d8sjxnajhd87caxa")) {
+                } else if (request.getPath().equals("/deliveryx/orders/d8sjxnajhd87caxa")) {
                     return new MockResponse().setBody(deliveryMetadata3Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                }
-                else if (request.getPath().equals("/alto/URN%3ANBN%3Ano-nb_digibok_2014062307158?packageFormat=tar.gz")) {
+                } else if (request.getPath().equals("/alto/URN%3ANBN%3Ano-nb_digibok_2014062307158?packageFormat=tar.gz")) {
                     return getMockResponse("urn_nbn_no-nb_digibok_2014062307158.tar.gz");
                 }
 
@@ -136,8 +132,7 @@ public class IntegrationTest {
             InputStream inputStream = new ClassPathResource(path).getInputStream();
             ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
             buffer.write(byteArrayResource.getByteArray());
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         return new MockResponse().setBody(buffer);
@@ -239,5 +234,17 @@ class RibbonClientConfiguration {
     @Bean
     public ILoadBalancer ribbonLoadBalancer() {
         return new BaseLoadBalancer();
+    }
+}
+
+@Configuration
+class MongoConfig {
+    @Bean(destroyMethod="close")
+    public Mongo mongo() throws IOException {
+        return new EmbeddedMongoBuilder()
+                .version("2.4.5")
+                .bindIp("127.0.0.1")
+                .port(27015)
+                .build();
     }
 }

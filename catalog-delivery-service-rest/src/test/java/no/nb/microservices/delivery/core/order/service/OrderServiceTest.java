@@ -2,24 +2,31 @@ package no.nb.microservices.delivery.core.order.service;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
+import junit.framework.Assert;
+import no.nb.commons.io.compression.factory.Compressible;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.config.EmailSettings;
+import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.EmailService;
 import no.nb.microservices.delivery.core.metadata.service.DeliveryMetadataService;
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.PrintedService;
 import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
+import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
 import no.nb.microservices.delivery.model.request.PrintFormat;
 import no.nb.microservices.delivery.model.request.PrintedFileRequest;
 import no.nb.microservices.delivery.model.request.PrintedResourceRequest;
+import no.nb.microservices.delivery.rest.assembler.OrderBuilder;
+import no.nb.microservices.delivery.rest.assembler.PrintedFileBuilder;
 import no.nb.microservices.email.model.Email;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -43,7 +50,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OrderRequestServiceTest {
+public class OrderServiceTest {
 
     @InjectMocks
     OrderService orderService;
@@ -62,6 +69,9 @@ public class OrderRequestServiceTest {
 
     @Mock
     DiscoveryClient disoveryClient;
+
+    @Mock
+    CompressionService compressionService;
 
     @Test
     public void placeOrderTest() throws ExecutionException, InterruptedException, IOException {
@@ -138,5 +148,47 @@ public class OrderRequestServiceTest {
         when(deliveryMetadataService.getOrderByIdOrKey(eq(orderKey))).thenReturn(deliveryOrder);
 
         File file = orderService.getOrder(orderKey);
+    }
+
+    @Test
+    public void proccessOrderTest() throws IOException {
+        Order order = new OrderBuilder()
+                .withEmailTo("example@example.com")
+                .withKey("hzeydrfdppbmtkck")
+                .withFilename("order.zip")
+                .addPrintedFile(
+                        new PrintedFileBuilder()
+                            .addResource("URN:NBN:no-nb_digibok_2014012027004", "1")
+                            .build())
+                .build();
+
+        when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(getTextualItem());
+        when(applicationSettings.getZipFilePath()).thenReturn("/tmp");
+        when(compressionService.compress(eq(order), anyListOf(Compressible.class))).thenReturn(new File("example.zip"));
+
+        orderService.processOrder(order);
+
+        verify(emailService, times(1)).sendEmail(any(Order.class));
+    }
+
+    @Test
+    public void proccessOrderWithExceptionTest() throws IOException {
+        Order order = new OrderBuilder()
+                .withEmailTo("example@example.com")
+                .withKey("hzeydrfdppbmtkck")
+                .withFilename("order.zip")
+                .addPrintedFile(
+                        new PrintedFileBuilder()
+                                .addResource("URN:NBN:no-nb_digibok_2014012027004", "1")
+                                .build())
+                .build();
+
+        when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(getTextualItem());
+        when(applicationSettings.getZipFilePath()).thenReturn("/tmp");
+        when(compressionService.compress(eq(order), anyListOf(Compressible.class))).thenThrow(new IOException("Failed to write file to disk"));
+
+        orderService.processOrder(order);
+
+        assertEquals(State.ERROR, order.getState());
     }
 }
