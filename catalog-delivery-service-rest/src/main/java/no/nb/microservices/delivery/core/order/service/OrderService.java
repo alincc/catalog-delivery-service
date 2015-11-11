@@ -61,16 +61,11 @@ public class OrderService implements IOrderService {
 
     @Override
     public Order placeOrder(OrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException {
-        String orderKey = RandomStringUtils.randomAlphanumeric(16).toLowerCase();
-        Order order = new OrderBuilder(deliveryOrderRequest).build();
-        order.setState(State.OPEN);
-        order.setKey(orderKey);
-        order.setFilename(order.getOrderId() + "." + order.getPackageFormat());
-        order.setExpireDate(Date.from(Instant.now().plusSeconds(604800))); // 604800 seconds = 1 week
-        order.setOrderDate(Date.from(Instant.now()));
-
-        InstanceInfo instance = disoveryClient.getNextServerFromEureka("ZUULSERVER", false);
-        order.setDownloadUrl(instance.getHomePageUrl() + "delivery/orders/" + orderKey);
+        Order order = new OrderBuilder(deliveryOrderRequest)
+                .generateKey()
+                .withDownloadPath(disoveryClient)
+                .withExpireDate(604800)
+                .build();
 
         return deliveryMetadataService.saveOrder(order);
     }
