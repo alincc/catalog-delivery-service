@@ -1,17 +1,16 @@
 package no.nb.microservices.delivery.core.print.service;
 
-import no.nb.microservices.delivery.core.metadata.model.PrintedFile;
-import no.nb.microservices.delivery.core.metadata.model.PrintedResource;
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.factory.PrintFormatFactory;
 import no.nb.microservices.delivery.core.print.repository.PrintGeneratorRepository;
 import no.nb.microservices.delivery.core.text.repository.CatalogDeliveryTextRepository;
-import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
+import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Future;
 
@@ -35,7 +34,7 @@ public class PrintedService implements IPrintedService {
 //        commandProperties = {
 //                @HystrixProperty(name="execution.timeout.enabled", value="600000")
 //        })
-    public Future<CatalogFile> getResourceAsync(PrintedFile fileRequest, String packageFormat) {
+    public Future<CatalogFile> getResourceAsync(PrintedFile fileRequest) {
 //        return new AsyncResult<CatalogFile>() {
 //            @Override
 //            public CatalogFile invoke() {
@@ -43,27 +42,30 @@ public class PrintedService implements IPrintedService {
 //            }
 //        };
 
-        return new org.springframework.scheduling.annotation.AsyncResult<CatalogFile>(getResource(fileRequest, packageFormat));
+        CatalogFile catalogFile = getResource(fileRequest);
+        org.springframework.scheduling.annotation.AsyncResult<CatalogFile> as = new org.springframework.scheduling.annotation.AsyncResult<CatalogFile>(catalogFile);
+
+        if (catalogFile == null) {
+            as.cancel(true);
+        }
+
+        return as;
     }
 
     @Override
-    public CatalogFile getResource(PrintedFile fileRequest, String packageFormat) {
-        InputStream inputStream = printFormatFactory.getPrintFormat(fileRequest.getFormat()).getResource(fileRequest, packageFormat);
-        CatalogFile catalogFile = new CatalogFile(fileRequest.getFilename(), inputStream);
-        return catalogFile;
+    public CatalogFile getResource(PrintedFile fileRequest) {
+        try {
+            InputStream inputStream = printFormatFactory.getPrintFormat(fileRequest.getFormat()).getResource(fileRequest);
+            CatalogFile catalogFile = new CatalogFile(fileRequest.getFilename(), inputStream);
+            return catalogFile;
+        }
+        catch (IOException ioe) {
+            return null;
+        }
     }
 
-    private PrintedResource map(PrintedResourceRequest printedResourceRequest) {
-        PrintedResource printedResource = new PrintedResource();
-        printedResource.setPages(printedResourceRequest.getPages());
-        printedResource.setQuality(printedResourceRequest.getQuality());
-        printedResource.setUrn(printedResourceRequest.getUrn());
-
-        return printedResource;
-    }
-
-    private CatalogFile getDefaultResources(PrintedFile fileRequest, String packageFormat) {
-        CatalogFile catalogFile = new CatalogFile("empty." + packageFormat, new ByteArrayInputStream(new byte[1]));
+    private CatalogFile getDefaultResources(PrintedFile fileRequest) {
+        CatalogFile catalogFile = new CatalogFile("empty." + fileRequest.getFormat().toString(), new ByteArrayInputStream(new byte[1]));
         return catalogFile;
     }
 }

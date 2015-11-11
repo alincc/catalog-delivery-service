@@ -9,9 +9,12 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 import no.nb.microservices.delivery.Application;
 import no.nb.microservices.delivery.config.ApplicationSettings;
-import no.nb.microservices.delivery.model.order.OrderRequest;
-import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
-import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
+import no.nb.microservices.delivery.core.metadata.repository.OrderRepository;
+import no.nb.microservices.delivery.model.metadata.Order;
+import no.nb.microservices.delivery.model.request.OrderRequest;
+import no.nb.microservices.delivery.model.request.PrintFormat;
+import no.nb.microservices.delivery.model.request.PrintedFileRequest;
+import no.nb.microservices.delivery.model.request.PrintedResourceRequest;
 import okio.Buffer;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.parser.ParseException;
@@ -41,13 +44,14 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-/**
- * Created by andreasb on 14.09.15.
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Application.class, RibbonClientConfiguration.class})
 @WebIntegrationTest("server.port:0")
@@ -64,6 +68,9 @@ public class IntegrationTest {
     @Autowired
     ILoadBalancer lb;
 
+    @Autowired
+    OrderRepository orderRepository;
+
     RestTemplate rest = new TestRestTemplate();
 
     MockWebServer server;
@@ -73,6 +80,7 @@ public class IntegrationTest {
 
     @Before
     public void setup() throws Exception {
+        orderRepository.deleteAll();
         URL path = this.getClass().getResource("/");
         applicationSettings.setZipFilePath(path.getPath());
 
@@ -90,19 +98,20 @@ public class IntegrationTest {
                     return new MockResponse().setBody(itemId1Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
                 }
                 else if (request.getPath().equals("/generate?urn=urn%3Anbn%3Ano-nb_digibok_2014062307158&pages=&pageSelection=id&addText=false&resolutionlevel=5&filename=filename&filetype=pdf")
-                        || request.getPath().equals("/generate?urn=URN%3ANBN%3Ano-nb_digibok_2014091948005&addText=false&resolutionlevel=5&filename=filename&filetype=pdf")) {
+                        || request.getPath().equals("/generate?urn=URN%3ANBN%3Ano-nb_digibok_2014091948005&addText=false&resolutionlevel=5&filename=filename&filetype=pdf")
+                        || request.getPath().equals("/generate?urn=urn%3Anbn%3Ano-nb_digibok_2014062307158&pages=&addText=false&resolutionlevel=5&filename=filename&filetype=PDF")) {
                     return getMockResponse("d287191ca81f4bd702630e2ec74466bb-9088.pdf");
                 }
-                else if (request.getPath().equals("/orders")) {
+                else if (request.getPath().equals("/deliveryx/orders")) {
                     return new MockResponse().setBody(deliveryMetadata1Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
                 }
-                else if (request.getPath().equals("/orders/0YvkQv9myztAmAfs")) {
+                else if (request.getPath().equals("/deliveryx/orders/0YvkQv9myztAmAfs")) {
                     return new MockResponse().setBody(deliveryMetadata1Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
                 }
-                else if (request.getPath().equals("/orders/YCFa5GcrIFQUlDKW")) {
+                else if (request.getPath().equals("/deliveryx/orders/YCFa5GcrIFQUlDKW")) {
                     return new MockResponse().setBody(deliveryMetadata2Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
                 }
-                else if (request.getPath().equals("/orders/d8sjxnajhd87caxa")) {
+                else if (request.getPath().equals("/deliveryx/orders/d8sjxnajhd87caxa")) {
                     return new MockResponse().setBody(deliveryMetadata3Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
                 }
                 else if (request.getPath().equals("/alto/URN%3ANBN%3Ano-nb_digibok_2014062307158?packageFormat=tar.gz")) {
@@ -141,7 +150,7 @@ public class IntegrationTest {
 
     @Test
     public void downloadPrintdResponseShouldBeOk() throws URISyntaxException {
-        URI uri = new URI("http://localhost:" + port + "/download/prints/urn:nbn:no-nb_digibok_2014062307158");
+        URI uri = new URI("http://localhost:" + port + "/delivery/download/prints/urn:nbn:no-nb_digibok_2014062307158");
         ResponseEntity<ByteArrayResource> response = rest.getForEntity(uri, ByteArrayResource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1009939, response.getBody().contentLength());
@@ -150,27 +159,28 @@ public class IntegrationTest {
 
     @Test
     public void placeOrderWithPdfShouldBeOk() throws URISyntaxException {
-        URI uri = new URI("http://localhost:" + port + "/orders");
+        URI uri = new URI("http://localhost:" + port + "/delivery/orders");
         OrderRequest deliveryOrderRequest = new OrderRequest();
         deliveryOrderRequest.setEmailTo("dev@nb.no");
         deliveryOrderRequest.setPurpose("test");
-        PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014091948005", 5);
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest("pdf", Arrays.asList(printedResourceRequest));
+        PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014091948005");
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(printedResourceRequest), PrintFormat.PDF, 5);
         deliveryOrderRequest.setPrints(Arrays.asList(printedFileRequest));
 
-        ResponseEntity<String> response = rest.postForEntity(uri, deliveryOrderRequest, String.class);
+        ResponseEntity<Order> response = rest.postForEntity(uri, deliveryOrderRequest, Order.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody().getOrderId());
     }
 
     @Test
     public void placeOrderWithAltoShouldBeOk() throws URISyntaxException {
-        URI uri = new URI("http://localhost:" + port + "/orders");
+        URI uri = new URI("http://localhost:" + port + "/delivery/orders");
         OrderRequest deliveryOrderRequest = new OrderRequest();
         deliveryOrderRequest.setEmailTo("dev@nb.no");
         deliveryOrderRequest.setPurpose("test");
         deliveryOrderRequest.setPackageFormat("tar.gz");
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014062307158");
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest("alto", Arrays.asList(printedResourceRequest));
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(printedResourceRequest), PrintFormat.ALTO);
         deliveryOrderRequest.setPrints(Arrays.asList(printedFileRequest));
 
         ResponseEntity<String> response = rest.postForEntity(uri, deliveryOrderRequest, String.class);
@@ -179,7 +189,15 @@ public class IntegrationTest {
 
     @Test
     public void getOrderWithZip() throws URISyntaxException {
-        URI uri = new URI("http://localhost:" + port + "/orders/0YvkQv9myztAmAfs");
+        Order order = new Order();
+        order.setOrderId(UUID.randomUUID().toString());
+        order.setKey("0YvkQv9myztAmAfs");
+        order.setFilename("d287191ca81f4bd702630e2ec74466bb-9088.zip");
+        order.setOrderDate(Date.from(Instant.now()));
+        order.setExpireDate(Date.from(Instant.now().plusSeconds(604800)));
+        orderRepository.save(order);
+
+        URI uri = new URI("http://localhost:" + port + "/delivery/orders/0YvkQv9myztAmAfs");
         ResponseEntity<ByteArrayResource> response = rest.getForEntity(uri, ByteArrayResource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(982565, response.getBody().contentLength());
@@ -187,7 +205,15 @@ public class IntegrationTest {
 
     @Test
     public void getOrderWithTarGz() throws URISyntaxException {
-        URI uri = new URI("http://localhost:" + port + "/orders/YCFa5GcrIFQUlDKW");
+        Order order = new Order();
+        order.setOrderId(UUID.randomUUID().toString());
+        order.setKey("YCFa5GcrIFQUlDKW");
+        order.setFilename("d287191ca81f4bd702630e2ec74466bb-9088.tar.gz");
+        order.setOrderDate(Date.from(Instant.now()));
+        order.setExpireDate(Date.from(Instant.now().plusSeconds(604800)));
+        orderRepository.save(order);
+
+        URI uri = new URI("http://localhost:" + port + "/delivery/orders/YCFa5GcrIFQUlDKW");
         ResponseEntity<ByteArrayResource> response = rest.getForEntity(uri, ByteArrayResource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(983218, response.getBody().contentLength());
@@ -195,7 +221,14 @@ public class IntegrationTest {
 
     @Test
     public void getOrderThatHasExpired() throws URISyntaxException, ParseException {
-        URI uri = new URI("http://localhost:" + port + "/orders/d8sjxnajhd87caxa");
+        Order order = new Order();
+        order.setOrderId(UUID.randomUUID().toString());
+        order.setKey("d8sjxnajhd87caxa");
+        order.setOrderDate(new Date(1446074535971L));
+        order.setExpireDate(new Date(1446679335971L));
+        orderRepository.save(order);
+
+        URI uri = new URI("http://localhost:" + port + "/delivery/orders/d8sjxnajhd87caxa");
         ResponseEntity<String> response = rest.getForEntity(uri, String.class);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }

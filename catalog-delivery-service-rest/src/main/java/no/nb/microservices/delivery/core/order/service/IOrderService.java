@@ -1,7 +1,7 @@
 package no.nb.microservices.delivery.core.order.service;
 
-import no.nb.microservices.delivery.core.metadata.model.Order;
-import no.nb.microservices.delivery.model.order.OrderRequest;
+import no.nb.microservices.delivery.model.metadata.Order;
+import no.nb.microservices.delivery.model.request.OrderRequest;
 import org.springframework.scheduling.annotation.Async;
 
 import java.io.File;

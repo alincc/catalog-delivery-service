@@ -1,11 +1,13 @@
 package no.nb.microservices.delivery.core.print.service;
 
-import no.nb.microservices.delivery.core.metadata.model.PrintedFile;
-import no.nb.microservices.delivery.core.metadata.model.PrintedResource;
+import feign.Response;
 import no.nb.microservices.delivery.core.print.repository.PrintGeneratorRepository;
+import no.nb.microservices.delivery.model.metadata.PrintedFile;
+import no.nb.microservices.delivery.model.metadata.PrintedResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,14 +23,14 @@ public class FormatImageService implements FormatService {
     }
 
     @Override
-    public InputStream getResource(PrintedFile fileRequest, String packageFormat) {
+    public InputStream getResource(PrintedFile fileRequest) throws IOException {
         List<PrintedResource> requests = fileRequest.getResources();
         List<String> urns = requests.stream().map(q -> q.getUrn()).collect(Collectors.toList());
         List<String> pages = requests.stream().filter(q -> q.getPages() != null).map(q -> q.getPages()).collect(Collectors.toList());
         List<String> pageSelections = requests.stream().filter(q -> q.getPageSelection() != null).map(q -> q.getPageSelection()).collect(Collectors.toList());
-        List<String> quality = requests.stream().map(q -> q.getQuality() + "").collect(Collectors.toList());
+        List<String> quality = requests.stream().map(q -> fileRequest.getQuality() + "").collect(Collectors.toList());
 
-        InputStream response = printGeneratorRepository.generate(urns, pages, pageSelections, null, quality, "filename", fileRequest.getFormat());
-        return response;
+        Response response = printGeneratorRepository.generate(urns, pages, pageSelections, null, quality, "filename", fileRequest.getFormat().toString());
+        return response.body().asInputStream();
     }
 }

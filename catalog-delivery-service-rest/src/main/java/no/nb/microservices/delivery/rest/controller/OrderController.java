@@ -1,8 +1,8 @@
 package no.nb.microservices.delivery.rest.controller;
 
-import no.nb.microservices.delivery.core.metadata.model.Order;
 import no.nb.microservices.delivery.core.order.service.IOrderService;
-import no.nb.microservices.delivery.model.order.OrderRequest;
+import no.nb.microservices.delivery.model.metadata.Order;
+import no.nb.microservices.delivery.model.request.OrderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,8 +33,7 @@ public class OrderController {
     }
 
     @RequestMapping(value = "/orders/{key}")
-    public void downloadOrder(@PathVariable("key") String key,
-                              HttpServletResponse response) throws IOException {
+    public void downloadOrder(@PathVariable("key") String key, HttpServletResponse response) throws IOException {
         File order = orderService.getOrder(key);
 
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);

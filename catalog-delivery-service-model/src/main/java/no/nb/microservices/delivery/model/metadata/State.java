@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.core.metadata.model;
+package no.nb.microservices.delivery.model.metadata;
 
 public enum State {
     OPEN("OPEN"),

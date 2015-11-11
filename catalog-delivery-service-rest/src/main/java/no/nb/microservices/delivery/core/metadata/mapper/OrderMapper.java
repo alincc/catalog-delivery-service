@@ -1,11 +1,10 @@
 package no.nb.microservices.delivery.core.metadata.mapper;
 
-import no.nb.microservices.delivery.core.metadata.model.Order;
-import no.nb.microservices.delivery.core.metadata.model.PrintedFile;
-import no.nb.microservices.delivery.core.metadata.model.PrintedResource;
-import no.nb.microservices.delivery.model.order.OrderRequest;
-import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
-import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
+import no.nb.microservices.delivery.core.print.builder.PrintedFileBuilder;
+import no.nb.microservices.delivery.model.metadata.Order;
+import no.nb.microservices.delivery.model.metadata.PrintedFile;
+import no.nb.microservices.delivery.model.request.OrderRequest;
+import no.nb.microservices.delivery.model.request.PrintedFileRequest;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayList;
@@ -13,37 +12,32 @@ import java.util.List;
 
 public class OrderMapper {
 
-    public static Order map(OrderRequest deliveryOrderRequest) {
+    public static Order map(OrderRequest orderRequest) {
         List<PrintedFile> printedFiles = new ArrayList<>();
-        for (PrintedFileRequest printedFileRequest : deliveryOrderRequest.getPrints()) {
-            PrintedFile printedFile = new PrintedFile();
-            List<PrintedResource> resources = new ArrayList<>();
-            for (PrintedResourceRequest printedResourceRequest : printedFileRequest.getResources()) {
-                PrintedResource printedResource = new PrintedResource();
-                printedResource.setUrn(printedResourceRequest.getUrn());
-                printedResource.setQuality(printedResourceRequest.getQuality());
-                printedResource.setPages(printedResourceRequest.getPages());
-                printedResource.setPageSelection(printedResourceRequest.getPageSelection());
-                resources.add(printedResource);
-            }
-            printedFile.setResources(resources);
-            printedFile.setFormat(printedFileRequest.getFormat());
-            printedFile.setText(printedFileRequest.hasText());
+        for (PrintedFileRequest printedFileRequest : orderRequest.getPrints()) {
+            PrintedFile printedFile = new PrintedFileBuilder()
+                    .withFormat(printedFileRequest.getFormat())
+                    .withQuality(printedFileRequest.getQuality())
+                    .addText(printedFileRequest.isText())
+                    .withResourceRequests(printedFileRequest.getResources())
+                    .compressAs(orderRequest.getPackageFormat())
+                    .build();
+
             printedFiles.add(printedFile);
         }
 
         Order orderMetadata = new Order();
-        orderMetadata.setOrderId(deliveryOrderRequest.getOrderId());
-        orderMetadata.setEmailTo(deliveryOrderRequest.getEmailTo());
-        orderMetadata.setEmailCc(deliveryOrderRequest.getEmailCc());
-        orderMetadata.setPurpose(deliveryOrderRequest.getPurpose());
-        orderMetadata.setPackageFormat(deliveryOrderRequest.getPackageFormat());
+        orderMetadata.setOrderId(orderRequest.getOrderId());
+        orderMetadata.setEmailTo(orderRequest.getEmailTo());
+        orderMetadata.setEmailCc(orderRequest.getEmailCc());
+        orderMetadata.setPurpose(orderRequest.getPurpose());
+        orderMetadata.setPackageFormat(orderRequest.getPackageFormat());
         orderMetadata.setPrints(printedFiles);
 
         return orderMetadata;
     }
 
-    public OrderRequest map(Order deliveryOrderRequest) {
+    public static OrderRequest map(Order deliveryOrderRequest) {
         throw new NotImplementedException("Not implemented");
     }
 }

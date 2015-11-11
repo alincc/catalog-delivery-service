@@ -1,6 +1,7 @@
 package no.nb.microservices.delivery.core.print.factory;
 
 import no.nb.microservices.delivery.core.print.service.*;
+import no.nb.microservices.delivery.model.request.PrintFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,20 +27,20 @@ public class PrintFormatFactory {
         this.textPrintFormat = textPrintFormat;
     }
 
-    public FormatService getPrintFormat(String format) {
+    public FormatService getPrintFormat(PrintFormat format) {
 
         List<String> images = Arrays.asList("jpg", "tif", "jp2");
 
-        if ("pdf".equalsIgnoreCase(format)) {
+        if (format == PrintFormat.PDF) {
             return bookPrintFormat;
         }
-        else if ("alto".equalsIgnoreCase(format)) {
+        else if (format == PrintFormat.ALTO) {
             return altoPrintFormat;
         }
-        else if ("txt".equalsIgnoreCase(format)) {
+        else if (format == PrintFormat.TXT) {
             return textPrintFormat;
         }
-        else if (images.contains(format)) {
+        else if (images.contains(format.toString())) {
             return imagePrintFormat;
         }
 

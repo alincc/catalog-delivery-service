@@ -1,6 +1,6 @@
 package no.nb.microservices.delivery.core.metadata.repository;
 
-import no.nb.microservices.delivery.core.metadata.model.Order;
+import no.nb.microservices.delivery.model.metadata.Order;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

@@ -1,6 +1,5 @@
-package no.nb.microservices.delivery.model.order;
+package no.nb.microservices.delivery.model.request;
 
-import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 

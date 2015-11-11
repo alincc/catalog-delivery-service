@@ -8,14 +8,15 @@ import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.email.service.IEmailService;
 import no.nb.microservices.delivery.core.item.service.IItemService;
 import no.nb.microservices.delivery.core.metadata.mapper.OrderMapper;
-import no.nb.microservices.delivery.core.metadata.model.Order;
-import no.nb.microservices.delivery.core.metadata.model.State;
 import no.nb.microservices.delivery.core.metadata.service.IDeliveryMetadataService;
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
-import no.nb.microservices.delivery.model.order.OrderRequest;
-import no.nb.microservices.email.model.Email;
+import no.nb.microservices.delivery.model.metadata.Order;
+import no.nb.microservices.delivery.model.metadata.State;
+import no.nb.microservices.delivery.model.request.OrderRequest;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
@@ -33,6 +34,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderService implements IOrderService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OrderService.class);
 
     private final IPrintedService printedService;
     private final IDeliveryMetadataService deliveryMetadataService;
@@ -81,7 +84,15 @@ public class OrderService implements IOrderService {
     public void processOrder(Order deliveryOrder) {
         // Make async calls to get printed resources
         try {
-            List<CatalogFile> printedOutputStreams = getAllResources(deliveryOrder);
+            List<Future<CatalogFile>> textualResourcesFutureList = deliveryOrder.getPrints().stream()
+                    .map(request -> printedService.getResourceAsync(request))
+                    .collect(Collectors.toList());
+
+            // Gather all async calls
+            List<CatalogFile> printedOutputStreams = new ArrayList<>();
+            for (Future<CatalogFile> textualResourceFuture : textualResourcesFutureList) {
+                printedOutputStreams.add(textualResourceFuture.get());
+            }
 
             // Package all files to disk
             String packageFilename = deliveryOrder.getOrderId() + "." + deliveryOrder.getPackageFormat();
@@ -90,42 +101,12 @@ public class OrderService implements IOrderService {
                     .compress(printedOutputStreams.stream().map(q -> (Compressible)q).collect(Collectors.toList()), packagePath);
 
             // Send email to user with download details
-            sendConfirmationEmail(deliveryOrder);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            // TODO: Mark as error
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            // TODO: Mark as error
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            // TODO: Mark as error
+            emailService.sendEmail(deliveryOrder);
+        } catch (Exception e) {
+            LOG.error("Failed to process order with id: " + deliveryOrder.getOrderId(), e);
+
+            deliveryOrder.setState(State.ERROR);
+            deliveryMetadataService.updateOrder(deliveryOrder);
         }
-    }
-
-    private List<CatalogFile> getAllResources(Order deliveryOrder) throws InterruptedException, ExecutionException {
-        List<Future<CatalogFile>> textualResourcesFutureList = deliveryOrder.getPrints().stream()
-                .map(request -> printedService.getResourceAsync(request, deliveryOrder.getPackageFormat()))
-                .collect(Collectors.toList());
-
-        // Gather all async calls
-        List<CatalogFile> deliveryFiles = new ArrayList<>();
-        for (Future<CatalogFile> textualResourceFuture : textualResourcesFutureList) {
-            deliveryFiles.add(textualResourceFuture.get());
-        }
-
-        return deliveryFiles;
-    }
-
-    private void sendConfirmationEmail(final Order deliveryOrder) {
-        Email email = new Email();
-        email.setTo(deliveryOrder.getEmailTo());
-        email.setCc(deliveryOrder.getEmailCc());
-        email.setSubject(applicationSettings.getEmail().getSubject());
-        email.setFrom(applicationSettings.getEmail().getFrom());
-        email.setTemplate(applicationSettings.getEmail().getTemplate());
-        email.setContent(deliveryOrder);
-
-        emailService.sendEmail(email);
     }
 }

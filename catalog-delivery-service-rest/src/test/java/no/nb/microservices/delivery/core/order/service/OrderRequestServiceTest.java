@@ -1,64 +1,55 @@
 package no.nb.microservices.delivery.core.order.service;
 
-import no.nb.commons.io.packaging.factory.PackageFactory;
-import no.nb.commons.io.packaging.service.ZipService;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.DiscoveryClient;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.config.EmailSettings;
 import no.nb.microservices.delivery.core.email.service.EmailService;
 import no.nb.microservices.delivery.core.metadata.service.DeliveryMetadataService;
+import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.PrintedService;
-import no.nb.microservices.delivery.metadata.model.DeliveryOrder;
-import no.nb.microservices.delivery.metadata.model.PrintedFile;
-import no.nb.microservices.delivery.metadata.model.PrintedResource;
-import no.nb.microservices.delivery.model.order.DeliveryOrderRequest;
-import no.nb.microservices.delivery.model.printed.PrintedFileRequest;
-import no.nb.microservices.delivery.model.printed.PrintedResourceRequest;
+import no.nb.microservices.delivery.model.metadata.Order;
+import no.nb.microservices.delivery.model.metadata.PrintedFile;
+import no.nb.microservices.delivery.model.request.OrderRequest;
+import no.nb.microservices.delivery.model.request.PrintFormat;
+import no.nb.microservices.delivery.model.request.PrintedFileRequest;
+import no.nb.microservices.delivery.model.request.PrintedResourceRequest;
 import no.nb.microservices.email.model.Email;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
-/**
- * Created by andreasb on 16.07.15.
- */
+
 @RunWith(MockitoJUnitRunner.class)
-public class OrderServiceTest {
+public class OrderRequestServiceTest {
 
     @InjectMocks
     OrderService orderService;
 
     @Mock
     PrintedService printedService;
-
-    @Mock
-    ZipService zipService;
 
     @Mock
     DeliveryMetadataService deliveryMetadataService;
@@ -70,55 +61,47 @@ public class OrderServiceTest {
     ApplicationSettings applicationSettings;
 
     @Mock
-    PackageFactory packageFactory;
+    DiscoveryClient disoveryClient;
 
     @Test
     public void placeOrderTest() throws ExecutionException, InterruptedException, IOException {
         String tmpDir = System.getProperty("java.io.tmpdir");
 
-        DeliveryOrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
-        Future<PrintedFile> printedFileFuture = getTextualItem();
+        OrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
+        Future<CatalogFile> printedFileFuture = getTextualItem();
 
         EmailSettings emailSettings = new EmailSettings();
         emailSettings.setSubject("placeOrderTest");
         emailSettings.setFrom("placeOrderTest@nb.no");
         emailSettings.setTemplate("template.vm");
 
-        when(packageFactory.getPackageService(eq("zip"))).thenReturn(new ZipService());
-        when(printedService.getResourceAsync(eq(deliveryOrderRequest.getPrints().get(0)))).thenReturn(printedFileFuture);
+        when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(printedFileFuture);
         when(applicationSettings.getZipFilePath()).thenReturn(tmpDir + "/");
         when(applicationSettings.getEmail()).thenReturn(emailSettings);
 
         Resource zippedfile = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.zip");
-        when(zipService.packToPath(any(List.class), anyString())).thenReturn(zippedfile.getFile());
 
-        when(deliveryMetadataService.saveOrder(any(DeliveryOrder.class))).then(returnsFirstArg());
+        InstanceInfo instance = InstanceInfo.Builder.newBuilder().setAppName("testApp").setHostName("api.nb.no").setHomePageUrl("api", "/delivery").build();
+        when(disoveryClient.getNextServerFromEureka(anyString(), anyBoolean())).thenReturn(instance);
+        when(deliveryMetadataService.saveOrder(any(Order.class))).then(returnsFirstArg());
 
         orderService.placeOrder(deliveryOrderRequest);
 
         ArgumentCaptor<Email> argumentCaptor = ArgumentCaptor.forClass(Email.class);
-        verify(emailService, times(1)).sendEmail(argumentCaptor.capture());
-        DeliveryOrder itemOrderCaptor = (DeliveryOrder)argumentCaptor.getValue().getContent();
-        assertEquals(deliveryOrderRequest.getEmailTo(), argumentCaptor.getValue().getTo());
-        assertTrue(itemOrderCaptor.getExpireDate().after(Date.from(Instant.now())));
-        assertTrue(itemOrderCaptor.getKey().matches("^\\w{16}$"));
+        verify(deliveryMetadataService, times(1)).saveOrder(any(Order.class));
     }
 
-    private Future<PrintedFile> getTextualItem() throws IOException {
+    private Future<CatalogFile> getTextualItem() throws IOException {
         Resource resource = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.pdf");
-        InputStream inputStream = resource.getInputStream();
-        ByteArrayResource byteArrayResource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
-        PrintedResource printedResource = new PrintedResource("URN:NBN:no-nb_digibok_2014020626009", "book", 4, "ALL");
-        PrintedFile printedFile = new PrintedFile("dummy.pdf", "pdf", Arrays.asList(printedResource));
-        printedFile.setContent(byteArrayResource);
-        return CompletableFuture.completedFuture(printedFile);
+        CatalogFile catalogFile = new CatalogFile("ecd270f69cb8a9063306fcecd4b1a769.pdf", resource.getInputStream());
+        return CompletableFuture.completedFuture(catalogFile);
     }
 
-    private DeliveryOrderRequest getDeliveryOrderRequest() {
-        PrintedResourceRequest textualRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014020626009", 1, "ALL", "id", false);
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest("pdf", Arrays.asList(textualRequest));
+    private OrderRequest getDeliveryOrderRequest() {
+        PrintedResourceRequest textualRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014020626009", "ALL", "id");
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(textualRequest), PrintFormat.PDF, 1);
 
-        DeliveryOrderRequest itemOrder = new DeliveryOrderRequest() {{
+        OrderRequest itemOrder = new OrderRequest() {{
             setEmailTo("example@example.com");
             setEmailCc("example-cc@example.com");
             setPurpose("Testing purpose");
@@ -132,7 +115,7 @@ public class OrderServiceTest {
     @Test
     public void getOrderTest() {
         String orderKey = "d8o00w7zz2cRy8Wm";
-        DeliveryOrder deliveryOrder = new DeliveryOrder() {{
+        Order deliveryOrder = new Order() {{
             setFilename("ecd270f69cb8a9063306fcecd4b1a769.zip");
             setExpireDate(Date.from(Instant.now().plusSeconds(3600)));
         }};
@@ -147,7 +130,7 @@ public class OrderServiceTest {
     @Test(expected = AccessDeniedException.class)
     public void getOrderTestExpired() {
         String orderKey = "d8o00w7zz2cRy8Wm";
-        DeliveryOrder deliveryOrder = new DeliveryOrder() {{
+        Order deliveryOrder = new Order() {{
             setFilename("ecd270f69cb8a9063306fcecd4b1a769.zip");
             setExpireDate(Date.from(Instant.now().minusSeconds(3600)));
         }};

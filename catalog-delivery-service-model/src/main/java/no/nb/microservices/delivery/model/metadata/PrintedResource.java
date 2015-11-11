@@ -1,33 +1,37 @@
-package no.nb.microservices.delivery.core.metadata.model;
+package no.nb.microservices.delivery.model.metadata;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-/**
- * Created by andreasb on 20.08.15.
- */
 @Document
 public class PrintedResource {
     private String urn;
-    private String format;
-    private String mediatype;
-    private int quality;
     private String pages;
     private String pageSelection;
+    private String mediatype;
 
     public PrintedResource() {
     }
 
-    public PrintedResource(String urn, String mediatype, int quality) {
+    public PrintedResource(String urn) {
         this.urn = urn;
-        this.mediatype = mediatype;
-        this.quality = quality;
     }
 
-    public PrintedResource(String urn, String mediatype, int quality, String pages) {
+    public PrintedResource(String urn, String pages) {
         this.urn = urn;
-        this.mediatype = mediatype;
         this.pages = pages;
-        this.quality = quality;
+    }
+
+    public PrintedResource(String urn, String pages, String pageSelection) {
+        this.urn = urn;
+        this.pages = pages;
+        this.pageSelection = pageSelection;
+    }
+
+    public PrintedResource(String urn, String pages, String pageSelection, String mediatype) {
+        this.urn = urn;
+        this.pages = pages;
+        this.pageSelection = pageSelection;
+        this.mediatype = mediatype;
     }
 
     public String getUrn() {
@@ -52,22 +56,6 @@ public class PrintedResource {
 
     public void setPages(String pages) {
         this.pages = pages;
-    }
-
-    public int getQuality() {
-        return quality;
-    }
-
-    public void setQuality(int quality) {
-        this.quality = quality;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
     }
 
     public String getPageSelection() {

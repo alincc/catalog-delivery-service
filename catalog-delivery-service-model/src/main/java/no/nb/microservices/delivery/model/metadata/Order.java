@@ -1,4 +1,4 @@
-package no.nb.microservices.delivery.core.metadata.model;
+package no.nb.microservices.delivery.model.metadata;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
