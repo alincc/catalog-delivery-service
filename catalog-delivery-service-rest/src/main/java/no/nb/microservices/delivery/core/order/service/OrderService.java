@@ -5,7 +5,6 @@ import no.nb.commons.io.compression.factory.Compressible;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.IEmailService;
-import no.nb.microservices.delivery.core.item.service.IItemService;
 import no.nb.microservices.delivery.core.metadata.service.IDeliveryMetadataService;
 import no.nb.microservices.delivery.core.order.exception.OrderFailedException;
 import no.nb.microservices.delivery.core.order.exception.OrderNotReadyException;
@@ -23,12 +22,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 

@@ -20,12 +20,11 @@ import java.util.UUID;
 
 public class OrderBuilder {
 
-    private Order order;
-
-    private final static String HOME_URL = "http://api.nb.no/v1/";
-    private final static String ORDERS_URL = "delivery/orders/";
-
+    private static final String HOME_URL = "http://api.nb.no/v1/";
+    private static final String ORDERS_URL = "delivery/orders/";
     private static final Logger LOG = LoggerFactory.getLogger(OrderBuilder.class);
+
+    private Order order;
 
     public OrderBuilder() {
         order = new Order();

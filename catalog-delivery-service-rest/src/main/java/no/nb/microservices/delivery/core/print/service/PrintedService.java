@@ -2,8 +2,6 @@ package no.nb.microservices.delivery.core.print.service;
 
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.factory.PrintFormatFactory;
-import no.nb.microservices.delivery.core.print.repository.PrintGeneratorRepository;
-import no.nb.microservices.delivery.core.text.repository.CatalogDeliveryTextRepository;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
