@@ -44,9 +44,12 @@ import java.util.concurrent.Future;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -199,11 +202,11 @@ public class OrderServiceTest {
 
         when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(getTextualItem());
         when(applicationSettings.getZipFilePath()).thenReturn("/tmp");
-        when(compressionService.compress(eq(order), anyListOf(Compressible.class))).thenReturn(new File("example.zip"));
 
         orderService.processOrder(order);
 
         verify(emailService, times(1)).sendEmail(any(Order.class));
+        verify(compressionService, times(1)).compress(any(Order.class), anyListOf(Compressible.class));
     }
 
     @Test
@@ -220,7 +223,7 @@ public class OrderServiceTest {
 
         when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(getTextualItem());
         when(applicationSettings.getZipFilePath()).thenReturn("/tmp");
-        when(compressionService.compress(eq(order), anyListOf(Compressible.class))).thenThrow(new IOException("Failed to write file to disk"));
+        doThrow(new IOException("Failed to write file to disk")).when(compressionService).compress(eq(order), anyListOf(Compressible.class));
 
         orderService.processOrder(order);
 

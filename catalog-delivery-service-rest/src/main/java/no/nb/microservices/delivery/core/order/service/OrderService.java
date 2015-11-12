@@ -102,11 +102,11 @@ public class OrderService implements IOrderService {
             // Package all files to disk
             compressionService.compress(deliveryOrder, printedOutputStreams.stream().map(q -> (Compressible) q).collect(Collectors.toList()));
 
-            deliveryOrder.setState(State.DONE);
-            deliveryMetadataService.updateOrder(deliveryOrder);
-
             // Send email to user with download details
             emailService.sendEmail(deliveryOrder);
+
+            deliveryOrder.setState(State.DONE);
+            deliveryMetadataService.updateOrder(deliveryOrder);
         } catch (Exception e) {
             LOG.error("Failed to process order with id: " + deliveryOrder.getOrderId(), e);
 

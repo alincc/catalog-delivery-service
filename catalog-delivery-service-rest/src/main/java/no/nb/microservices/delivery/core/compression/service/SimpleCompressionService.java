@@ -23,15 +23,13 @@ public class SimpleCompressionService implements CompressionService {
     }
 
     @Override
-    public File compress(String path, List<Compressible> compressible) throws IOException {
-        return CompressionStrategyFactory.create(FilenameUtils.getExtension(path)).compress(compressible, path);
+    public void compress(File file, List<Compressible> compressible) throws IOException {
+        CompressionStrategyFactory.create(FilenameUtils.getExtension(file.getPath())).compress(file, compressible);
     }
 
     @Override
-    public File compress(Order order, List<Compressible> catalogFiles) throws IOException {
-        String filename = order.getOrderId() + "." + order.getPackageFormat();
-        String path = applicationSettings.getZipFilePath() + filename;
-
-        return CompressionStrategyFactory.create(FilenameUtils.getExtension(path)).compress(catalogFiles, path);
+    public void compress(Order order, List<Compressible> compressible) throws IOException {
+        File output = new File(applicationSettings.getZipFilePath() + order.getFilename());
+        CompressionStrategyFactory.create(FilenameUtils.getExtension(output.getPath())).compress(output, compressible);
     }
 }

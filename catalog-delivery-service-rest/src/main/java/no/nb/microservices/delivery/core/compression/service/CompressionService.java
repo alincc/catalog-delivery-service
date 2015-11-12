@@ -8,6 +8,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface CompressionService {
-    File compress(String path, List<Compressible> compressible) throws IOException;
-    File compress(Order order, List<Compressible> catalogFiles) throws IOException;
+    void compress(File output, List<Compressible> compressible) throws IOException;
+    void compress(Order order, List<Compressible> compressible) throws IOException;
 }
