@@ -1,5 +1,7 @@
 package no.nb.microservices.delivery.rest.global;
 
+import no.nb.microservices.delivery.core.order.exception.OrderFailedException;
+import no.nb.microservices.delivery.core.order.exception.OrderNotReadyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -10,11 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
-import java.util.NoSuchElementException;
 
-/**
- * Created by andreasb on 07.07.15.
- */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -26,10 +24,16 @@ public class GlobalExceptionHandler {
         LOG.warn("User have no access", e);
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "The requested element is not found")
-    public void noSuchElementHandler(HttpServletRequest req, Exception e) {
-        LOG.warn("The requested element is not found", e);
+    @ExceptionHandler(OrderFailedException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "The processing of your order has failed")
+    public void orderFailedtHandler(HttpServletRequest req, Exception e) {
+        LOG.error("The processing of the order has failed", e);
+    }
+
+    @ExceptionHandler(OrderNotReadyException.class)
+    @ResponseStatus(value = HttpStatus.NO_CONTENT, reason = "The order is not finished processing")
+    public void orderNotReadytHandler(HttpServletRequest req, Exception e) {
+        LOG.info("The order is still processing", e);
     }
 
     @ExceptionHandler(Exception.class)

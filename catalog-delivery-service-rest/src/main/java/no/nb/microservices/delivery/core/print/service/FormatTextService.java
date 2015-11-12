@@ -21,8 +21,6 @@ public class FormatTextService implements FormatService {
     @Override
     public InputStream getResource(PrintedFile fileRequest) {
         PrintedResource printedResourceRequest = fileRequest.getResources().get(0);
-        InputStream response = catalogDeliveryTextRepository.getText(printedResourceRequest.getUrn(), printedResourceRequest.getPages(), printedResourceRequest.getPageSelection());
-
-        return response;
+        return catalogDeliveryTextRepository.getText(printedResourceRequest.getUrn(), printedResourceRequest.getPages(), printedResourceRequest.getPageSelection());
     }
 }

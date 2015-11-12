@@ -1,9 +1,6 @@
 package no.nb.microservices.delivery.core.item.service;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import no.nb.microservices.catalogitem.rest.model.ItemResource;
-import no.nb.microservices.catalogitem.rest.model.Metadata;
-import no.nb.microservices.catalogitem.rest.model.TitleInfo;
 import no.nb.microservices.delivery.core.item.repository.ItemRepository;
 import no.nb.microservices.delivery.core.searchindex.service.ISearchIndexService;
 import no.nb.microservices.delivery.core.searchindex.service.SearchIndexService;
@@ -14,7 +11,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.concurrent.Future;
 
 @Service

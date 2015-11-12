@@ -23,14 +23,12 @@ public class DeliveryMetadataService implements IDeliveryMetadataService {
 
     @Override
     public Order updateOrder(Order orderMetadata) {
-        Order savedOrder = orderRepository.save(orderMetadata);
-        return savedOrder;
+        return orderRepository.save(orderMetadata);
     }
 
     @Override
     public Order saveOrder(Order orderMetadata) {
-        Order savedOrder = orderRepository.save(orderMetadata);
-        return savedOrder;
+        return orderRepository.save(orderMetadata);
     }
 
     @Override
@@ -49,7 +47,6 @@ public class DeliveryMetadataService implements IDeliveryMetadataService {
 
     @Override
     public Page<Order> getOrders(Pageable pageable) {
-        Page<Order> orderMetadatas = orderRepository.findAll(pageable);
-        return orderMetadatas;
+        return orderRepository.findAll(pageable);
     }
 }

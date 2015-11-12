@@ -13,10 +13,12 @@ import no.nb.microservices.delivery.Application;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.metadata.repository.OrderRepository;
 import no.nb.microservices.delivery.model.metadata.Order;
+import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
 import no.nb.microservices.delivery.model.request.PrintFormat;
 import no.nb.microservices.delivery.model.request.PrintedFileRequest;
 import no.nb.microservices.delivery.model.request.PrintedResourceRequest;
+import no.nb.microservices.delivery.rest.assembler.OrderBuilder;
 import okio.Buffer;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.parser.ParseException;
@@ -46,7 +48,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
@@ -184,12 +185,13 @@ public class IntegrationTest {
 
     @Test
     public void getOrderWithZip() throws URISyntaxException {
-        Order order = new Order();
-        order.setOrderId(UUID.randomUUID().toString());
-        order.setKey("0YvkQv9myztAmAfs");
-        order.setFilename("d287191ca81f4bd702630e2ec74466bb-9088.zip");
-        order.setOrderDate(Date.from(Instant.now()));
-        order.setExpireDate(Date.from(Instant.now().plusSeconds(604800)));
+        Order order = new OrderBuilder()
+                .withKey("0YvkQv9myztAmAfs")
+                .withFilename("d287191ca81f4bd702630e2ec74466bb-9088.zip")
+                .withExpireDate(604800)
+                .withState(State.DONE)
+                .build();
+
         orderRepository.save(order);
 
         URI uri = new URI("http://localhost:" + port + "/delivery/orders/0YvkQv9myztAmAfs");
@@ -200,12 +202,13 @@ public class IntegrationTest {
 
     @Test
     public void getOrderWithTarGz() throws URISyntaxException {
-        Order order = new Order();
-        order.setOrderId(UUID.randomUUID().toString());
-        order.setKey("YCFa5GcrIFQUlDKW");
-        order.setFilename("d287191ca81f4bd702630e2ec74466bb-9088.tar.gz");
-        order.setOrderDate(Date.from(Instant.now()));
-        order.setExpireDate(Date.from(Instant.now().plusSeconds(604800)));
+        Order order = new OrderBuilder()
+                .withKey("YCFa5GcrIFQUlDKW")
+                .withFilename("d287191ca81f4bd702630e2ec74466bb-9088.tar.gz")
+                .withExpireDate(604800)
+                .withState(State.DONE)
+                .build();
+
         orderRepository.save(order);
 
         URI uri = new URI("http://localhost:" + port + "/delivery/orders/YCFa5GcrIFQUlDKW");
@@ -244,7 +247,7 @@ class MongoConfig {
         return new EmbeddedMongoBuilder()
                 .version("2.4.5")
                 .bindIp("127.0.0.1")
-                .port(27015)
+                .port(12345)
                 .build();
     }
 }

@@ -2,13 +2,14 @@ package no.nb.microservices.delivery.core.order.service;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
-import junit.framework.Assert;
 import no.nb.commons.io.compression.factory.Compressible;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.config.EmailSettings;
 import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.EmailService;
 import no.nb.microservices.delivery.core.metadata.service.DeliveryMetadataService;
+import no.nb.microservices.delivery.core.order.exception.OrderFailedException;
+import no.nb.microservices.delivery.core.order.exception.OrderNotReadyException;
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.PrintedService;
 import no.nb.microservices.delivery.model.metadata.Order;
@@ -26,7 +27,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -125,16 +125,51 @@ public class OrderServiceTest {
     @Test
     public void getOrderTest() {
         String orderKey = "d8o00w7zz2cRy8Wm";
-        Order deliveryOrder = new Order() {{
-            setFilename("ecd270f69cb8a9063306fcecd4b1a769.zip");
-            setExpireDate(Date.from(Instant.now().plusSeconds(3600)));
-        }};
+        Order order = new OrderBuilder()
+                .withFilename("ecd270f69cb8a9063306fcecd4b1a769.zip")
+                .withExpireDate(3600)
+                .withKey(orderKey)
+                .withState(State.DONE)
+                .build();
+
         when(applicationSettings.getZipFilePath()).thenReturn("");
-        when(deliveryMetadataService.getOrderByIdOrKey(eq(orderKey))).thenReturn(deliveryOrder);
+        when(deliveryMetadataService.getOrderByIdOrKey(eq(orderKey))).thenReturn(order);
 
         File file = orderService.getOrder(orderKey);
         assertNotNull(file);
-        assertEquals(deliveryOrder.getFilename(), file.getPath());
+        assertEquals(order.getFilename(), file.getPath());
+    }
+
+    @Test(expected = OrderFailedException.class)
+    public void getFailedOrderTest() {
+        String orderKey = "d8o00w7zz2cRy8Wm";
+        Order order = new OrderBuilder()
+                .withFilename("ecd270f69cb8a9063306fcecd4b1a769.zip")
+                .withExpireDate(3600)
+                .withKey(orderKey)
+                .withState(State.ERROR)
+                .build();
+
+        when(applicationSettings.getZipFilePath()).thenReturn("");
+        when(deliveryMetadataService.getOrderByIdOrKey(eq(orderKey))).thenReturn(order);
+
+        File file = orderService.getOrder(orderKey);
+    }
+
+    @Test(expected = OrderNotReadyException.class)
+    public void getNotReadyOrderTest() {
+        String orderKey = "d8o00w7zz2cRy8Wm";
+        Order order = new OrderBuilder()
+                .withFilename("ecd270f69cb8a9063306fcecd4b1a769.zip")
+                .withExpireDate(3600)
+                .withKey(orderKey)
+                .withState(State.PROCESSING)
+                .build();
+
+        when(applicationSettings.getZipFilePath()).thenReturn("");
+        when(deliveryMetadataService.getOrderByIdOrKey(eq(orderKey))).thenReturn(order);
+
+        File file = orderService.getOrder(orderKey);
     }
 
     @Test(expected = AccessDeniedException.class)

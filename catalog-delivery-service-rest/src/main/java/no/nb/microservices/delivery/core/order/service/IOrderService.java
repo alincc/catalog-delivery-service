@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public interface IOrderService {
-    Order placeOrder(OrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException;
+    Order placeOrder(OrderRequest deliveryOrderRequest);
 
     File getOrder(String key);
 

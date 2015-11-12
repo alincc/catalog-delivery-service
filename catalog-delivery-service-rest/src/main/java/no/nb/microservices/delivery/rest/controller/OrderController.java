@@ -28,7 +28,7 @@ public class OrderController {
     }
 
     @RequestMapping(value = "/orders", method = RequestMethod.POST)
-    public ResponseEntity<Order> placeOrder(@RequestBody @Valid OrderRequest deliveryOrderRequest) throws ExecutionException, InterruptedException, IOException {
+    public ResponseEntity<Order> placeOrder(@RequestBody @Valid OrderRequest deliveryOrderRequest) {
         return new ResponseEntity<Order>(orderService.placeOrder(deliveryOrderRequest), HttpStatus.OK);
     }
 

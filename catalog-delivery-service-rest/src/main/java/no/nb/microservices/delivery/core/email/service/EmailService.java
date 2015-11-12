@@ -1,6 +1,5 @@
 package no.nb.microservices.delivery.core.email.service;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.email.repository.EmailRepository;
 import no.nb.microservices.delivery.model.metadata.Order;

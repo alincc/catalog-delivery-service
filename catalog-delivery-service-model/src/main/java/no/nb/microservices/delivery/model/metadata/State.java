@@ -3,8 +3,7 @@ package no.nb.microservices.delivery.model.metadata;
 public enum State {
     OPEN("OPEN"),
     PROCESSING("PROCESSING"),
-    READY("READY"),
-    CLOSED("CLOSED"),
+    DONE("DONE"),
     ERROR("ERROR");
 
     private final String text;

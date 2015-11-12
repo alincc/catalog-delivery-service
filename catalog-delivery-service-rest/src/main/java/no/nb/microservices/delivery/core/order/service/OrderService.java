@@ -1,21 +1,20 @@
 package no.nb.microservices.delivery.core.order.service;
 
-import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 import no.nb.commons.io.compression.factory.Compressible;
-import no.nb.commons.io.compression.factory.CompressionStrategyFactory;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.IEmailService;
 import no.nb.microservices.delivery.core.item.service.IItemService;
 import no.nb.microservices.delivery.core.metadata.service.IDeliveryMetadataService;
+import no.nb.microservices.delivery.core.order.exception.OrderFailedException;
+import no.nb.microservices.delivery.core.order.exception.OrderNotReadyException;
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
 import no.nb.microservices.delivery.rest.assembler.OrderBuilder;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,19 +39,16 @@ public class OrderService implements IOrderService {
 
     private final IPrintedService printedService;
     private final IDeliveryMetadataService deliveryMetadataService;
-    private final IItemService itemService;
     private final IEmailService emailService;
     private final ApplicationSettings applicationSettings;
     private final DiscoveryClient disoveryClient;
     private final CompressionService compressionService;
 
     @Autowired
-    public OrderService(ApplicationSettings applicationSettings, IEmailService emailService, IItemService itemService,
-                        IDeliveryMetadataService deliveryMetadataService, IPrintedService printedService, DiscoveryClient disoveryClient,
-                        CompressionService compressionService) {
+    public OrderService(ApplicationSettings applicationSettings, IEmailService emailService, IDeliveryMetadataService deliveryMetadataService,
+                        IPrintedService printedService, DiscoveryClient disoveryClient, CompressionService compressionService) {
         this.applicationSettings = applicationSettings;
         this.emailService = emailService;
-        this.itemService = itemService;
         this.deliveryMetadataService = deliveryMetadataService;
         this.printedService = printedService;
         this.disoveryClient = disoveryClient;
@@ -60,7 +56,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Order placeOrder(OrderRequest deliveryOrderRequest) throws InterruptedException, ExecutionException, IOException {
+    public Order placeOrder(OrderRequest deliveryOrderRequest) {
         Order order = new OrderBuilder(deliveryOrderRequest)
                 .generateKey()
                 .withDownloadPath(disoveryClient)
@@ -73,10 +69,22 @@ public class OrderService implements IOrderService {
     @Override
     public File getOrder(String key) {
         Order order = deliveryMetadataService.getOrderByIdOrKey(key);
+
         if (Date.from(Instant.now()).after(order.getExpireDate())) {
             throw new AccessDeniedException("This order has expired");
         }
-        return new File(applicationSettings.getZipFilePath() + order.getFilename());
+        else if (order.getState() == State.ERROR)  {
+            throw new OrderFailedException("This order is marked as error");
+        }
+        else if (order.getState() == State.OPEN || order.getState() == State.PROCESSING)  {
+            throw new OrderNotReadyException("This order is still processing");
+        }
+        else if (order.getState() == State.DONE) {
+            return new File(applicationSettings.getZipFilePath() + order.getFilename());
+        }
+        else {
+            throw new RuntimeException("This order has a unknown state");
+        }
     }
 
     @Async
@@ -95,8 +103,10 @@ public class OrderService implements IOrderService {
             }
 
             // Package all files to disk
-            File compressedFile = compressionService.compress(deliveryOrder,
-                    printedOutputStreams.stream().map(q -> (Compressible) q).collect(Collectors.toList()));
+            compressionService.compress(deliveryOrder, printedOutputStreams.stream().map(q -> (Compressible) q).collect(Collectors.toList()));
+
+            deliveryOrder.setState(State.DONE);
+            deliveryMetadataService.updateOrder(deliveryOrder);
 
             // Send email to user with download details
             emailService.sendEmail(deliveryOrder);

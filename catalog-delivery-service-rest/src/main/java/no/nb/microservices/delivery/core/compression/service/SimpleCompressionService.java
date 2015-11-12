@@ -3,7 +3,6 @@ package no.nb.microservices.delivery.core.compression.service;
 import no.nb.commons.io.compression.factory.Compressible;
 import no.nb.commons.io.compression.factory.CompressionStrategyFactory;
 import no.nb.microservices.delivery.config.ApplicationSettings;
-import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.model.metadata.Order;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,10 +4,13 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
+import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
 import no.nb.microservices.delivery.model.request.PrintedFileRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,7 +22,10 @@ public class OrderBuilder {
 
     private Order order;
 
-    private final String HOME_URL = "http://api.nb.no/v1/";
+    private final static String HOME_URL = "http://api.nb.no/v1/";
+    private final static String ORDERS_URL = "delivery/orders/";
+
+    private static final Logger LOG = LoggerFactory.getLogger(OrderBuilder.class);
 
     public OrderBuilder() {
         order = new Order();
@@ -76,10 +82,11 @@ public class OrderBuilder {
     public OrderBuilder withDownloadPath(DiscoveryClient client, String orderKey) {
         try {
             InstanceInfo instance = client.getNextServerFromEureka("ZUULSERVER", false);
-            order.setDownloadUrl(instance.getHomePageUrl() + "delivery/orders/" + orderKey);
+            order.setDownloadUrl(instance.getHomePageUrl() + ORDERS_URL + orderKey);
         }
         catch (Exception e) {
-            order.setDownloadUrl(HOME_URL + "delivery/orders/" + orderKey);
+            LOG.error("Failed to find Edge server", e);
+            order.setDownloadUrl(HOME_URL + ORDERS_URL + orderKey);
         }
         return this;
     }
@@ -91,10 +98,11 @@ public class OrderBuilder {
 
         try {
             InstanceInfo instance = client.getNextServerFromEureka("ZUULSERVER", false);
-            order.setDownloadUrl(instance.getHomePageUrl() + "delivery/orders/" + this.order.getKey());
+            order.setDownloadUrl(instance.getHomePageUrl() + ORDERS_URL + this.order.getKey());
         }
         catch (Exception e) {
-            order.setDownloadUrl(HOME_URL + "delivery/orders/" + this.order.getKey());
+            LOG.error("Failed to find Edge server", e);
+            order.setDownloadUrl(HOME_URL + ORDERS_URL + this.order.getKey());
         }
         return this;
     }
@@ -111,6 +119,11 @@ public class OrderBuilder {
 
         order.getPrints().add(printedFile);
 
+        return this;
+    }
+
+    public OrderBuilder withState(State state) {
+        order.setState(state);
         return this;
     }
 

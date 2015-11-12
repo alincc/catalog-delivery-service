@@ -21,7 +21,6 @@ public class FormatAltoService implements FormatService {
     @Override
     public InputStream getResource(PrintedFile fileRequest) {
         PrintedResource printedResourceRequest = fileRequest.getResources().get(0);
-        InputStream response = catalogDeliveryTextRepository.getAltos(printedResourceRequest.getUrn(), printedResourceRequest.getPages(), printedResourceRequest.getPageSelection(), fileRequest.getFormat().toString());
-        return response;
+        return catalogDeliveryTextRepository.getAltos(printedResourceRequest.getUrn(), printedResourceRequest.getPages(), printedResourceRequest.getPageSelection(), fileRequest.getFormat().toString());
     }
 }

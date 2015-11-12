@@ -29,7 +29,7 @@ public class PrintedFileBuilder {
     }
 
     public PrintedFileBuilder withQuality(boolean high) {
-        printedFile.setQuality((high) ? 6 : 5);
+        printedFile.setQuality(high ? 6 : 5);
         return this;
     }
 

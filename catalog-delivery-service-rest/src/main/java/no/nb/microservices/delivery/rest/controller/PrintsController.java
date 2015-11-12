@@ -1,10 +1,10 @@
 package no.nb.microservices.delivery.rest.controller;
 
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
-import no.nb.microservices.delivery.rest.assembler.PrintedFileBuilder;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import no.nb.microservices.delivery.model.request.PrintFormat;
+import no.nb.microservices.delivery.rest.assembler.PrintedFileBuilder;
 import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class PrintsController {
                                         @RequestParam(value = "pages", defaultValue = "") String pages,
                                         @RequestParam(value = "highQuality", defaultValue = "false") boolean highQuality,
                                         @RequestParam(value = "format", defaultValue = "PDF") PrintFormat format,
-                                        HttpServletResponse response) throws IOException, InterruptedException, ExecutionException {
+                                        HttpServletResponse response) throws Exception {
 
         PrintedFile request = new PrintedFileBuilder()
                 .withFormat(format)
