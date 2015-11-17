@@ -58,7 +58,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Application.class, RibbonClientConfiguration.class, MongoConfig.class})
 @WebIntegrationTest("server.port:0")
-public class IntegrationTest {
+public class DeliveryControllerIT {
 
     @Value("${local.server.port}")
     int port;
