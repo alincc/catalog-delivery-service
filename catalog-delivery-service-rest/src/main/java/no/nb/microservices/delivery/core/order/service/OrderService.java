@@ -99,7 +99,7 @@ public class OrderService implements IOrderService {
             emailService.sendEmail(deliveryOrder);
 
             deliveryOrder.setState(State.DONE);
-            deliveryOrder.setFileSizeInBytes(output.length());
+            deliveryOrder.setFileSize(output.length());
             deliveryMetadataService.updateOrder(deliveryOrder);
         } catch (Exception e) {
             LOG.error("Failed to process order with id: " + deliveryOrder.getOrderId(), e);

@@ -11,8 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -31,7 +29,7 @@ public class OrderSchedulerTest {
     @Test
     public void processTest() {
         Order order = new OrderBuilder().build();
-        when(deliveryMetadataService.getOrdersByState(eq(State.OPEN))).thenReturn(Arrays.asList(order));
+        when(deliveryMetadataService.getOrderByState(eq(State.OPEN))).thenReturn(order);
 
         orderScheduler.process();
 

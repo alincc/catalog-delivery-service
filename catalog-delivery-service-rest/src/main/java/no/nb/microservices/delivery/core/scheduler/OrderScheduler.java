@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class OrderScheduler {
 
@@ -24,10 +22,9 @@ public class OrderScheduler {
 
     @Scheduled(fixedRate = 5000)
     public void process() {
-        List<Order> openOrders = deliveryMetadataService.getOrdersByState(State.OPEN);
+        Order order = deliveryMetadataService.getOrderByState(State.OPEN);
 
-        if (!openOrders.isEmpty()) {
-            Order order = openOrders.get((int) Math.random() * (openOrders.size() - 1));
+        if (order != null) {
             order.setState(State.PROCESSING);
             deliveryMetadataService.updateOrder(order);
             orderService.processOrder(order);

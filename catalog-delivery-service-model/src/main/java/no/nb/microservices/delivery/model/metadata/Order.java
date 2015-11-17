@@ -38,7 +38,7 @@ public class Order {
     @URL
     private String downloadUrl;
 
-    private long fileSizeInBytes;
+    private long fileSize;
 
     @Length(max = 300)
     private String purpose;
@@ -131,12 +131,12 @@ public class Order {
         this.prints = prints;
     }
 
-    public long getFileSizeInBytes() {
-        return fileSizeInBytes;
+    public long getFileSize() {
+        return fileSize;
     }
 
-    public void setFileSizeInBytes(long fileSizeInBytes) {
-        this.fileSizeInBytes = fileSizeInBytes;
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
     }
 
     public String getDownloadUrl() {

@@ -35,7 +35,7 @@ public class FormatAltoServiceTest {
         String urn = "urn:nbn:no-nb_digibok_2014062307158";
         String pages = "";
         String pageSelection = "id";
-        String format = "ALTO";
+        String format = "alto";
 
         Resource resource = new ClassPathResource("alto/urn:nbn:no-nb_digibok_2014062307158_all.zip");
         InputStream inputStream = resource.getInputStream();
@@ -54,7 +54,7 @@ public class FormatAltoServiceTest {
         String urn = "urn:nbn:no-nb_digibok_2014062307158";
         String pages = "1-3";
         String pageSelection = "id";
-        String format = "ALTO";
+        String format = "alto";
 
         Resource resource = new ClassPathResource("alto/urn:nbn:no-nb_digibok_2014062307158_1-3.zip");
         InputStream inputStream = resource.getInputStream();

@@ -1,13 +1,13 @@
 package no.nb.microservices.delivery.model.request;
 
 public enum PrintFormat {
-    PDF("PDF"),
-    EPUB("EPUB"),
-    ALTO("ALTO"),
-    TXT("TXT"),
-    TIF("TIF"),
-    JP2("JP2"),
-    JPG("JPG");
+    PDF("pdf"),
+    EPUB("epub"),
+    ALTO("alto"),
+    TXT("txt"),
+    TIF("tif"),
+    JP2("jp2"),
+    JPG("jpg");
 
     private final String text;
 

@@ -6,6 +6,7 @@ import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
+import no.nb.microservices.delivery.model.request.PrintFormat;
 import no.nb.microservices.delivery.model.request.PrintedFileRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +39,7 @@ public class OrderBuilder {
         List<PrintedFile> printedFiles = new ArrayList<>();
         for (PrintedFileRequest printedFileRequest : order.getPrints()) {
             PrintedFile printedFile = new PrintedFileBuilder()
-                    .withFormat(printedFileRequest.getFormat())
+                    .withFormat(PrintFormat.valueOf(printedFileRequest.getFormat().toUpperCase()))
                     .withQuality(printedFileRequest.getQuality())
                     .addText(printedFileRequest.isText())
                     .withResourceRequests(printedFileRequest.getResources())

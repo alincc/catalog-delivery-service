@@ -9,7 +9,7 @@ public class PrintedFileRequest {
     @Size(min = 1, max = 64)
     private List<PrintedResourceRequest> resources;
 
-    private PrintFormat format = PrintFormat.PDF;
+    private String format = PrintFormat.PDF.toString();
 
     @Max(6)
     private int quality = 3;
@@ -23,18 +23,18 @@ public class PrintedFileRequest {
         this.resources = resources;
     }
 
-    public PrintedFileRequest(List<PrintedResourceRequest> resources, PrintFormat format) {
+    public PrintedFileRequest(List<PrintedResourceRequest> resources, String format) {
         this.resources = resources;
         this.format = format;
     }
 
-    public PrintedFileRequest(List<PrintedResourceRequest> resources, PrintFormat format, int quality) {
+    public PrintedFileRequest(List<PrintedResourceRequest> resources, String format, int quality) {
         this.resources = resources;
         this.format = format;
         this.quality = quality;
     }
 
-    public PrintedFileRequest(List<PrintedResourceRequest> resources, PrintFormat format, int quality, boolean text) {
+    public PrintedFileRequest(List<PrintedResourceRequest> resources, String format, int quality, boolean text) {
         this.resources = resources;
         this.format = format;
         this.quality = quality;
@@ -49,11 +49,11 @@ public class PrintedFileRequest {
         this.resources = resources;
     }
 
-    public PrintFormat getFormat() {
+    public String getFormat() {
         return format;
     }
 
-    public void setFormat(PrintFormat format) {
+    public void setFormat(String format) {
         this.format = format;
     }
 

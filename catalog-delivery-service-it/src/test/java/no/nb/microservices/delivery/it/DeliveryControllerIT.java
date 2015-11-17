@@ -15,7 +15,6 @@ import no.nb.microservices.delivery.core.metadata.repository.OrderRepository;
 import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
-import no.nb.microservices.delivery.model.request.PrintFormat;
 import no.nb.microservices.delivery.model.request.PrintedFileRequest;
 import no.nb.microservices.delivery.model.request.PrintedResourceRequest;
 import no.nb.microservices.delivery.rest.assembler.OrderBuilder;
@@ -151,7 +150,7 @@ public class DeliveryControllerIT {
         deliveryOrderRequest.setEmailTo("dev@nb.no");
         deliveryOrderRequest.setPurpose("test");
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014091948005");
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(printedResourceRequest), PrintFormat.PDF, 5);
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(printedResourceRequest), "pdf", 5);
         deliveryOrderRequest.setPrints(Arrays.asList(printedFileRequest));
 
         ResponseEntity<Order> response = rest.postForEntity(uri, deliveryOrderRequest, Order.class);
@@ -167,7 +166,7 @@ public class DeliveryControllerIT {
         deliveryOrderRequest.setPurpose("test");
         deliveryOrderRequest.setPackageFormat("tar.gz");
         PrintedResourceRequest printedResourceRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014062307158");
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(printedResourceRequest), PrintFormat.ALTO);
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(printedResourceRequest), "alto");
         deliveryOrderRequest.setPrints(Arrays.asList(printedFileRequest));
 
         ResponseEntity<String> response = rest.postForEntity(uri, deliveryOrderRequest, String.class);

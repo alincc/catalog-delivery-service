@@ -5,8 +5,6 @@ import no.nb.microservices.delivery.model.metadata.State;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface IDeliveryMetadataService {
 
     Order updateOrder(Order orderMetadata);
@@ -15,7 +13,7 @@ public interface IDeliveryMetadataService {
 
     Order getOrderByIdOrKey(String value);
 
-    List<Order> getOrdersByState(State state);
+    Order getOrderByState(State state);
 
     Page<Order> getOrders(Pageable pageable);
 }

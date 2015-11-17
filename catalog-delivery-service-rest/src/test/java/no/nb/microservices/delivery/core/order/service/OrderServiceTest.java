@@ -16,7 +16,6 @@ import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
-import no.nb.microservices.delivery.model.request.PrintFormat;
 import no.nb.microservices.delivery.model.request.PrintedFileRequest;
 import no.nb.microservices.delivery.model.request.PrintedResourceRequest;
 import no.nb.microservices.delivery.rest.assembler.OrderBuilder;
@@ -111,7 +110,7 @@ public class OrderServiceTest {
 
     private OrderRequest getDeliveryOrderRequest() {
         PrintedResourceRequest textualRequest = new PrintedResourceRequest("URN:NBN:no-nb_digibok_2014020626009", "ALL", "id");
-        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(textualRequest), PrintFormat.PDF, 1);
+        PrintedFileRequest printedFileRequest = new PrintedFileRequest(Arrays.asList(textualRequest), "pdf", 1);
 
         OrderRequest itemOrder = new OrderRequest() {{
             setEmailTo("example@example.com");

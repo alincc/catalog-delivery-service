@@ -8,8 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class DeliveryMetadataService implements IDeliveryMetadataService {
 
@@ -41,7 +39,7 @@ public class DeliveryMetadataService implements IDeliveryMetadataService {
     }
 
     @Override
-    public List<Order> getOrdersByState(State state) {
+    public Order getOrderByState(State state) {
         return orderRepository.findByState(state.toString());
     }
 
