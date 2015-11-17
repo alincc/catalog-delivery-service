@@ -1,7 +1,6 @@
 package no.nb.microservices.delivery.core.order.service;
 
 import com.netflix.discovery.DiscoveryClient;
-import no.nb.commons.io.compression.factory.Compressible;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.IEmailService;
@@ -11,6 +10,7 @@ import no.nb.microservices.delivery.core.order.exception.OrderNotReadyException;
 import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.model.metadata.Order;
+import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import no.nb.microservices.delivery.model.metadata.State;
 import no.nb.microservices.delivery.model.request.OrderRequest;
 import no.nb.microservices.delivery.rest.assembler.OrderBuilder;
@@ -23,11 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderService implements IOrderService {
@@ -89,23 +85,21 @@ public class OrderService implements IOrderService {
     public void processOrder(Order deliveryOrder) {
         // Make async calls to get printed resources
         try {
-            List<Future<CatalogFile>> textualResourcesFutureList = deliveryOrder.getPrints().stream()
-                    .map(request -> printedService.getResourceAsync(request))
-                    .collect(Collectors.toList());
+            File output = new File(applicationSettings.getZipFilePath() + deliveryOrder.getFilename());
+            compressionService.openArchive(output, deliveryOrder.getPackageFormat());
 
-            // Gather all async calls
-            List<CatalogFile> printedOutputStreams = new ArrayList<>();
-            for (Future<CatalogFile> textualResourceFuture : textualResourcesFutureList) {
-                printedOutputStreams.add(textualResourceFuture.get());
+            for (PrintedFile printedFile : deliveryOrder.getPrints()) {
+                CatalogFile resource = printedService.getResource(printedFile);
+                compressionService.addEntry(resource);
             }
 
-            // Package all files to disk
-            compressionService.compress(deliveryOrder, printedOutputStreams.stream().map(q -> (Compressible) q).collect(Collectors.toList()));
+            compressionService.closeArchive();
 
             // Send email to user with download details
             emailService.sendEmail(deliveryOrder);
 
             deliveryOrder.setState(State.DONE);
+            deliveryOrder.setFileSizeInBytes(output.length());
             deliveryMetadataService.updateOrder(deliveryOrder);
         } catch (Exception e) {
             LOG.error("Failed to process order with id: " + deliveryOrder.getOrderId(), e);

@@ -7,12 +7,12 @@ import java.util.List;
 
 @Document
 public class PrintedFile {
-    private List<PrintedResource> resources;
+    private String filename;
+    private String extension;
     private PrintFormat format;
     private int quality;
     private boolean text;
-    private String extension;
-    private String filename;
+    private List<PrintedResource> resources;
 
     public PrintedFile() {
     }
@@ -45,14 +45,6 @@ public class PrintedFile {
     }
 
     public PrintedFile(List<PrintedResource> resources) {
-        this.resources = resources;
-    }
-
-    public List<PrintedResource> getResources() {
-        return resources;
-    }
-
-    public void setResources(List<PrintedResource> resources) {
         this.resources = resources;
     }
 
@@ -94,5 +86,13 @@ public class PrintedFile {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public List<PrintedResource> getResources() {
+        return resources;
+    }
+
+    public void setResources(List<PrintedResource> resources) {
+        this.resources = resources;
     }
 }

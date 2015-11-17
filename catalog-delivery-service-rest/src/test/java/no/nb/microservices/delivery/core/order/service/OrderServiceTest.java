@@ -46,7 +46,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -206,7 +205,9 @@ public class OrderServiceTest {
         orderService.processOrder(order);
 
         verify(emailService, times(1)).sendEmail(any(Order.class));
-        verify(compressionService, times(1)).compress(any(Order.class), anyListOf(Compressible.class));
+        verify(compressionService, times(1)).openArchive(any(File.class), eq("zip"));
+        verify(compressionService, times(1)).addEntry(any(Compressible.class));
+        verify(compressionService, times(1)).closeArchive();
     }
 
     @Test
@@ -223,7 +224,7 @@ public class OrderServiceTest {
 
         when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(getTextualItem());
         when(applicationSettings.getZipFilePath()).thenReturn("/tmp");
-        doThrow(new IOException("Failed to write file to disk")).when(compressionService).compress(eq(order), anyListOf(Compressible.class));
+        doThrow(new IOException("Failed to write file to disk")).when(compressionService).openArchive(any(File.class), eq("zip"));
 
         orderService.processOrder(order);
 

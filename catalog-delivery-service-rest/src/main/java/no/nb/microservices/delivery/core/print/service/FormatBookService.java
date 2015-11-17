@@ -1,7 +1,6 @@
 package no.nb.microservices.delivery.core.print.service;
 
-import feign.Response;
-import no.nb.microservices.delivery.core.print.repository.PrintGeneratorRepository;
+import no.nb.microservices.delivery.core.print.repository.IPrintGeneratorRepository;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import no.nb.microservices.delivery.model.metadata.PrintedResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +14,10 @@ import java.util.stream.Collectors;
 @Service
 public class FormatBookService implements FormatService {
 
-    private final PrintGeneratorRepository printGeneratorRepository;
+    private final IPrintGeneratorRepository printGeneratorRepository;
 
     @Autowired
-    public FormatBookService(PrintGeneratorRepository printGeneratorRepository) {
+    public FormatBookService(IPrintGeneratorRepository printGeneratorRepository) {
         this.printGeneratorRepository = printGeneratorRepository;
     }
 
@@ -30,7 +29,6 @@ public class FormatBookService implements FormatService {
         List<String> pageSelections = requests.stream().filter(q -> q.getPageSelection() != null).map(q -> q.getPageSelection()).collect(Collectors.toList());
         List<String> quality = requests.stream().map(q -> fileRequest.getQuality() + "").collect(Collectors.toList());
 
-        Response response = printGeneratorRepository.generate(urns, pages, pageSelections, fileRequest.isText(), quality, "filename", fileRequest.getFormat().toString());
-        return response.body().asInputStream();
+        return printGeneratorRepository.generate(urns, pages, pageSelections, fileRequest.isText(), quality, "filename", fileRequest.getFormat().toString());
     }
 }

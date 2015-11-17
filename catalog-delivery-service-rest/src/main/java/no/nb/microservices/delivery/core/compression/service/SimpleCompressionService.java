@@ -1,21 +1,20 @@
 package no.nb.microservices.delivery.core.compression.service;
 
 import no.nb.commons.io.compression.factory.Compressible;
+import no.nb.commons.io.compression.factory.CompressionStrategy;
 import no.nb.commons.io.compression.factory.CompressionStrategyFactory;
 import no.nb.microservices.delivery.config.ApplicationSettings;
-import no.nb.microservices.delivery.model.metadata.Order;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 @Service
 public class SimpleCompressionService implements CompressionService {
 
     private final ApplicationSettings applicationSettings;
+    private CompressionStrategy compressionStrategy;
 
     @Autowired
     public SimpleCompressionService(ApplicationSettings applicationSettings) {
@@ -23,13 +22,18 @@ public class SimpleCompressionService implements CompressionService {
     }
 
     @Override
-    public void compress(File file, List<Compressible> compressible) throws IOException {
-        CompressionStrategyFactory.create(FilenameUtils.getExtension(file.getPath())).compress(file, compressible);
+    public void openArchive(File file, String packageFormat) throws IOException {
+        compressionStrategy = CompressionStrategyFactory.create(packageFormat);
+        compressionStrategy.openArchive(file);
     }
 
     @Override
-    public void compress(Order order, List<Compressible> compressible) throws IOException {
-        File output = new File(applicationSettings.getZipFilePath() + order.getFilename());
-        CompressionStrategyFactory.create(FilenameUtils.getExtension(output.getPath())).compress(output, compressible);
+    public void addEntry(Compressible entry) throws IOException {
+        compressionStrategy.addEntry(entry);
+    }
+
+    @Override
+    public void closeArchive() throws IOException {
+        compressionStrategy.closeArchive();
     }
 }

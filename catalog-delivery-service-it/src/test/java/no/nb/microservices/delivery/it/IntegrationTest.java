@@ -145,15 +145,6 @@ public class IntegrationTest {
     }
 
     @Test
-    public void downloadPrintdResponseShouldBeOk() throws URISyntaxException {
-        URI uri = new URI("http://localhost:" + port + "/delivery/download/prints/urn:nbn:no-nb_digibok_2014062307158");
-        ResponseEntity<ByteArrayResource> response = rest.getForEntity(uri, ByteArrayResource.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1009939, response.getBody().contentLength());
-        assertEquals("attachment; filename=urn:nbn:no-nb_digibok_2014062307158.pdf", response.getHeaders().get("Content-Disposition").get(0));
-    }
-
-    @Test
     public void placeOrderWithPdfShouldBeOk() throws URISyntaxException {
         URI uri = new URI("http://localhost:" + port + "/delivery/orders");
         OrderRequest deliveryOrderRequest = new OrderRequest();

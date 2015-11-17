@@ -127,14 +127,13 @@ public class OrderBuilder {
     }
 
     public Order build() {
+        order.setOrderId(UUID.randomUUID().toString());
         if (StringUtils.isEmpty(order.getFilename())) {
             order.setFilename(order.getOrderId() + "." + order.getPackageFormat());
         }
         if (order.getOrderDate() == null) {
             order.setOrderDate(Date.from(Instant.now()));
         }
-
-        order.setOrderId(UUID.randomUUID().toString());
         return order;
     }
 }

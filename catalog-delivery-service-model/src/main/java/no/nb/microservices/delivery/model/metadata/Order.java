@@ -139,10 +139,6 @@ public class Order {
         this.fileSizeInBytes = fileSizeInBytes;
     }
 
-    public double getFileSizeInMegaBytes() {
-        return (double) (fileSizeInBytes / 1024) / 1024;
-    }
-
     public String getDownloadUrl() {
         return downloadUrl;
     }
