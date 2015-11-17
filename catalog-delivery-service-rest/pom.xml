@@ -50,7 +50,7 @@
         <dependency>
             <groupId>no.nb.microservices.catalogsearchindex</groupId>
             <artifactId>catalog-search-index-model</artifactId>
-            <version>-b30fdc37729c2568e3d8e08d8b9d291e81cc7e4a-39</version>
+            <version>-50</version>
         </dependency>
 
         <!-- Utils -->
