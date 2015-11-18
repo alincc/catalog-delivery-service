@@ -7,6 +7,7 @@ import no.nb.microservices.delivery.config.ApplicationSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 
@@ -14,15 +15,27 @@ import java.io.IOException;
 public class SimpleCompressionService implements CompressionService {
 
     private final ApplicationSettings applicationSettings;
+    private static final int BUFFER = 2048;
+
     private CompressionStrategy compressionStrategy;
+    private String packageFormat;
 
     @Autowired
     public SimpleCompressionService(ApplicationSettings applicationSettings) {
         this.applicationSettings = applicationSettings;
     }
 
+    @PostConstruct
+    public void init() {
+        File zipPath = new File(applicationSettings.getZipFilePath());
+        if (!zipPath.exists()) {
+            zipPath.mkdir();
+        }
+    }
+
     @Override
     public void openArchive(File file, String packageFormat) throws IOException {
+        this.packageFormat = packageFormat;
         compressionStrategy = CompressionStrategyFactory.create(packageFormat);
         compressionStrategy.openArchive(file);
     }

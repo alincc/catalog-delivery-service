@@ -3,6 +3,7 @@ package no.nb.microservices.delivery.core.order.service;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 import no.nb.commons.io.compression.factory.Compressible;
+import no.nb.commons.io.compression.model.CompressibleFile;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.config.EmailSettings;
 import no.nb.microservices.delivery.core.compression.service.CompressionService;
@@ -10,7 +11,6 @@ import no.nb.microservices.delivery.core.email.service.EmailService;
 import no.nb.microservices.delivery.core.metadata.service.DeliveryMetadataService;
 import no.nb.microservices.delivery.core.order.exception.OrderFailedException;
 import no.nb.microservices.delivery.core.order.exception.OrderNotReadyException;
-import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.PrintedService;
 import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
@@ -79,7 +79,7 @@ public class OrderServiceTest {
         String tmpDir = System.getProperty("java.io.tmpdir");
 
         OrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
-        Future<CatalogFile> printedFileFuture = getTextualItem();
+        Future<CompressibleFile> printedFileFuture = getTextualItem();
 
         EmailSettings emailSettings = new EmailSettings();
         emailSettings.setSubject("placeOrderTest");
@@ -102,9 +102,9 @@ public class OrderServiceTest {
         verify(deliveryMetadataService, times(1)).saveOrder(any(Order.class));
     }
 
-    private Future<CatalogFile> getTextualItem() throws IOException {
+    private Future<CompressibleFile> getTextualItem() throws IOException {
         Resource resource = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.pdf");
-        CatalogFile catalogFile = new CatalogFile("ecd270f69cb8a9063306fcecd4b1a769.pdf", resource.getInputStream());
+        CompressibleFile catalogFile = new CompressibleFile("ecd270f69cb8a9063306fcecd4b1a769.pdf", resource.getInputStream());
         return CompletableFuture.completedFuture(catalogFile);
     }
 

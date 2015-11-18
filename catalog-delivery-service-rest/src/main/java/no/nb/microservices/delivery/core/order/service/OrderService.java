@@ -1,13 +1,13 @@
 package no.nb.microservices.delivery.core.order.service;
 
 import com.netflix.discovery.DiscoveryClient;
+import no.nb.commons.io.compression.factory.Compressible;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.IEmailService;
 import no.nb.microservices.delivery.core.metadata.service.IDeliveryMetadataService;
 import no.nb.microservices.delivery.core.order.exception.OrderFailedException;
 import no.nb.microservices.delivery.core.order.exception.OrderNotReadyException;
-import no.nb.microservices.delivery.core.order.model.CatalogFile;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.model.metadata.Order;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
@@ -97,7 +97,7 @@ public class OrderService implements IOrderService {
             compressionService.openArchive(output, deliveryOrder.getPackageFormat());
 
             for (PrintedFile printedFile : deliveryOrder.getPrints()) {
-                CatalogFile resource = printedService.getResource(printedFile);
+                Compressible resource = printedService.getResource(printedFile);
                 compressionService.addEntry(resource);
             }
 

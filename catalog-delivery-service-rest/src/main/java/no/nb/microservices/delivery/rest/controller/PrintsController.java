@@ -1,6 +1,6 @@
 package no.nb.microservices.delivery.rest.controller;
 
-import no.nb.microservices.delivery.core.order.model.CatalogFile;
+import no.nb.commons.io.compression.model.CompressibleFile;
 import no.nb.microservices.delivery.core.print.service.IPrintedService;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import no.nb.microservices.delivery.model.request.PrintFormat;
@@ -42,8 +42,8 @@ public class PrintsController {
                 .addResource(urn, pages)
                 .build();
 
-        Future<CatalogFile> printedFileFuture = printedService.getResourceAsync(request);
-        CatalogFile printedFile = printedFileFuture.get();
+        Future<CompressibleFile> printedFileFuture = printedService.getResourceAsync(request);
+        CompressibleFile printedFile = printedFileFuture.get();
         String contentType = Files.probeContentType(new File(printedFile.getFilename()).toPath());
         response.setContentType(contentType);
         response.setHeader("Content-Disposition", "attachment; filename=" + printedFile.getFilename());

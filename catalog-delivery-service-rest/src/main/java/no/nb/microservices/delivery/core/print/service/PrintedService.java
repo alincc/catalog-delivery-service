@@ -1,6 +1,6 @@
 package no.nb.microservices.delivery.core.print.service;
 
-import no.nb.microservices.delivery.core.order.model.CatalogFile;
+import no.nb.commons.io.compression.model.CompressibleFile;
 import no.nb.microservices.delivery.core.print.factory.PrintFormatFactory;
 import no.nb.microservices.delivery.model.metadata.PrintedFile;
 import org.slf4j.Logger;
@@ -28,9 +28,9 @@ public class PrintedService implements IPrintedService {
 
     @Override
     @Async
-    public Future<CatalogFile> getResourceAsync(PrintedFile fileRequest) {
-        CatalogFile catalogFile = getResource(fileRequest);
-        AsyncResult<CatalogFile> asyncResult = new AsyncResult<CatalogFile>(catalogFile);
+    public Future<CompressibleFile> getResourceAsync(PrintedFile fileRequest) {
+        CompressibleFile catalogFile = getResource(fileRequest);
+        AsyncResult<CompressibleFile> asyncResult = new AsyncResult<CompressibleFile>(catalogFile);
         if (catalogFile == null) {
             asyncResult.cancel(true);
         }
@@ -39,10 +39,10 @@ public class PrintedService implements IPrintedService {
     }
 
     @Override
-    public CatalogFile getResource(PrintedFile fileRequest) {
+    public CompressibleFile getResource(PrintedFile fileRequest) {
         try {
             InputStream inputStream = printFormatFactory.getPrintFormat(fileRequest.getFormat()).getResource(fileRequest);
-            return new CatalogFile(fileRequest.getFilename(), inputStream);
+            return new CompressibleFile(fileRequest.getFilename(), inputStream);
         } catch (IOException ioe) {
             LOG.error("Failed to get printed file", ioe);
             return null;

@@ -1,6 +1,6 @@
 package no.nb.microservices.delivery.core.print.service;
 
-import no.nb.microservices.delivery.core.order.model.CatalogFile;
+import no.nb.commons.io.compression.model.CompressibleFile;
 import no.nb.microservices.delivery.core.print.factory.PrintFormatFactory;
 import no.nb.microservices.delivery.core.print.repository.PrintGeneratorRepository;
 import no.nb.microservices.delivery.core.text.repository.CatalogDeliveryTextRepository;
@@ -52,7 +52,7 @@ public class PrintedServiceTest {
         PrintedFile printedFileRequest = new PrintedFile();
         printedFileRequest.setFormat(PrintFormat.PDF);
         printedFileRequest.setResources(Arrays.asList(new PrintedResource("URN:NBN:no-nb_digibok_2008040300029")));
-        CatalogFile resource = printedService.getResource(printedFileRequest);
+        CompressibleFile resource = printedService.getResource(printedFileRequest);
 
         assertEquals(3, IOUtils.toByteArray(resource.openInputStream()).length);
     }
