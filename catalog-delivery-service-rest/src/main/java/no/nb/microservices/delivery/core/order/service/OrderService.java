@@ -17,6 +17,8 @@ import no.nb.microservices.delivery.rest.assembler.OrderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -78,6 +80,12 @@ public class OrderService implements IOrderService {
         else {
             throw new RuntimeException("This order has a unknown state");
         }
+    }
+
+    @Override
+    public Page<Order> getOrders(Pageable pageable) {
+        Page<Order> orders = deliveryMetadataService.getOrders(pageable);
+        return orders;
     }
 
     @Async
