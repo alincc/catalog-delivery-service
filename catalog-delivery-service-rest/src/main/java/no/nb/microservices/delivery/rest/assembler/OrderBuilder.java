@@ -79,6 +79,11 @@ public class OrderBuilder {
         return this;
     }
 
+    public OrderBuilder withPackageFormat(String format) {
+        order.setPackageFormat(format);
+        return this;
+    }
+
     public OrderBuilder withDownloadPath(DiscoveryClient client, String orderKey) {
         try {
             InstanceInfo instance = client.getNextServerFromEureka("ZUULSERVER", false);

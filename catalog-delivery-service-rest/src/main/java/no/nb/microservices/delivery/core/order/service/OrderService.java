@@ -2,8 +2,9 @@ package no.nb.microservices.delivery.core.order.service;
 
 import com.netflix.discovery.DiscoveryClient;
 import no.nb.commons.io.compression.factory.Compressible;
+import no.nb.commons.io.compression.factory.CompressionStrategy;
+import no.nb.commons.io.compression.factory.CompressionStrategyFactory;
 import no.nb.microservices.delivery.config.ApplicationSettings;
-import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.IEmailService;
 import no.nb.microservices.delivery.core.metadata.service.IDeliveryMetadataService;
 import no.nb.microservices.delivery.core.order.exception.OrderFailedException;
@@ -37,17 +38,15 @@ public class OrderService implements IOrderService {
     private final IEmailService emailService;
     private final ApplicationSettings applicationSettings;
     private final DiscoveryClient disoveryClient;
-    private final CompressionService compressionService;
 
     @Autowired
     public OrderService(ApplicationSettings applicationSettings, IEmailService emailService, IDeliveryMetadataService deliveryMetadataService,
-                        IPrintedService printedService, DiscoveryClient disoveryClient, CompressionService compressionService) {
+                        IPrintedService printedService, DiscoveryClient disoveryClient) {
         this.applicationSettings = applicationSettings;
         this.emailService = emailService;
         this.deliveryMetadataService = deliveryMetadataService;
         this.printedService = printedService;
         this.disoveryClient = disoveryClient;
-        this.compressionService = compressionService;
     }
 
     @Override
@@ -91,17 +90,19 @@ public class OrderService implements IOrderService {
     @Async
     @Override
     public void processOrder(Order deliveryOrder) {
+        CompressionStrategy compressionStrategy = CompressionStrategyFactory.create(deliveryOrder.getPackageFormat());
+
         // Make async calls to get printed resources
         try {
             File output = new File(applicationSettings.getZipFilePath() + deliveryOrder.getFilename());
-            compressionService.openArchive(output, deliveryOrder.getPackageFormat());
+            compressionStrategy.openArchive(output);
 
             for (PrintedFile printedFile : deliveryOrder.getPrints()) {
                 Compressible resource = printedService.getResource(printedFile);
-                compressionService.addEntry(resource);
+                compressionStrategy.addEntry(resource);
             }
 
-            compressionService.closeArchive();
+            compressionStrategy.closeArchive();
 
             // Send email to user with download details
             emailService.sendEmail(deliveryOrder);

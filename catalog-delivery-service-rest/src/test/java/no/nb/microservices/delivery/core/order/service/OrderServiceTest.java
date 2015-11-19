@@ -2,11 +2,9 @@ package no.nb.microservices.delivery.core.order.service;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
-import no.nb.commons.io.compression.factory.Compressible;
 import no.nb.commons.io.compression.model.CompressibleFile;
 import no.nb.microservices.delivery.config.ApplicationSettings;
 import no.nb.microservices.delivery.config.EmailSettings;
-import no.nb.microservices.delivery.core.compression.service.CompressionService;
 import no.nb.microservices.delivery.core.email.service.EmailService;
 import no.nb.microservices.delivery.core.metadata.service.DeliveryMetadataService;
 import no.nb.microservices.delivery.core.order.exception.OrderFailedException;
@@ -33,21 +31,20 @@ import org.springframework.security.access.AccessDeniedException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -71,22 +68,19 @@ public class OrderServiceTest {
     @Mock
     DiscoveryClient disoveryClient;
 
-    @Mock
-    CompressionService compressionService;
-
     @Test
     public void placeOrderTest() throws ExecutionException, InterruptedException, IOException {
         String tmpDir = System.getProperty("java.io.tmpdir");
 
         OrderRequest deliveryOrderRequest = getDeliveryOrderRequest();
-        Future<CompressibleFile> printedFileFuture = getTextualItem();
+        CompressibleFile printedFileFuture = getTextualItem();
 
         EmailSettings emailSettings = new EmailSettings();
         emailSettings.setSubject("placeOrderTest");
         emailSettings.setFrom("placeOrderTest@nb.no");
         emailSettings.setTemplate("template.vm");
 
-        when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(printedFileFuture);
+        when(printedService.getResource(any(PrintedFile.class))).thenReturn(printedFileFuture);
         when(applicationSettings.getZipFilePath()).thenReturn(tmpDir + "/");
         when(applicationSettings.getEmail()).thenReturn(emailSettings);
 
@@ -102,10 +96,10 @@ public class OrderServiceTest {
         verify(deliveryMetadataService, times(1)).saveOrder(any(Order.class));
     }
 
-    private Future<CompressibleFile> getTextualItem() throws IOException {
+    private CompressibleFile getTextualItem() throws IOException {
         Resource resource = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.pdf");
         CompressibleFile catalogFile = new CompressibleFile("ecd270f69cb8a9063306fcecd4b1a769.pdf", resource.getInputStream());
-        return CompletableFuture.completedFuture(catalogFile);
+        return catalogFile;
     }
 
     private OrderRequest getDeliveryOrderRequest() {
@@ -187,26 +181,54 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void proccessOrderTest() throws IOException {
+    public void proccessOrderWithZipTest() throws IOException {
+        File tmp = new File(Files.createTempFile(UUID.randomUUID().toString(), ".zip").toString());
+        tmp.deleteOnExit();
+
         Order order = new OrderBuilder()
                 .withEmailTo("example@example.com")
                 .withKey("hzeydrfdppbmtkck")
-                .withFilename("order.zip")
+                .withFilename(tmp.getName())
                 .addPrintedFile(
                         new PrintedFileBuilder()
                             .addResource("URN:NBN:no-nb_digibok_2014012027004", "1")
                             .build())
                 .build();
 
-        when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(getTextualItem());
-        when(applicationSettings.getZipFilePath()).thenReturn("/tmp");
+        when(printedService.getResource(any(PrintedFile.class))).thenReturn(getTextualItem());
+        when(applicationSettings.getZipFilePath()).thenReturn(tmp.getParent() + "/");
 
         orderService.processOrder(order);
 
+        assertTrue(tmp.exists());
         verify(emailService, times(1)).sendEmail(any(Order.class));
-        verify(compressionService, times(1)).openArchive(any(File.class), eq("zip"));
-        verify(compressionService, times(1)).addEntry(any(Compressible.class));
-        verify(compressionService, times(1)).closeArchive();
+        verify(deliveryMetadataService, times(1)).updateOrder(any(Order.class));
+    }
+
+    @Test
+    public void proccessOrderWithTarGzTest() throws IOException {
+        File tmp = new File(Files.createTempFile(UUID.randomUUID().toString(), ".tar.gz").toString());
+        tmp.deleteOnExit();
+
+        Order order = new OrderBuilder()
+                .withEmailTo("example@example.com")
+                .withKey("hzeydrfdppbmtkck")
+                .withFilename(tmp.getName())
+                .withPackageFormat("tar.gz")
+                .addPrintedFile(
+                        new PrintedFileBuilder()
+                                .addResource("URN:NBN:no-nb_digibok_2014012027004", "1")
+                                .build())
+                .build();
+
+        when(printedService.getResource(any(PrintedFile.class))).thenReturn(getTextualItem());
+        when(applicationSettings.getZipFilePath()).thenReturn(tmp.getParent() + "/");
+
+        orderService.processOrder(order);
+
+        assertTrue(tmp.exists());
+        verify(emailService, times(1)).sendEmail(any(Order.class));
+        verify(deliveryMetadataService, times(1)).updateOrder(any(Order.class));
     }
 
     @Test
@@ -221,9 +243,8 @@ public class OrderServiceTest {
                                 .build())
                 .build();
 
-        when(printedService.getResourceAsync(any(PrintedFile.class))).thenReturn(getTextualItem());
-        when(applicationSettings.getZipFilePath()).thenReturn("/tmp");
-        doThrow(new IOException("Failed to write file to disk")).when(compressionService).openArchive(any(File.class), eq("zip"));
+        when(printedService.getResource(any(PrintedFile.class))).thenReturn(getTextualItem());
+        when(applicationSettings.getZipFilePath()).thenReturn("/dev/null/");
 
         orderService.processOrder(order);
 
