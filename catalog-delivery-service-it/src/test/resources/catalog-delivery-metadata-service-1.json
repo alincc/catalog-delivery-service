@@ -4,7 +4,7 @@
   "userId": "",
   "key": "0YvkQv9myztAmAfs",
   "filename": "d287191ca81f4bd702630e2ec74466bb-9088.zip",
-  "downloadUrl": "http://localhost:8765/delivery/order/0YvkQv9myztAmAfs",
+  "downloadUrl": "http://localhost:8765/v1/delivery/order/0YvkQv9myztAmAfs",
   "purpose": "test",
   "orderDate": "2015-09-15T11:52:42.034Z",
   "expireDate": "2099-09-22T11:52:42.034Z",

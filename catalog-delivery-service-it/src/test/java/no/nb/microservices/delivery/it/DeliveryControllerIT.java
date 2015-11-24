@@ -102,13 +102,13 @@ public class DeliveryControllerIT {
                         || request.getPath().equals("/generate?urn=URN%3ANBN%3Ano-nb_digibok_2014091948005&addText=false&resolutionlevel=5&filename=filename&filetype=pdf")
                         || request.getPath().equals("/generate?urn=urn%3Anbn%3Ano-nb_digibok_2014062307158&pages=&addText=false&resolutionlevel=5&filename=filename&filetype=PDF")) {
                     return getMockResponse("d287191ca81f4bd702630e2ec74466bb-9088.pdf");
-                } else if (request.getPath().equals("/deliveryx/orders")) {
+                } else if (request.getPath().equals("/v1/deliveryx/orders")) {
                     return new MockResponse().setBody(deliveryMetadata1Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                } else if (request.getPath().equals("/deliveryx/orders/0YvkQv9myztAmAfs")) {
+                } else if (request.getPath().equals("/v1/deliveryx/orders/0YvkQv9myztAmAfs")) {
                     return new MockResponse().setBody(deliveryMetadata1Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                } else if (request.getPath().equals("/deliveryx/orders/YCFa5GcrIFQUlDKW")) {
+                } else if (request.getPath().equals("/v1/deliveryx/orders/YCFa5GcrIFQUlDKW")) {
                     return new MockResponse().setBody(deliveryMetadata2Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                } else if (request.getPath().equals("/deliveryx/orders/d8sjxnajhd87caxa")) {
+                } else if (request.getPath().equals("/v1/deliveryx/orders/d8sjxnajhd87caxa")) {
                     return new MockResponse().setBody(deliveryMetadata3Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
                 } else if (request.getPath().equals("/alto/URN%3ANBN%3Ano-nb_digibok_2014062307158?packageFormat=tar.gz")) {
                     return getMockResponse("urn_nbn_no-nb_digibok_2014062307158.tar.gz");
@@ -145,7 +145,7 @@ public class DeliveryControllerIT {
 
     @Test
     public void placeOrderWithPdfShouldBeOk() throws URISyntaxException {
-        URI uri = new URI("http://localhost:" + port + "/delivery/orders");
+        URI uri = new URI("http://localhost:" + port + "/v1/delivery/orders");
         OrderRequest deliveryOrderRequest = new OrderRequest();
         deliveryOrderRequest.setEmailTo("dev@nb.no");
         deliveryOrderRequest.setPurpose("test");
@@ -160,7 +160,7 @@ public class DeliveryControllerIT {
 
     @Test
     public void placeOrderWithAltoShouldBeOk() throws URISyntaxException {
-        URI uri = new URI("http://localhost:" + port + "/delivery/orders");
+        URI uri = new URI("http://localhost:" + port + "/v1/delivery/orders");
         OrderRequest deliveryOrderRequest = new OrderRequest();
         deliveryOrderRequest.setEmailTo("dev@nb.no");
         deliveryOrderRequest.setPurpose("test");
@@ -184,7 +184,7 @@ public class DeliveryControllerIT {
 
         orderRepository.save(order);
 
-        URI uri = new URI("http://localhost:" + port + "/delivery/orders/0YvkQv9myztAmAfs");
+        URI uri = new URI("http://localhost:" + port + "/v1/delivery/orders/0YvkQv9myztAmAfs");
         ResponseEntity<ByteArrayResource> response = rest.getForEntity(uri, ByteArrayResource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(982565, response.getBody().contentLength());
@@ -201,7 +201,7 @@ public class DeliveryControllerIT {
 
         orderRepository.save(order);
 
-        URI uri = new URI("http://localhost:" + port + "/delivery/orders/YCFa5GcrIFQUlDKW");
+        URI uri = new URI("http://localhost:" + port + "/v1/delivery/orders/YCFa5GcrIFQUlDKW");
         ResponseEntity<ByteArrayResource> response = rest.getForEntity(uri, ByteArrayResource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(983218, response.getBody().contentLength());
@@ -216,7 +216,7 @@ public class DeliveryControllerIT {
         order.setExpireDate(new Date(1446679335971L));
         orderRepository.save(order);
 
-        URI uri = new URI("http://localhost:" + port + "/delivery/orders/d8sjxnajhd87caxa");
+        URI uri = new URI("http://localhost:" + port + "/v1/delivery/orders/d8sjxnajhd87caxa");
         ResponseEntity<String> response = rest.getForEntity(uri, String.class);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
