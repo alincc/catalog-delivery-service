@@ -110,7 +110,7 @@ public class DeliveryControllerIT {
                     return new MockResponse().setBody(deliveryMetadata2Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
                 } else if (request.getPath().equals("/v1/deliveryx/orders/d8sjxnajhd87caxa")) {
                     return new MockResponse().setBody(deliveryMetadata3Mock).setHeader("Content-Type", "application/hal+json; charset=utf-8");
-                } else if (request.getPath().equals("/alto/URN%3ANBN%3Ano-nb_digibok_2014062307158?packageFormat=tar.gz")) {
+                } else if (request.getPath().equals("/v1/alto/URN%3ANBN%3Ano-nb_digibok_2014062307158?packageFormat=tar.gz")) {
                     return getMockResponse("urn_nbn_no-nb_digibok_2014062307158.tar.gz");
                 }
 
