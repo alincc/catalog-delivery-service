@@ -4,7 +4,7 @@
   "userId": "",
   "key": "d8sjxnajhd87caxa",
   "filename": "d287191ca81f4bd702630e2ec74466bb-9088.tar.gz",
-  "downloadUrl": "http://localhost:8765/v1/delivery/order/d8sjxnajhd87caxa",
+  "downloadUrl": "http://localhost:8765/delivery/v1/order/d8sjxnajhd87caxa",
   "purpose": "test",
   "orderDate": "2014-09-15T11:52:42.034Z",
   "expireDate": "2014-09-22T11:52:42.034Z",

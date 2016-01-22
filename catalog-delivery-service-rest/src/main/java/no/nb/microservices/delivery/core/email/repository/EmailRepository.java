@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @FeignClient("email-service")
 public interface EmailRepository {
-    @RequestMapping(value = "/v1/email/send", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/email/v1/send", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     void sendEmail(Email email);
 }

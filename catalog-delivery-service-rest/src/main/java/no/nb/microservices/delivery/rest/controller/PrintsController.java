@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.util.concurrent.Future;
 
 @RestController
-@RequestMapping("/v1/delivery")
+@RequestMapping("/delivery/v1")
 public class PrintsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrintsController.class);

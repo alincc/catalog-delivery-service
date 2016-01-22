@@ -21,8 +21,8 @@ import java.util.UUID;
 
 public class OrderBuilder {
 
-    private static final String HOME_URL = "http://api.nb.no/v1/";
-    private static final String ORDERS_URL = "delivery/orders/";
+    private static final String HOME_URL = "http://api.nb.no/";
+    private static final String ORDERS_URL = "delivery/v1/orders/";
     private static final Logger LOG = LoggerFactory.getLogger(OrderBuilder.class);
 
     private Order order;
