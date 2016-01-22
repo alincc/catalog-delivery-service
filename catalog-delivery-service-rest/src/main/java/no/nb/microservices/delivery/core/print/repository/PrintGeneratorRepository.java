@@ -31,7 +31,7 @@ public class PrintGeneratorRepository implements IPrintGeneratorRepository {
         InstanceInfo instance = disoveryClient.getNextServerFromEureka("catalog-pdf-generator-service", false);
 
         try {
-            String urlString = UriComponentsBuilder.fromUriString(instance.getHomePageUrl() + "generate")
+            String urlString = UriComponentsBuilder.fromUriString(instance.getHomePageUrl() + "catalog/v1/generate")
                     .queryParam("urn", StringUtils.arrayToCommaDelimitedString(urns.toArray()))
                     .queryParam("pages", StringUtils.arrayToCommaDelimitedString(pages.toArray()))
                     .queryParam("pageSelection", StringUtils.arrayToCommaDelimitedString(pageSelection.toArray()))

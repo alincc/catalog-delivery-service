@@ -20,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/delivery/v1")
+@RequestMapping("/catalog/v1/delivery")
 public class OrderController {
 
     private final IOrderService orderService;

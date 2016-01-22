@@ -86,7 +86,7 @@ public class OrderServiceTest {
 
         Resource zippedfile = new ClassPathResource("ecd270f69cb8a9063306fcecd4b1a769.zip");
 
-        InstanceInfo instance = InstanceInfo.Builder.newBuilder().setAppName("testApp").setHostName("api.nb.no").setHomePageUrl("api", "/delivery/v1").build();
+        InstanceInfo instance = InstanceInfo.Builder.newBuilder().setAppName("testApp").setHostName("api.nb.no").setHomePageUrl("api", "/catalog/v1/delivery").build();
         when(disoveryClient.getNextServerFromEureka(anyString(), anyBoolean())).thenReturn(instance);
         when(deliveryMetadataService.saveOrder(any(Order.class))).then(returnsFirstArg());
 
