@@ -177,6 +177,7 @@
                         <imageTag>${project.version}</imageTag>
                         <imageTag>latest</imageTag>
                     </imageTags>
+                    <forceTags>true</forceTags>
                     <resources>
                         <resource>
                             <targetPath>/</targetPath>
