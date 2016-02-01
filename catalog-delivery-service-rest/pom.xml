@@ -17,7 +17,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>no.nb.microservices.delivery.Application</start-class>
-        <docker.image.prefix>registry.nb.no:5000/nb</docker.image.prefix>
+        <docker.registry>registry.nb.no:5000</docker.registry>
+        <docker.image.prefix>nb</docker.image.prefix>
     </properties>
 
     <dependencies>
@@ -169,9 +170,13 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.4.0</version>
                 <configuration>
-                    <imageName>${docker.image.prefix}/${project.artifactId}</imageName>
+                    <imageName>${docker.registry}/${docker.image.prefix}/${project.artifactId}</imageName>
                     <baseImage>java</baseImage>
                     <entryPoint>["java", "-Dspring.profiles.active=docker", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                        <imageTag>latest</imageTag>
+                    </imageTags>
                     <resources>
                         <resource>
                             <targetPath>/</targetPath>
