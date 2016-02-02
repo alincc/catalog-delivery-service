@@ -1,7 +1,7 @@
 info:
   app:
     name: catalog-delivery-service
-    description: Handles delivery of catalog items like books, audio and video
+    description: Handles delivery of catalog items like books, audio and video.
 
 endpoints:
   restart:
