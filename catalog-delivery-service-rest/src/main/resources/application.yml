@@ -3,57 +3,5 @@ info:
     name: catalog-delivery-service
     description: Handles delivery of catalog items like books, audio and video.
 
-endpoints:
-  restart:
-    enabled: true
-  refresh:
-    enabled: true
-
-server:
-  port: 8010
-
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-
-#hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 600000
-#ribbon:
-#  ConnectTimeout: 3000
-#  ReadTimeout: 600000
-
-delivery:
-  zipFilePath: /tmp/delivery/
-  downloadPath: http://localhost:8765/catalog/v1/delivery/order/
-  email:
-    subject: Din bestilling
-    from: bestilling@nb.no
-    template: delivery.vm
-
-spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: delivery
-
----
-spring:
-    profiles: docker
-    data:
-      mongodb:
-        host: catalogDeliveryMongodb
-        port: 27017
-        database: delivery
-
 server:
   port: 8080
-
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    serviceUrl:
-      defaultZone: http://discovery:8761/eureka/
