@@ -4,4 +4,19 @@ info:
     description: Handles delivery of catalog items like books, audio and video.
 
 server:
-  port: 8080
+  port: 0
+
+delivery:
+  zipFilePath: /tmp/delivery/
+  downloadPath: http://localhost:8765/catalog/v1/delivery/order/
+  email:
+    subject: Din bestilling
+    from: bestilling@nb.no
+    template: delivery.vm
+
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: delivery
