@@ -3,20 +3,17 @@ spring:
     name: catalog-delivery-service
   cloud:
     config:
+      failFast: false
       discovery:
         enabled: true
-
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka
 
 ---
 
 spring:
   profiles: docker
+  cloud:
+    config:
+      failFast: true
 
 eureka:
   instance:
