@@ -4,10 +4,11 @@
            "href": "http://localhost/item/id1"
         }
     },
-   "metadata":{  
-      "title":  
-         {  
-            "title":"Title ID1"
-         }
+   "metadata":{
+     "titleInfos": [
+       {
+         "title": "Title ID1"
+       }
+     ]
    }
 }
