@@ -31,27 +31,27 @@
         <dependency>
             <groupId>no.nb.microservices.pdfgenerator</groupId>
             <artifactId>catalog-pdf-generator-service-model</artifactId>
-            <version>3.0.12-12</version>
+            <version>3.0.12-20</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.email</groupId>
             <artifactId>email-service-model</artifactId>
-            <version>0.0.1-8</version>
+            <version>0.0.2-28</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.catalogitem</groupId>
             <artifactId>catalog-item-service-model</artifactId>
-            <version>0.0.1-204</version>
+            <version>0.0.1-222</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices</groupId>
             <artifactId>catalog-metadata-model</artifactId>
-            <version>0.0.1-129</version>
+            <version>0.0.1-153</version>
         </dependency>
         <dependency>
             <groupId>no.nb.microservices.catalogsearchindex</groupId>
             <artifactId>catalog-search-index-model</artifactId>
-            <version>-50</version>
+            <version>0.0.1-98</version>
         </dependency>
 
         <!-- Utils -->
@@ -168,11 +168,11 @@
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.4.0</version>
+                <version>0.4.2</version>
                 <configuration>
                     <imageName>${docker.registry}/${docker.image.prefix}/${project.artifactId}</imageName>
                     <baseImage>java:8-jre</baseImage>
-                    <entryPoint>java $JAVA_OPTS $OTHER_OPTS -Dspring.profiles.active=docker -jar /${project.build.finalName}.jar</entryPoint>
+                    <entryPoint>java $JAVA_OPTS $OTHER_OPTS -jar /${project.build.finalName}.jar</entryPoint>
                     <imageTags>
                         <imageTag>${project.version}</imageTag>
                         <imageTag>latest</imageTag>
