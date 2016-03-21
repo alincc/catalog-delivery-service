@@ -13,6 +13,8 @@ import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import no.nb.metrics.annotation.EnableMetrics;
+
 @SpringBootApplication
 @EnableConfigurationProperties
 @EnableDiscoveryClient
@@ -22,6 +24,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAsync
 @RefreshScope
+@EnableMetrics
 @EnableHypermediaSupport(type= {HypermediaType.HAL})
 public class Application {
 

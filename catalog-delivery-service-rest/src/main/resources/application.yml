@@ -1,22 +1,35 @@
 info:
-  app:
-    name: catalog-delivery-service
-    description: Handles delivery of catalog items like books, audio and video.
+    app:
+        name: catalog-delivery-service
+        description: Handles delivery of catalog items like books, audio and video.
+    build:
+        artifact: ${project.artifactId}
+        name: ${project.name}
+        description: ${project.description}
+        version: ${project.version}
 
 server:
-  port: 8007
+    port: 8007
+
+zipkin:
+    collector-hostname: localhost
+    
+monitoring:
+    hostname: localhost
+    port: 2003
+    period: 1    
 
 delivery:
-  zipFilePath: /tmp/delivery/
-  downloadPath: http://localhost:8765/catalog/v1/delivery/order/
-  email:
-    subject: Din bestilling
-    from: bestilling@nb.no
-    template: delivery.vm
+    zipFilePath: /tmp/delivery/
+    downloadPath: http://localhost:8765/catalog/v1/delivery/order/
+    email:
+        subject: Din bestilling
+        from: bestilling@nb.no
+        template: delivery.vm
 
 spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: delivery
+    data:
+        mongodb:
+            host: localhost
+            port: 27017
+            database: delivery
